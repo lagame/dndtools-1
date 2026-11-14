@@ -2,8 +2,7 @@ from datetime import datetime, timedelta
 
 from django import forms
 from django.db.models import Q
-from django.db.models.sql.constants import QUERY_TERMS
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_filters2.fields import RangeField, LookupTypeField
 
@@ -14,7 +13,12 @@ __all__ = [
     'RangeFilter', 'DateRangeFilter', 'AllValuesFilter',
 ]
 
-LOOKUP_TYPES = sorted(QUERY_TERMS)
+LOOKUP_TYPES = [
+    'exact', 'iexact', 'contains', 'icontains', 'startswith', 'istartswith',
+    'endswith', 'iendswith', 'regex', 'iregex', 'gt', 'gte', 'lt', 'lte',
+    'in', 'range', 'isnull', 'year', 'month', 'day', 'week', 'week_day',
+    'quarter', 'time', 'hour', 'minute', 'second',
+]
 
 class Filter(object):
     creation_counter = 0
@@ -80,7 +84,7 @@ class CharFilter(Filter):
     field_class = forms.CharField
 
 class BooleanFilter(Filter):
-    field_class = forms.NullBooleanField
+    field_class = getattr(forms, 'NullBooleanField', forms.BooleanField)
 
     def filter(self, qs, value):
         if value is not None:
@@ -171,7 +175,7 @@ class DateRangeFilter(ChoiceFilter):
     }
 
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = [(key, value[0]) for key, value in self.options.iteritems()]
+        kwargs['choices'] = [(key, value[0]) for key, value in self.options.items()]
         super(DateRangeFilter, self).__init__(*args, **kwargs)
 
     def filter(self, qs, value):

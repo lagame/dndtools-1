@@ -7,48 +7,46 @@ Status
 ------
 This github repository is currently a clone of a private repository. It contains ONLY source codes of the application, not its data.
 
+The database is not uploaded to this repository. If you need a copy to run
+the project locally, please get in touch.
+
 Also, this readme file is just an early preview to be updated as soon as someone have the time.
 
 If you find anything wrong, just start an issue.
 
-Installation
-------------
-We will install the project in a virtual environment.
-Virtualenvs allow to easily isolate the project dependencies from your system install.
+Local setup (modernized)
+------------------------
+The original project targeted Python 2 and an old Django release. The local
+modernized setup runs on Python 3 with Django 5 and uses a pre-populated
+SQLite database when `dnd.sqlite` is available.
 
-The following instruction were tested on Linux, but should work on OSX and Windows as well.
-The only requirements are Python 2.7 and Virtualenv.
-
-To install DnDTools, run the following commands:
+On Windows PowerShell, from the repository root:
 
 ```sh
-# Clone the repository 
+# Clone the repository
 git clone https://github.com/dndtools/dndtools.git
 cd dndtools/
 
-# Create a Python Virtual environment in env/ and enables it
-virtualenv --python=python2.7 env
-source env/bin/activate
+# Create and use a Python 3 virtual environment
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-modern.txt
 
-# First we have to install an old version of django-reversion, which is not in PyPI
-pip install https://github.com/etianen/django-reversion/archive/release-1.3.3.zip
+# Put the SQLite data file at the repository root as dnd.sqlite.
+# Then apply only the framework migrations; the legacy content tables already
+# exist in the supplied database.
+.\.venv\Scripts\python.exe dndtools\manage.py migrate --noinput
 
-# Then install all the requirements from the PyPI
-pip install -r requirements.txt
-
-# Copy the default settings for development
-cd dndtools/
-cp dndproject/local.py.sample dndproject/local.py
-
-# Sync the database. You will be asked to create a user.
-# The "--all" means that even tables based on migrations will be synced.
-python manage.py syncdb --all
-
-# Marks all database migrations as done.
-python manage.py migrate --fake
-
-# Finally, run the development server.
-python manage.py runserver
-
-# Your own version of DnDTools is now available at http://127.0.0.1:8000
+# Run the local server
+.\.venv\Scripts\python.exe dndtools\manage.py runserver 127.0.0.1:8765
 ```
+
+The site is then available at <http://127.0.0.1:8765/>.
+
+The file `dndtools/dndproject/local.py` is intentionally local-only and is
+ignored by Git. Copy `dndtools/dndproject/local.py.sample` to that path when
+setting up a fresh checkout.
+
+Legacy installation
+-------------------
+The original Python 2/Django installation instructions are retained in the
+repository history. They are not the recommended path for a new local setup.

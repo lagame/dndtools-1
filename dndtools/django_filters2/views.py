@@ -23,7 +23,7 @@ def object_filter(request, model=None, queryset=None, template_name=None, extra_
         'filter': filterset,
     })
     if extra_context:
-        for k, v in extra_context.iteritems():
+        for k, v in extra_context.items():
             if callable(v):
                 v = v()
             c[k] = v

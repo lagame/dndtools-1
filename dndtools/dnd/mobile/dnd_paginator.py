@@ -18,4 +18,4 @@ class DndMobilePaginator(DndPaginator):
             'get_vars_solo': self.get_vars_solo(),
             'hidden_inputs': self.hidden_inputs,
         })
-        return template.render(context)
+        return template.render(context.flatten())

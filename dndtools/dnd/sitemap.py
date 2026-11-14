@@ -65,7 +65,7 @@ class SkillSitemap(Sitemap):
 class FeatSitemap(Sitemap):
     def items(self):
         return Feat.objects.select_related('rulebook',
-                                           'rulebook__edition').all()
+                                           'rulebook__dnd_edition').all()
 
 
 sitemaps = {

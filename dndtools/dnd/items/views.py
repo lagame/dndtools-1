@@ -56,7 +56,7 @@ def items_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_id': rulebook_id, })
 
     item_list = rulebook.item_set.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'school').all()
+        'rulebook', 'rulebook__dnd_edition').all()
 
     paginator = DndPaginator(item_list, request)
 
@@ -74,8 +74,8 @@ def items_in_rulebook(request, rulebook_slug, rulebook_id):
 @submenu_item(MenuItem.Items.MAGICAL)
 def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
     item = get_object_or_404(Item.objects.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'body_slot', 'aura', 'spellschool_set',
-        'activation', 'required_feats', 'required_spells', 'property', 'synergy_prerequisite',
+        'rulebook', 'rulebook__dnd_edition', 'body_slot', 'aura',
+        'activation', 'property', 'synergy_prerequisite',
     ), pk=item_id)
     assert isinstance(item, Item)
 

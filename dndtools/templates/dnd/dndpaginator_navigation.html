@@ -7,11 +7,11 @@
   {% endif %}
   {% for page in pages %}
     {% if page %}
-      {% ifequal page page_obj.number %}
+      {% if page == page_obj.number %}
           <span class="current page">{{ page }}</span>
       {% else %}
           <a href="{% if page > 1 %}?page={{ page }}{{ get_vars }}{% else %}{{ get_vars_solo }}{% endif %}" class="page">{{ page }}</a>
-      {% endifequal %}
+      {% endif %}
     {% else %}
       ...
     {% endif %}

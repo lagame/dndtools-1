@@ -33,8 +33,7 @@ def skill_list_mobile(request):
 def skill_detail_mobile(request, skill_slug, rulebook_slug=None,
                         rulebook_id=None):
     # fetch the class
-    skill = get_object_or_404(Skill.objects.select_related(
-        'skill_variant', 'skill_variant__rulebook'), slug=skill_slug)
+    skill = get_object_or_404(Skill.objects.all(), slug=skill_slug)
 
     # fetch primary variant, this is independent of rulebook selected
     try:

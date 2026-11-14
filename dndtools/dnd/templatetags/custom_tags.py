@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import urlparse
+from urllib import parse as urlparse
 from django import template
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe

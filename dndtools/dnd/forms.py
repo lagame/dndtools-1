@@ -3,18 +3,26 @@
 from django import forms
 from django.utils.safestring import mark_safe
 import dndproject.settings
-from recaptcha.client import captcha
+try:
+    from recaptcha.client import captcha
+except ImportError:
+    captcha = None
 
 
 
 class ReCaptcha(forms.Widget):
     input_type = None # Subclasses must define this.
 
-    def render(self, name, value, attrs=None):
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+    def render(self, name, value, attrs=None, renderer=None):
+        final_attrs = self.attrs.copy()
+        final_attrs.update(attrs or {})
+        final_attrs.update(type=self.input_type, name=name)
         html = u"<script>var RecaptchaOptions = {theme : '%s'};</script>" % (
             final_attrs.get('theme', 'white'))
-        html += captcha.displayhtml(dndproject.settings.RECAPTCHA_PUBLIC)
+        if captcha is not None and dndproject.settings.RECAPTCHA_PUBLIC:
+            html += captcha.displayhtml(dndproject.settings.RECAPTCHA_PUBLIC)
+        else:
+            html += u'<span>Captcha disabled for local development.</span>'
         return mark_safe(html)
 
     def value_from_datadict(self, data, files, name):
@@ -41,6 +49,8 @@ class ReCaptchaField(forms.FileField):
         }
 
     def clean(self, data, initial=None):
+        if captcha is None or not dndproject.settings.RECAPTCHA_PRIVATE:
+            return data
         if initial is None or initial == '':
             raise Exception(
                 "ReCaptchaField requires the client's IP be set to the initial value")

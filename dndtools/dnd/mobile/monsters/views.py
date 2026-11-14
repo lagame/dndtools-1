@@ -57,7 +57,7 @@ def monsters_in_rulebook_mobile(request, rulebook_slug, rulebook_id):
                                            'rulebook_id': rulebook_id, })
 
     monster_list = rulebook.monster_set.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'school').all()
+        'rulebook', 'rulebook__dnd_edition').all()
 
     paginator = DndMobilePaginator(monster_list, request)
 

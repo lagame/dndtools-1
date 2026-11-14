@@ -12,7 +12,7 @@ from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect
 @submenu_item(MenuItem.Bestiary.MONSTERS)
 def monster_index(request):
     f = MonsterFilter(request.GET, queryset=Monster.objects.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'school').distinct())
+        'rulebook', 'rulebook__dnd_edition').distinct())
 
     paginator = DndPaginator(f.qs, request)
 
@@ -54,7 +54,7 @@ def monsters_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_id': rulebook_id, })
 
     monster_list = rulebook.monster_set.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'school').all()
+        'rulebook', 'rulebook__dnd_edition').all()
 
     paginator = DndPaginator(monster_list, request)
 

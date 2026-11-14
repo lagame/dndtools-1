@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-import exceptions
 from django.template.context import Context
 from django.template.loader import get_template
 
@@ -22,7 +21,7 @@ class DndPaginator():
                 if ps in self.available_page_sizes:
                     self.page_size = ps
                     request.session['page_size'] = ps
-            except exceptions.ValueError:
+            except ValueError:
                 pass
 
         try:
@@ -75,7 +74,7 @@ class DndPaginator():
             'get_vars_solo': self.get_vars_solo(),
             'hidden_inputs': self.hidden_inputs,
             })
-        return template.render(context)
+        return template.render(context.flatten())
 
     def print_rel_prev_next(self):
         template = get_template('dnd/dndpaginator_rel_prev_next.html')
@@ -84,7 +83,7 @@ class DndPaginator():
             'get_vars': self.get_vars,
             'get_vars_solo': self.get_vars_solo(),
             })
-        return template.render(context)
+        return template.render(context.flatten())
 
     def items(self):
         return self.page.object_list

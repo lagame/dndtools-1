@@ -1,11 +1,10 @@
 from copy import deepcopy
+from collections import OrderedDict
 
 from django import forms
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models import Q
-from django.db.models.fields import FieldDoesNotExist
-from django.db.models.related import RelatedObject
-from django.utils.datastructures import SortedDict
 from django.utils.text import capfirst
 
 from django_filters2.filters import Filter, CharFilter, BooleanFilter, \
@@ -16,7 +15,7 @@ ORDER_BY_FIELD = 'o'
 
 def get_declared_filters(bases, attrs, with_base_filters=True):
     filters = []
-    for filter_name, obj in attrs.items():
+    for filter_name, obj in list(attrs.items()):
         if isinstance(obj, Filter):
             obj = attrs.pop(filter_name)
             if getattr(obj, 'name', None) is None:
@@ -27,41 +26,37 @@ def get_declared_filters(bases, attrs, with_base_filters=True):
     if with_base_filters:
         for base in bases[::-1]:
             if hasattr(base, 'base_filters'):
-                filters = base.base_filters.items() + filters
+                filters = list(base.base_filters.items()) + filters
     else:
         for base in bases[::-1]:
             if hasattr(base, 'declared_filters'):
-                filters = base.declared_filters.items() + filters
+                filters = list(base.declared_filters.items()) + filters
 
-    return SortedDict(filters)
+    return OrderedDict(filters)
 
 def get_model_field(model, f):
     parts = f.split('__')
     opts = model._meta
     for name in parts[:-1]:
         try:
-            rel = opts.get_field_by_name(name)[0]
+            rel = opts.get_field(name)
         except FieldDoesNotExist:
             return None
-        if isinstance(rel, RelatedObject):
-            model = rel.model
-            opts = rel.opts
-        else:
-            model = rel.rel.to
-            opts = model._meta
+        model = rel.related_model
+        if model is None:
+            return None
+        opts = model._meta
     try:
-        rel, model, direct, m2m = opts.get_field_by_name(parts[-1])
+        rel = opts.get_field(parts[-1])
     except FieldDoesNotExist:
         return None
-    if not direct:
-        return rel.field.rel.to_field
     return rel
 
 def filters_for_model(model, fields=None, exclude=None, filter_for_field=None):
-    field_dict = SortedDict()
+    field_dict = OrderedDict()
     opts = model._meta
     if fields is None:
-        fields = [f.name for f in sorted(opts.fields + opts.many_to_many)]
+        fields = [f.name for f in sorted(list(opts.fields) + list(opts.many_to_many), key=lambda f: f.name)]
     for f in fields:
         if exclude is not None and f in exclude:
             continue
@@ -134,21 +129,21 @@ FILTER_FOR_DBFIELD_DEFAULTS = {
     models.OneToOneField: {
         'filter_class': ModelChoiceFilter,
         'extra': lambda f: {
-            'queryset': f.rel.to._default_manager.complex_filter(f.rel.limit_choices_to),
-            'to_field_name': f.rel.field_name,
+            'queryset': f.remote_field.model._default_manager.complex_filter(f.remote_field.limit_choices_to),
+            'to_field_name': f.remote_field.field_name,
         }
     },
     models.ForeignKey: {
         'filter_class': ModelChoiceFilter,
         'extra': lambda f: {
-            'queryset': f.rel.to._default_manager.complex_filter(f.rel.limit_choices_to),
-            'to_field_name': f.rel.field_name
+            'queryset': f.remote_field.model._default_manager.complex_filter(f.remote_field.limit_choices_to),
+            'to_field_name': f.remote_field.field_name
         }
     },
     models.ManyToManyField: {
         'filter_class': ModelMultipleChoiceFilter,
         'extra': lambda f: {
-            'queryset': f.rel.to._default_manager.complex_filter(f.rel.limit_choices_to),
+            'queryset': f.remote_field.model._default_manager.complex_filter(f.remote_field.limit_choices_to),
         }
     },
     models.DecimalField: {
@@ -169,9 +164,6 @@ FILTER_FOR_DBFIELD_DEFAULTS = {
     models.FloatField: {
         'filter_class': NumberFilter,
     },
-    models.NullBooleanField: {
-        'filter_class': BooleanFilter,
-    },
     models.SlugField: {
         'filter_class': CharFilter,
     },
@@ -182,12 +174,6 @@ FILTER_FOR_DBFIELD_DEFAULTS = {
         'filter_class': CharFilter,
     },
     models.URLField: {
-        'filter_class': CharFilter,
-    },
-    models.IPAddressField: {
-        'filter_class': CharFilter,
-    },
-    models.CommaSeparatedIntegerField: {
         'filter_class': CharFilter,
     },
 }
@@ -218,7 +204,7 @@ class BaseFilterSet(object):
             qs = self.queryset.all()
             grouped_dict = {}
             grouped_list = []
-            for name, filter_ in self.filters.iteritems():
+            for name, filter_ in self.filters.items():
                 try:
                     if self.is_bound:
                         data = self.form[name].data
@@ -253,7 +239,7 @@ class BaseFilterSet(object):
     @property
     def form(self):
         if not hasattr(self, '_form'):
-            fields = SortedDict([(name, filter_.field) for name, filter_ in self.filters.iteritems()])
+            fields = OrderedDict([(name, filter_.field) for name, filter_ in self.filters.items()])
             fields[ORDER_BY_FIELD] = self.ordering_field
             Form =  type('%sForm' % self.__class__.__name__, (self._meta.form,), fields)
             if self.is_bound:
@@ -297,5 +283,5 @@ class BaseFilterSet(object):
         if filter_class is not None:
             return filter_class(**default)
 
-class FilterSet(BaseFilterSet):
-    __metaclass__ = FilterSetMetaclass
+class FilterSet(BaseFilterSet, metaclass=FilterSetMetaclass):
+    pass

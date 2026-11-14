@@ -35,7 +35,7 @@ def character_class_list_mobile(request):
 def character_class_detail_mobile(request, character_class_slug, rulebook_slug=None, rulebook_id=None):
     # fetch the class
     character_class = get_object_or_404(
-        CharacterClass.objects.select_related('character_class_variant', 'character_class_variant__rulebook'),
+        CharacterClass.objects.all(),
         slug=character_class_slug)
 
     assert isinstance(character_class, CharacterClass)

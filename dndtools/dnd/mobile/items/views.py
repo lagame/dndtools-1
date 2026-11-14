@@ -58,7 +58,7 @@ def items_in_rulebook_mobile(request, rulebook_slug, rulebook_id):
                                            'rulebook_id': rulebook_id, })
 
     item_list = rulebook.item_set.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'school').all()
+        'rulebook', 'rulebook__dnd_edition').all()
 
     paginator = DndMobilePaginator(item_list, request)
 
@@ -76,8 +76,8 @@ def items_in_rulebook_mobile(request, rulebook_slug, rulebook_id):
 @submenu_item("items")
 def item_detail_mobile(request, rulebook_slug, rulebook_id, item_slug, item_id):
     item = get_object_or_404(Item.objects.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'body_slot', 'aura', 'spellschool_set',
-        'activation', 'required_feats', 'required_spells', 'property', 'synergy_prerequisite',
+        'rulebook', 'rulebook__dnd_edition', 'body_slot', 'aura',
+        'activation', 'property', 'synergy_prerequisite',
     ), pk=item_id)
     assert isinstance(item, Item)
 
