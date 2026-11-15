@@ -3,3 +3,4 @@ Pillow>=11,<14
 textile>=4,<5
 mysqlclient>=2.3,<3
 gunicorn>=23,<25
+django-axes==9.0.0

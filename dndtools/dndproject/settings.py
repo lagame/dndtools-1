@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from datetime import timedelta
 from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = os.environ.get('DND_DEBUG') == '1'
@@ -27,6 +28,7 @@ MIDDLEWARE = (
     'dnd.cache.HtmlCachePolicyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 )
 
 ROOT_URLCONF = 'dndproject.urls'
@@ -39,9 +41,40 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'axes',
     'dnd',
     'django.contrib.sitemaps',
 )
+
+AUTHENTICATION_BACKENDS = (
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+AUTH_PASSWORD_VALIDATORS = (
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+     'OPTIONS': {'min_length': 14}},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+)
+
+# Shared MySQL-backed lockout across Gunicorn workers. A proxy IP can be shared
+# by all visitors, so never lock the whole catalog by REMOTE_ADDR.
+AXES_ONLY_ADMIN_SITE = True
+AXES_LOCKOUT_PARAMETERS = ['username']
+AXES_CLIENT_IP_CALLABLE = lambda request: None
+# Axes warns about username-only limits. Here they avoid locking every visitor
+# behind the same tunnel IP; cross-client and rotating-agent lockout is tested.
+SILENCED_SYSTEM_CHECKS = ['axes.W006']
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+AXES_USE_ATTEMPT_EXPIRATION = True
+AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT = False
+AXES_NEVER_LOCKOUT_GET = True
+AXES_ENABLE_RETRY_AFTER_HEADER = True
+AXES_DISABLE_ACCESS_LOG = True
+AXES_VERBOSE = False
+AXES_LOCKOUT_TEMPLATE = 'admin/locked_out.html'
 
 SERVER_EMAIL = 'ronassic@gmail.com'
 USE_TZ = False

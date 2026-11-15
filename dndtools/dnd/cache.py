@@ -7,6 +7,8 @@ class HtmlCachePolicyMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if response.get('Content-Type', '').startswith('text/html') and 'Cache-Control' not in response:
+        if request.path.startswith('/admin/'):
+            response['Cache-Control'] = 'no-store'
+        elif response.get('Content-Type', '').startswith('text/html') and 'Cache-Control' not in response:
             response['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
         return response

@@ -6,8 +6,11 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from PIL import Image
+from axes.models import AccessAttempt
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.test.utils import override_settings
@@ -20,6 +23,44 @@ from dnd.models import (
 )
 from dnd.templatetags.versioned_static import versioned_static
 from dndproject import settings as project_settings
+
+
+class AdminSecurityTests(TestCase):
+    def test_login_is_branded_uncached_and_requires_csrf(self):
+        login = reverse('admin:login')
+        client = Client(enforce_csrf_checks=True)
+        page = client.get(login)
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'Catalog administration')
+        self.assertContains(page, 'css/admin-login.css?v=')
+        self.assertEqual(page['Cache-Control'], 'no-store')
+        self.assertEqual(client.post(login, {'username': 'someone', 'password': 'wrong'}).status_code, 403)
+
+    def test_five_failures_lock_username_across_clients(self):
+        login = reverse('admin:login')
+        User.objects.create_superuser(username='editor', email='editor@example.test', password='Long-test-password-123')
+        first = Client()
+        for attempt in range(4):
+            response = first.post(login, {'username': 'editor', 'password': 'wrong'}, HTTP_USER_AGENT='agent-%d' % attempt)
+            self.assertEqual(response.status_code, 200)
+        fifth = Client().post(login, {'username': 'editor', 'password': 'wrong'}, HTTP_USER_AGENT='another-agent')
+        self.assertEqual(fifth.status_code, 429)
+        self.assertContains(fifth, 'Too many login attempts', status_code=429)
+        self.assertEqual(fifth['Cache-Control'], 'no-store')
+        self.assertTrue(AccessAttempt.objects.filter(username='editor').exists())
+        self.assertFalse(AccessAttempt.objects.filter(username='editor').exclude(ip_address__isnull=True).exists())
+        self.assertFalse(AccessAttempt.objects.filter(username='editor', post_data__contains='wrong').exists())
+        self.assertEqual(Client().post(login, {'username': 'editor', 'password': 'Long-test-password-123'}).status_code, 429)
+        self.assertEqual(Client().get(login).status_code, 200)
+        User.objects.create_superuser(username='another-editor', email='another@example.test', password='Long-test-password-456')
+        self.assertEqual(Client().post(login, {'username': 'another-editor', 'password': 'Long-test-password-456'}).status_code, 302)
+
+    def test_valid_admin_login_and_password_policy(self):
+        User.objects.create_superuser(username='editor', email='editor@example.test', password='Long-test-password-123')
+        self.assertEqual(self.client.post(reverse('admin:login'), {'username': 'editor', 'password': 'Long-test-password-123'}).status_code, 302)
+        self.assertEqual(self.client.get(reverse('admin:index')).status_code, 200)
+        with self.assertRaises(ValidationError):
+            validate_password('short')
 
 
 class CatalogSmokeTests(TestCase):

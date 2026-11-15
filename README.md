@@ -34,7 +34,13 @@ The import reads the SQLite file without modifying it, requires an empty MySQL c
 docker compose up -d app
 ```
 
-Open <http://127.0.0.1:8765/>. For editorial access, create a local admin with `docker compose run --rm app python manage.py createsuperuser`. The generated `.env`, original SQLite, MySQL volume, uploads and backups stay private and out of Git.
+Open <http://127.0.0.1:8765/>. For editorial access, create your own administrator after starting the app:
+
+```powershell
+docker compose exec app python manage.py createsuperuser
+```
+
+Enter the username, email and a unique password of at least 14 characters at the private terminal prompt, then open <http://127.0.0.1:8765/admin/login/>. No default administrator exists. The generated `.env`, original SQLite, MySQL volume, uploads and backups stay private and out of Git.
 
 ## Configuração local em português (Windows)
 
@@ -63,9 +69,23 @@ docker compose up -d app
 
 Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido. Se o banco já contém registros, o importador recusa uma segunda carga.
 
+Para entrar na administração, crie sua própria conta local após iniciar o aplicativo:
+
+```powershell
+docker compose exec app python manage.py createsuperuser
+```
+
+Informe usuário, e-mail e uma senha exclusiva de pelo menos 14 caracteres no terminal. Depois abra <http://127.0.0.1:8765/admin/login/>. O projeto não fornece login ou senha padrão. Se você bloquear a própria conta após cinco tentativas erradas, espere 15 minutos; quem tem acesso ao servidor pode usar `docker compose exec app python manage.py axes_reset_username NOME_DO_USUARIO` para liberar apenas essa conta. A proteção usa o MySQL compartilhado pelos processos da aplicação.
+
 A fonte Inter é servida pelo próprio projeto e sua licença OFL está em `dndtools/static/fonts/LICENSE-Inter.txt`. Após publicar esta branch, a página `/privacy/?lang=pt` informará os dados técnicos tratados, o contato do responsável e a duração do armazenamento no navegador.
 
 O seletor **Theme** no cabeçalho oferece três visuais responsivos: **Standard** (roxo, inspirado no HeroForge), **Modern** (azul e dourado do projeto) e **Simple** (branco, preto e links azuis). A escolha fica apenas no `localStorage` deste navegador, sem conta ou cookie adicional, e permanece depois que você o fecha. No Simple, as próximas páginas não pedem o CSS roxo, a fonte Inter, o favicon nem as imagens de capa e raça; estas são substituídas por texto. A página HTML, os estilos básicos e os scripts necessários à navegação e busca continuam carregando. O atalho **Admin login**, fixo perto da borda inferior, abre a administração do Django; o acesso continua protegido por autenticação.
+
+### Administração em produção
+
+Antes de disponibilizar o novo admin publicamente, crie no Cloudflare Zero Trust uma aplicação **Access → Self-hosted** para cada hostname usado (`dndtools.quest` e `www.dndtools.quest`), cobrindo **`/admin` e `/admin/*`**. Configure uma política **Allow** apenas para a identidade do administrador, com autenticação adicional na conta do provedor de identidade. Confira em uma janela anônima que um visitante sem permissão não vê o login do Django, que uma pessoa autorizada consegue acessá-lo e que o restante do catálogo continua público. [As regras de caminho do Access](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/app-paths/) distinguem o caminho base dos subcaminhos; por isso, confira ambos. O Access e a proteção de cinco tentativas no Django se complementam: o bloqueio por usuário também pode ser provocado por um atacante que saiba o nome da conta. **A configuração do Access ainda não foi feita nem verificada neste fork; não trate o admin público como protegido por essa segunda camada até concluir essa etapa.**
+
+Depois de publicar uma versão revisada, crie a conta na própria base de produção pelo terminal privado do VPS com `docker compose exec app python manage.py createsuperuser`. Não coloque usuário, senha, `.env`, banco ou backup no repositório ou nas Issues. Contas existentes com senhas antigas não são alteradas automaticamente; troque essas senhas pela administração assim que houver acesso.
 
 ### Cache e atualização do visual
 
