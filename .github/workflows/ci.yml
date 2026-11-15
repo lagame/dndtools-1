@@ -17,7 +17,10 @@ jobs:
       - name: Prepare test database
         run: python scripts/prepare_test_db.py
       - name: Build app
-        run: docker compose build app
+        run: |
+          # Exercise non-root startup with a private checkout's source permissions.
+          chmod -R go-rwx dndtools
+          docker compose build app
       - name: Migrate application database
         run: docker compose run --rm app python manage.py migrate --noinput
       - name: Django tests
