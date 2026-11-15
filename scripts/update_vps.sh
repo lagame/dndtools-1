@@ -19,6 +19,8 @@ backup_file="$(python3 scripts/backup_mysql.py --output-dir /var/backups/dndtool
 test -f "$backup_file"
 python3 scripts/verify_mysql_backup.py "$backup_file"
 
+# Backups stay private; checked-out public source must be readable by the app user.
+umask 022
 git switch --detach --quiet "$target_sha"
 compose=(docker compose -f compose.yaml -f compose.tunnel.yaml)
 "${compose[@]}" config --quiet
