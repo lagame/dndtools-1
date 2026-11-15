@@ -7,6 +7,8 @@
   <title>{% block title %}Home{% endblock %} | D&amp;D Tools</title>
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+  <link rel="stylesheet" href="{% static 'css/identity.css' %}">
+  <link rel="stylesheet" href="{% static 'css/privacy.css' %}">
   {% block extra_meta %}{% endblock %}
   {% block extra_link %}{% endblock %}
 </head>
@@ -57,9 +59,26 @@
 
   <footer class="site-footer" id="footer">
     <div><strong>D&amp;D Tools</strong><p>A community maintained reference for tabletop adventurers.</p></div>
-    <nav aria-label="Footer"><a href="{% url 'contact' %}">Contact</a><a href="https://github.com/lagame/dndtools-1">Source and setup</a></nav>
+    <nav aria-label="Footer"><a href="{% url 'contact' %}">Contact</a><a href="{% url 'privacy' %}?lang={{ privacy_language }}">{% if privacy_language == 'pt' %}Privacidade e cookies{% else %}Privacy and cookies{% endif %}</a><a href="https://github.com/lagame/dndtools-1">Source and setup</a></nav>
   </footer>
+  <section class="privacy-notice" id="privacy-notice" lang="{% if privacy_language == 'pt' %}pt-BR{% else %}en{% endif %}" aria-labelledby="privacy-notice-heading">
+    <div class="privacy-notice-inner">
+      <span class="privacy-notice-icon" aria-hidden="true">D20</span>
+      <div class="privacy-notice-copy">
+        <h2 id="privacy-notice-heading">{% if privacy_language == 'pt' %}Sua privacidade{% else %}Your privacy{% endif %}</h2>
+        {% if privacy_language == 'pt' %}
+          <p>Usamos cookies para segurança e acesso administrativo. Se você dispensar este aviso, guardaremos essa escolha no navegador por até 180 dias. Não usamos cookies de publicidade ou análise de audiência.</p>
+          <a href="{% url 'privacy' %}?lang=pt">Como tratamos seus dados</a>
+        {% else %}
+          <p>We use cookies for security and admin access. If you dismiss this notice, we will remember that choice in your browser for up to 180 days. We do not use advertising or analytics cookies.</p>
+          <a href="{% url 'privacy' %}?lang=en">How we handle your data</a>
+        {% endif %}
+      </div>
+      <button class="privacy-notice-dismiss" id="privacy-notice-dismiss" type="button">{% if privacy_language == 'pt' %}Entendi{% else %}Got it{% endif %}</button>
+    </div>
+  </section>
   <script defer src="{% static 'js/navigation.js' %}"></script>
   <script defer src="{% static 'js/search_suggest.js' %}"></script>
+  <script defer src="{% static 'js/privacy_notice.js' %}"></script>
 </body>
 </html>

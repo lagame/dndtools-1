@@ -1,4 +1,5 @@
 from io import BytesIO
+from datetime import date
 from tempfile import TemporaryDirectory
 
 from PIL import Image
@@ -10,7 +11,7 @@ from django.urls import reverse
 
 from dnd.models import (
     CharacterClass, DndEdition, Domain, Feat, FeatCategory, Race, RaceSize,
-    RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool, StaticPage,
+    NewsEntry, RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool, StaticPage,
     TextFeatPrerequisite,
 )
 
@@ -71,6 +72,29 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(self.client.get(reverse('contact')), 'Open a project issue')
         self.assertEqual(self.client.post(reverse('contact')).status_code, 405)
         self.assertEqual(self.client.post(reverse('inaccurate_content')).status_code, 405)
+
+    def test_privacy_notice_and_legacy_news_cookie(self):
+        NewsEntry.objects.create(published=date(2026, 11, 15), title='Catalog update', body='Updated catalog.')
+        home = self.client.get('/', HTTP_ACCEPT_LANGUAGE='pt-BR,pt;q=0.9')
+        self.assertContains(home, 'Sua privacidade')
+        self.assertContains(home, reverse('privacy'))
+        self.assertNotIn('top_news', home.cookies)
+        self.assertNotIn('sessionid', home.cookies)
+
+        for name in ('top_news', 'disable_social', 'force_desktop'):
+            self.client.cookies[name] = '1'
+        response = self.client.get('/spells/')
+        for name in ('top_news', 'disable_social', 'force_desktop'):
+            self.assertEqual(int(response.cookies[name]['max-age']), 0)
+        self.assertContains(self.client.get('/', HTTP_ACCEPT_LANGUAGE='en-US'), 'Your privacy')
+        policy = self.client.get(reverse('privacy'))
+        self.assertContains(policy, 'ronassic@gmail.com')
+        self.assertContains(policy, 'dnd_privacy_notice_v1')
+        self.assertContains(policy, 'Privacy at D&amp;D Tools')
+        self.assertNotContains(policy, 'Privacidade no D&amp;D Tools')
+        portuguese_policy = self.client.get(reverse('privacy'), {'lang': 'pt'})
+        self.assertContains(portuguese_policy, 'Privacidade no D&amp;D Tools')
+        self.assertNotContains(portuguese_policy, 'Privacy at D&amp;D Tools')
 
     def test_staff_page_shows_current_maintainer_without_legacy_staff(self):
         response = self.client.get(reverse('staff'))

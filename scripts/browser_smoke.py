@@ -38,6 +38,21 @@ def main():
             for width in (360, 390, 768, 1440):
                 page = browser.new_page(viewport={'width': width, 'height': 750})
                 assert visit(page, '/').status == 200
+                notice = page.locator('#privacy-notice')
+                expect(notice).to_be_visible()
+                assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
+                if width in (390, 1440):
+                    screenshot(page, f'privacy-notice-{width}.png')
+                notice.get_by_role('button', name='Got it').click()
+                expect(notice).to_be_hidden()
+                assert visit(page, '/').status == 200
+                expect(notice).to_be_hidden()
+                if width == 390:
+                    page.evaluate("localStorage.setItem('dnd_privacy_notice_v1', String(Date.now() - 181 * 86400000))")
+                    assert visit(page, '/').status == 200
+                    expect(notice).to_be_visible()
+                    assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
+                    notice.get_by_role('button', name='Got it').click()
                 toggle = page.get_by_role('button', name='Toggle catalog menu')
                 sidebar = page.locator('#catalog-sidebar')
                 assert page.get_by_role('combobox', name='Search the catalog').count() == 1
@@ -75,12 +90,29 @@ def main():
                 screenshot(page, f'spells-{width}.png')
                 assert visit(page, '/contacts/').status == 200
                 assert page.get_by_text('Open a project issue').count() >= 1
+                if width in (390, 1440):
+                    assert visit(page, '/privacy/').status == 200
+                    expect(page.get_by_role('heading', name='Privacy at D&D Tools')).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if width == 390:
+                        assert page.locator('.privacy-policy table').evaluate('(el) => el.scrollWidth <= el.clientWidth')
+                    screenshot(page, f'privacy-policy-{width}.png')
+                    page.get_by_role('link', name='Português (Brasil)').click()
+                    expect(page.get_by_role('heading', name='Privacidade no D&D Tools')).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if width == 390:
+                        assert page.locator('.privacy-policy table').evaluate('(el) => el.scrollWidth <= el.clientWidth')
+                        screenshot(page, 'privacy-policy-pt-390.png')
                 if DETAIL and width in (390, 1440):
                     assert visit(page, DETAIL).status == 200
                     screenshot(page, f'detail-{width}.png')
                     assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
                     screenshot(page, f'filters-{width}.png')
                 page.close()
+            portuguese = browser.new_page(locale='pt-BR')
+            assert visit(portuguese, '/').status == 200
+            expect(portuguese.get_by_role('heading', name='Sua privacidade')).to_be_visible()
+            portuguese.close()
             page = browser.new_page()
             visit(page, '/m/spells/by-rulebooks/')
             assert page.url.rstrip('/') == BASE + '/spells/by-rulebooks'

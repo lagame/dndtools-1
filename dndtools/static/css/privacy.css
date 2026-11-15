@@ -1,0 +1,71 @@
+.privacy-notice {
+  position: fixed;
+  z-index: 100;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #fef7ff;
+  border-top: 1px solid #e8dff0;
+  box-shadow: 0 -12px 36px #251d351c;
+  color: #1c1b1f;
+}
+
+.privacy-notice[hidden] { display: none; }
+.privacy-notice-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: auto;
+  padding: 1.25rem 1.5rem;
+}
+.privacy-notice-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: .7rem;
+  background: linear-gradient(135deg, #6750a4, #9a82db);
+  color: white;
+  font: 800 .7rem/1 system-ui, sans-serif;
+}
+.privacy-notice-copy { flex: 1; min-width: 0; }
+.privacy-notice h2 {
+  margin: 0 0 .2rem;
+  color: #1c1b1f;
+  font: 700 1rem/1.35 Inter, system-ui, sans-serif;
+}
+.privacy-notice p { max-width: 64ch; margin: 0 0 .3rem; line-height: 1.5; }
+.privacy-notice a { color: #53389e; font-weight: 600; }
+.privacy-notice-dismiss {
+  flex: none;
+  min-height: 44px;
+  padding: .55rem 1.3rem;
+  border: 1px solid #6750a4;
+  border-radius: 999px;
+  background: #6750a4;
+  color: white;
+  font-weight: 700;
+}
+.privacy-notice-dismiss:hover { background: #53389e; }
+.privacy-notice-dismiss:focus-visible { outline: 3px solid #9a82db; outline-offset: 3px; }
+.privacy-policy { max-width: 75ch; }
+.privacy-policy nav { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0 2rem; }
+.privacy-policy nav a[aria-current="page"] { font-weight: 700; text-decoration-thickness: 2px; text-underline-offset: .3em; }
+.privacy-policy section { scroll-margin-top: 6rem; }
+.privacy-policy table { display: block; overflow-x: auto; }
+.privacy-policy th, .privacy-policy td { min-width: 8rem; }
+.privacy-policy td small { display: block; color: #625b71; }
+
+@media (max-width: 650px) {
+  .privacy-notice-inner { flex-wrap: wrap; padding: 1rem; gap: .7rem; }
+  .privacy-notice-copy { flex-basis: calc(100% - 3.2rem); }
+  .privacy-notice-dismiss { margin-left: 3.2rem; }
+  .privacy-policy table, .privacy-policy tbody, .privacy-policy tr, .privacy-policy td { display: block; }
+  .privacy-policy table { overflow: visible; }
+  .privacy-policy thead { display: none; }
+  .privacy-policy tr { padding: .6rem 0; border-bottom: 1px solid #e8dff0; }
+  .privacy-policy td { display: grid; grid-template-columns: minmax(0, 6rem) minmax(0, 1fr); gap: .5rem; min-width: 0; padding: .3rem 0; border: 0; overflow-wrap: anywhere; }
+  .privacy-policy td::before { content: attr(data-label); color: #625b71; font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+}

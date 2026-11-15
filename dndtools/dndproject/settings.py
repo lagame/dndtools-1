@@ -5,7 +5,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = os.environ.get('DND_DEBUG') == '1'
 
 ADMINS = (
-    ('DnDtools', 'dndtools.eu@gmail.com'),
+    ('Ronassic', 'ronassic@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -20,6 +20,7 @@ ADMIN_MEDIA_PREFIX = '/media/'
 MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'dnd.privacy.LegacyCookieCleanupMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -41,7 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
 )
 
-SERVER_EMAIL = 'error@dndtools.eu'
+SERVER_EMAIL = 'ronassic@gmail.com'
 USE_TZ = False
 
 # LOCAL PY
@@ -64,8 +65,7 @@ TEMPLATES = (
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
-                'dnd.context_processors.unread_news',
-                'dnd.context_processors.disable_social',
+                'dnd.context_processors.privacy_language',
                 'dnd.context_processors.is_mobile',
                 'dnd.context_processors.is_admin',
                 'dnd.context_processors.menu_constants',

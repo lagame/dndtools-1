@@ -2,6 +2,8 @@
 
 A community fork of the original D&D Tools catalog, modernized for Python 3.14, Django 5.2 and MySQL 8.4. The public pages keep the original catalog URLs and now use a responsive layout and first-party search. The source code is MIT licensed; rights to individual book content must be assessed separately.
 
+The site is available at [dndtools.quest](https://dndtools.quest/). The redesign in this branch uses the HeroForge visual family with a self-hosted Inter font. Once released, `/privacy/` will explain the site's technical cookies, the browser preference used to dismiss the notice, and how to contact the maintainer. No optional advertising or analytics cookies are active, so the notice is informational; adding such services requires a real choice before they run.
+
 **The database is not in this repository.** To request the private SQLite snapshot, [open an issue](https://github.com/lagame/dndtools-1/issues). We will arrange a private transfer. Never attach the database, a dump, or source scans to an issue or commit.
 
 ## Local setup (Windows PowerShell)
@@ -61,6 +63,8 @@ docker compose up -d app
 
 Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido. Se o banco já contém registros, o importador recusa uma segunda carga.
 
+A fonte Inter é servida pelo próprio projeto e sua licença OFL está em `dndtools/static/fonts/LICENSE-Inter.txt`. Após publicar esta branch, a página `/privacy/?lang=pt` informará os dados técnicos tratados, o contato do responsável e a duração do armazenamento no navegador.
+
 Para conferir o código após alterações:
 
 ```powershell
@@ -112,3 +116,5 @@ On Linux use `python3` and a private backup directory such as `/var/backups/dndt
 See [modernization status](docs/modernization-status.md) for the verified baseline and remaining activation gates.
 
 The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) identify catalog images still missing from the private media volume. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the latest local checks and remaining limits.
+
+The [identity and privacy QA report](docs/identity-privacy-qa-2026-11-15.md) records the visual checks, browser storage behavior and legal details still to confirm before publishing that branch.
