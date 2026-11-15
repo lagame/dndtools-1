@@ -6,11 +6,13 @@
 - Added eight destinations: the current admin base path and its subpaths, plus the configured replacement base path and its subpaths, on both public hostnames. Public catalog paths are outside this application.
 - Associated an Allow policy for the maintainer's exact email address. No Everyone or Bypass rule was added.
 - Set the application session to one hour. Enabled the authenticator-app MFA capability and required it specifically for this application, with a one-hour verification duration. Global MFA enforcement and account-wide traffic blocking remain disabled.
+- Enabled the App Launcher with a separate exact-email Allow policy so the owner can enroll the first authenticator. This enrollment portal does not waive the admin application's MFA requirement.
 - Added `DJANGO_ADMIN_URL` only to the private VPS environment file after backing up that file. Its permissions are `0600`. No application restart or deployment was performed. The private path value, account identifiers and credentials are intentionally absent from this report.
 
 ## Verified
 
 - Reopened the saved application and confirmed the destinations and the persisted authenticator-app MFA requirement.
+- After enabling the App Launcher, the owner's existing browser session reached the authenticated MFA enrollment screen. Completing enrollment and testing the protected admin are still pending owner action.
 - In a fresh browser context, both public home pages returned HTTP 200 and the catalog title.
 - On both hostnames, the old and replacement admin base paths and login subpaths redirected to the Cloudflare Access sign-in page. The configured identity provider is Cloudflare.
 - The existing HeroForge, Bianca portfolio and Cursai home pages each returned HTTP 200 after the Access configuration.
