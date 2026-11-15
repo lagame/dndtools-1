@@ -57,7 +57,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   color: #53389e;
   background: white;
 }
-.navigation-toggle .navigation-toggle-label { font-size: .82rem; font-weight: 700; }
 .navigation-toggle:hover { background: #f2ebf9; }
 .header-search { border-color: #d7cae9; border-radius: 999px; box-shadow: 0 2px 10px #6750a40a; }
 #site-search { border: 0; border-radius: 999px 0 0 999px; }
