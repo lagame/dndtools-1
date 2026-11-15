@@ -16,6 +16,9 @@
 - MySQL retained 4,918 spells and the owner's active administrator account. The application ran as UID 10001 and could write its static/media volumes. Production environment permissions remained `0600`.
 - HeroForge, the Bianca portfolio and Cursai each returned HTTP 200 after deployment. All five unrelated Docker container identities matched the pre-deploy snapshot; Nginx configuration validation passed.
 - Both pre-merge CI checks passed, including 26 Django tests, migration drift, deployment checks and browser smoke. A separate restrictive-context Docker test verified that UID 10001 could read all 378 source/static files.
+- The subsequent admin workspace release PR #3 passed both CI runs and deployed as `192d824df34994dc4100d54353b147d9bb62f1e8`. Its verified MySQL backup restore preserved 58 catalog tables and 4,918 spells.
+- The admin workspace stylesheet, dashboard and direct catalog links are live. The new admin login route returns HTTP 200 with `no-store` at the origin, while the old `/admin/login/` path returns 404. Cloudflare Access redirects remain active on both hosts.
+- The Menu label computes to 13.12 px, matching Theme, in all three public themes. Both public hosts and the five unrelated Docker containers passed their post-release checks.
 
 ## Scope and follow-up
 
