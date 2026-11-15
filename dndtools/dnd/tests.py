@@ -18,8 +18,9 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from dnd.models import (
-    CharacterClass, DndEdition, Domain, Feat, FeatCategory, Race, RaceSize,
-    NewsEntry, RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool, StaticPage,
+    CharacterClass, CharacterClassVariant, DndEdition, Domain, DomainVariant, Feat, FeatCategory,
+    Item, ItemActivationType, ItemAuraType, ItemSlot, MonsterSubtype, MonsterType, Race, RaceSize,
+    NewsEntry, RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDescriptor, SpellDomainLevel, SpellSchool, StaticPage,
     TextFeatPrerequisite,
 )
 from dnd.templatetags.versioned_static import versioned_static
@@ -132,6 +133,54 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(search, self.spell.get_absolute_url())
         self.assertContains(search, 'Arcane Ember')
         self.assertContains(self.client.get(reverse('search'), {'q': 'no match'}), 'No matches')
+
+    def test_admin_lists_filters_and_choices_show_catalog_names(self):
+        descriptor = SpellDescriptor.objects.create(name='Fire', slug='fire')
+        size = RaceSize.objects.create(name='Large', order=2)
+        monster_type = MonsterType.objects.create(name='Magical Beast', slug='magical-beast')
+        subtype = MonsterSubtype.objects.create(name='Extraplanar', slug='extraplanar')
+        wizard = CharacterClass.objects.create(name='Wizard', slug='wizard', prestige=False)
+        variant = CharacterClassVariant.objects.create(character_class=wizard, rulebook=self.spell.rulebook)
+        domain = Domain.objects.create(name='Fire', slug='fire')
+        domain_variant = DomainVariant.objects.create(domain=domain, rulebook=self.spell.rulebook)
+        self.assertEqual(str(variant), 'Wizard variant (Test Handbook)')
+        self.assertEqual(str(domain_variant), 'Fire variant (Test Handbook)')
+        editor = User.objects.create_superuser('editor', 'editor@example.test', 'Long-test-password-123')
+        self.client.force_login(editor)
+        choices = (
+            ('admin:dnd_monster_add', (self.spell.rulebook, size, monster_type, subtype)),
+            ('admin:dnd_spell_add', (descriptor, self.spell.rulebook, self.spell.school)),
+        )
+        for view, objects in choices:
+            response = self.client.get(reverse(view))
+            self.assertEqual(response.status_code, 200)
+            for obj in objects:
+                with self.subTest(view=view, model=type(obj).__name__):
+                    self.assertContains(response, '<option value="%s">%s</option>' % (obj.pk, obj.name), html=True)
+            self.assertNotRegex(response.content.decode(), r'\b[A-Z]\w* object \(')
+        response = self.client.get(reverse('admin:dnd_characterclassvariant_changelist'))
+        self.assertContains(response, 'Wizard')
+        self.assertContains(response, 'Test Handbook')
+        self.assertNotRegex(response.content.decode(), r'\b[A-Z]\w* object \(')
+
+    def test_public_item_relations_show_names_instead_of_object_ids(self):
+        slot = ItemSlot.objects.create(name='Shield', slug='shield')
+        aura = ItemAuraType.objects.create(name='Moderate', slug='moderate')
+        activation = ItemActivationType.objects.create(name='Command word', slug='command-word')
+        feat = Feat.objects.create(rulebook=self.spell.rulebook, name='Craft Magic Arms and Armor',
+                                   slug='craft-arms', description='Craft items.', benefit='Create equipment.')
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Absorbing Shield',
+                                   slug='absorbing-shield', type=Item.ItemType.MAGIC,
+                                   body_slot=slot, aura=aura, activation=activation,
+                                   caster_level=7, price_gp=10000, description='A silver shield.')
+        item.aura_schools.add(self.spell.school)
+        item.required_feats.add(feat)
+        item.required_spells.add(self.spell)
+        response = self.client.get(item.get_absolute_url())
+        for name in ('Absorbing Shield', 'Shield', 'Moderate', 'Command word',
+                     'Evocation', 'Craft Magic Arms and Armor', 'Arcane Ember'):
+            self.assertContains(response, name)
+        self.assertNotRegex(response.content.decode(), r'\b[A-Z]\w* object \(')
 
     def test_legacy_html_is_sanitized_at_render_time(self):
         fragment = ('<table><tr><td style="text-align:center; background-image:url(javascript:alert(5))"><strong>Arcane</strong> '

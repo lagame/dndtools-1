@@ -25,7 +25,7 @@ class DndEdition(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -91,7 +91,7 @@ class Rulebook(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -146,7 +146,7 @@ class CharacterClass(models.Model):
         update_html_cache_attributes(self, 'short_description')
         super(CharacterClass, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -242,7 +242,7 @@ class CharacterClassVariant(models.Model):
         update_html_cache_attributes(self, 'requirements', 'advancement', 'class_features')
         super(CharacterClassVariant, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s variant (%s)" % (self.character_class.name, self.rulebook.name)
 
     @models.permalink
@@ -388,7 +388,7 @@ class Deity(models.Model):
         ordering = ['name', ]
         verbose_name_plural = 'deities'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
@@ -427,7 +427,7 @@ class Domain(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -500,6 +500,9 @@ class DomainVariant(models.Model):
         help_text='Something like "Su" for supernaturals etc. Leave blank if nothing is in the book.'
     )
 
+    def __str__(self):
+        return "%s variant (%s)" % (self.domain.name, self.rulebook.name)
+
     def save(self, *args, **kwargs):
         update_html_cache_attributes(self, 'granted_power')
         super(DomainVariant, self).save(*args, **kwargs)
@@ -541,7 +544,7 @@ class SpellDescriptor(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -576,7 +579,7 @@ class SpellSchool(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -611,7 +614,7 @@ class SpellSubSchool(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -768,7 +771,7 @@ class Spell(models.Model):
         update_html_cache_attributes(self, 'description')
         super(Spell, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -846,7 +849,7 @@ class FeatCategory(models.Model):
         ordering = ['name', ]
         verbose_name_plural = 'feat categories'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -893,7 +896,7 @@ class Skill(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1008,7 +1011,7 @@ class SkillVariant(models.Model):
                                      'try_again', 'special', 'synergy', 'restriction', 'untrained')
         super(SkillVariant, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s variant (%s)" % (self.skill.name, self.rulebook.name)
 
     @models.permalink
@@ -1046,7 +1049,7 @@ class SpecialFeatPrerequisite(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -1116,7 +1119,7 @@ class Feat(models.Model):
         update_html_cache_attributes(self, 'description', 'benefit', 'special', 'normal')
         super(Feat, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1155,7 +1158,7 @@ class TextFeatPrerequisite(models.Model):
     class Meta:
         ordering = ['text']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
 
@@ -1185,7 +1188,7 @@ class FeatSpecialFeatPrerequisite(models.Model):
         except TypeError:
             return self.special_feat_prerequisite.print_format
 
-    def __unicode__(self):
+    def __str__(self):
         return self.format_value()
 
 
@@ -1245,7 +1248,7 @@ class Language(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1280,7 +1283,7 @@ class RaceSize(models.Model):
     class Meta:
         ordering = ['order', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -1315,7 +1318,7 @@ class RaceSpeedType(models.Model):
     class Meta:
         ordering = ['name', 'extra']
 
-    def __unicode__(self):
+    def __str__(self):
         if self.extra:
             return "%s (%s)" % (self.name, self.extra)
         return self.name
@@ -1334,7 +1337,7 @@ class MonsterType(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1363,7 +1366,7 @@ class MonsterSubtype(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1555,7 +1558,7 @@ class Monster(models.Model):
         unique_together = (("name", "rulebook",))
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1686,7 +1689,7 @@ class RaceType(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1863,7 +1866,7 @@ class Race(models.Model):
         unique_together = (("name", "rulebook",))
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @models.permalink
@@ -1950,7 +1953,7 @@ class ItemSlot(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -1967,7 +1970,7 @@ class ItemProperty(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -1984,7 +1987,7 @@ class ItemAuraType(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -2001,7 +2004,7 @@ class ItemActivationType(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -2152,7 +2155,7 @@ class Item(models.Model):
     class Meta:
         ordering = ['name', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
@@ -2215,7 +2218,7 @@ class NewsEntry(models.Model):
         verbose_name_plural = "news entries"
         ordering = ['-published', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.title, self.published)
 
     def save(self, *args, **kwargs):
@@ -2239,7 +2242,7 @@ class StaticPage(models.Model):
         editable=False,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s" % self.name
 
     def save(self, *args, **kwargs):
@@ -2278,7 +2281,7 @@ class Rule(models.Model):
         null=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.name, self.rulebook.name)
 
     def save(self, *args, **kwargs):
