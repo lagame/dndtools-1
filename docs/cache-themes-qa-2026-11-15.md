@@ -5,7 +5,7 @@
 - Modern CSS and JavaScript URLs now include a short content digest. A changed file gets a new URL, while the unchanged file keeps its cached URL.
 - Public HTML responses use `Cache-Control: no-cache, max-age=0, must-revalidate` unless a view already sets a stricter policy. Catalog pages are not cached by the application.
 - The header offers Standard (HeroForge purple), Modern (project blue and gold) and Simple (white, black and blue). The selection stays in browser `localStorage` under `dnd_theme_v2` until changed or cleared. Existing `dnd_theme_v1` preferences are migrated to the corresponding appearance. No theme cookie is sent to the server.
-- A fixed Admin login shortcut links to Django admin and stays visible while scrolling. It moves above the privacy notice when the notice is open; authentication remains enforced by Django.
+- A small Oghma scroll links to Django admin and stays visible while scrolling. It moves above the privacy notice when the notice is open; authentication remains enforced by Django.
 - Simple avoids downloading the Standard identity stylesheet, Inter font, favicon and available catalog cover/portrait images on subsequent page loads. Image placeholders explain their absence; the other themes still load images, and no-JavaScript browsers retain image fallbacks.
 - The privacy page describes the new local preference in both languages.
 

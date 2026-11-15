@@ -176,7 +176,10 @@ class CatalogSmokeTests(TestCase):
     def test_navigation_keeps_legacy_destinations_and_mobile_redirects(self):
         page = self.client.get('/spells/')
         self.assertContains(page, 'href="%s"' % reverse('admin:index'))
-        self.assertContains(page, 'Admin login')
+        self.assertContains(page, 'class="lore-mark"')
+        self.assertContains(page, 'rel="nofollow noopener"')
+        self.assertContains(page, 'aria-label="Editorial tools"')
+        self.assertNotContains(page, 'Admin login')
         self.assertEqual(self.client.get(reverse('admin:index')).status_code, 302)
         self.assertContains(page, reverse('feat_category_list'))
         self.assertContains(page, reverse('spell_school_list'))

@@ -40,20 +40,23 @@ def main():
                 assert visit(page, '/').status == 200
                 notice = page.locator('#privacy-notice')
                 expect(notice).to_be_visible()
-                admin_shortcut = page.get_by_role('link', name='Admin login')
-                expect(admin_shortcut).to_be_visible()
-                assert admin_shortcut.get_attribute('href') == '/admin/'
-                assert admin_shortcut.evaluate('(link) => getComputedStyle(link).position') == 'fixed'
-                assert admin_shortcut.bounding_box()['y'] + admin_shortcut.bounding_box()['height'] < notice.bounding_box()['y']
+                lore_mark = page.get_by_role('link', name='Editorial tools')
+                expect(lore_mark).to_be_visible()
+                assert lore_mark.get_attribute('href') == '/admin/'
+                assert lore_mark.get_attribute('rel') == 'nofollow noopener'
+                assert lore_mark.locator('svg[aria-hidden="true"]').count() == 1
+                assert lore_mark.inner_text().strip() == ''
+                assert lore_mark.evaluate('(link) => getComputedStyle(link).position') == 'fixed'
+                assert lore_mark.bounding_box()['y'] + lore_mark.bounding_box()['height'] < notice.bounding_box()['y']
                 assert all('?v=' in url for url in page.locator('link[rel="stylesheet"][href]').evaluate_all('(links) => links.map(link => link.href)'))
                 assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
                 if width in (390, 1440):
                     screenshot(page, f'privacy-notice-{width}.png')
                 notice.get_by_role('button', name='Got it').click()
                 expect(notice).to_be_hidden()
-                shortcut_y = admin_shortcut.bounding_box()['y']
+                shortcut_y = lore_mark.bounding_box()['y']
                 page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
-                assert abs(admin_shortcut.bounding_box()['y'] - shortcut_y) <= 1
+                assert abs(lore_mark.bounding_box()['y'] - shortcut_y) <= 1
                 assert visit(page, '/').status == 200
                 expect(notice).to_be_hidden()
                 if width == 390:
