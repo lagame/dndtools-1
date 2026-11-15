@@ -1,0 +1,44 @@
+{% load catalog_ui %}
+{% filter_chips as active_filters %}
+<details class="filter-panel spell-filter-panel" id="filters"{% if active_filters or filter_error %} open{% endif %}>
+  <summary>Filters{% if active_filters %} <span class="filter-count">{{ active_filters|length }} active</span>{% endif %}</summary>
+  <form action="{{ request.path }}" method="get">
+    {% if filter_error %}<p class="query-error" role="alert">These filters could not be applied. Correct the highlighted fields; the list below is unfiltered.</p>{% endif %}
+    <div class="spell-filter-grid">
+      {% include 'dnd/filter_field.html' with field=spell_filter_form.name %}
+      {% include 'dnd/filter_field.html' with field=spell_filter_form.class_levels__slug %}
+      {% include 'dnd/filter_field.html' with field=spell_filter_form.spellclasslevel__level %}
+      {% include 'dnd/filter_field.html' with field=spell_filter_form.school__slug %}
+      {% include 'dnd/filter_field.html' with field=spell_filter_form.casting_time %}
+      {% include 'dnd/filter_field.html' with field=spell_filter_form.rulebook__slug %}
+    </div>
+    <details class="advanced-filters"><summary>More spell filters</summary>
+      <div class="spell-filter-grid">
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.rulebook__dnd_edition__slug %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.edition_system %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.publication_type %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.sub_school__slug %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.descriptors__slug %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.domain_levels__slug %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.spelldomainlevel__level %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.casting_time_missing %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.range %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.duration %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.description %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.verbal_component %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.somatic_component %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.material_component %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.arcane_focus_component %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.divine_focus_component %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.xp_component %}
+        {% if spell_filter_form.verified %}{% include 'dnd/filter_field.html' with field=spell_filter_form.verified %}{% endif %}
+        {% include 'dnd/filter_field.html' with field=spell_filter_form.sort %}
+      </div>
+    </details>
+    <div class="filter-actions"><button type="submit" name="_filter" value="1">Apply filters</button><a href="{{ request.path }}">Clear all</a></div>
+  </form>
+</details>
+{% if active_filters %}<div class="active-filters" aria-label="Active filters">
+  {% for chip in active_filters %}<a href="{{ chip.url }}" aria-label="Remove {{ chip.label }}">{{ chip.label }} <span aria-hidden="true">×</span></a>{% endfor %}
+</div>{% endif %}
+<p class="result-count" role="status">{{ paginator.count }} spell{{ paginator.count|pluralize }} found.</p>

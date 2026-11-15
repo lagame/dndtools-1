@@ -6,6 +6,7 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'dnd.spells.views',
 
+    url(r'^by-rulebooks/$', 'spell_list_by_rulebook', name='spell_list_by_rulebook'),
     # spells
     url(
         r'^$',

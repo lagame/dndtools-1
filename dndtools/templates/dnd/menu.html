@@ -1,14 +1,7 @@
-<nav class="primary-nav" aria-label="Catalog sections">
-  <div class="nav-inner">
-    <a href="{% url 'rulebook_list' %}">Rulebooks</a>
-    <a href="{% url 'character_class_list' %}">Classes</a>
-    <a href="{% url 'feat_index' %}">Feats</a>
-    <a href="{% url 'spell_index' %}">Spells</a>
-    <a href="{% url 'skill_list' %}">Skills</a>
-    <a href="{% url 'race_index' %}">Races</a>
-    <a href="{% url 'monster_index' %}">Monsters</a>
-    <a href="{% url 'item_index' %}">Items</a>
-    <a href="{% url 'rule_list' %}">Rules</a>
-    <a href="{% url 'contact' %}">Contact</a>
-  </div>
+<div class="navigation-head">
+  <strong>Browse the catalog</strong>
+  <button id="navigation-close" class="navigation-close" type="button" aria-label="Close menu">Close <span aria-hidden="true">×</span></button>
+</div>
+<nav aria-label="Catalog sections">
+  {% include 'dnd/navigation_nodes.html' with nodes=catalog_navigation %}
 </nav>

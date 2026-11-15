@@ -17,7 +17,8 @@
 
 {% block content %}
     {% if race.image %}
-        <span class="right" style="clear: right"><img src="{% media race.image.name "timestamp" %}" alt="{{ race.name }}" /></span>
+        {% available_catalog_image race.image as portrait_url %}
+        <span class="right" style="clear: right">{% if portrait_url %}<img src="{{ portrait_url }}" alt="{{ race.name }}" />{% else %}<span class="image-placeholder" role="img" aria-label="Illustration unavailable">Illustration unavailable</span>{% endif %}</span>
     {% endif %}
 
     <h2>{{ race.name }}</h2>

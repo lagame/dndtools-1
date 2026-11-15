@@ -1,5 +1,9 @@
 {$DND_PUBLIC_HOST} {
     encode zstd gzip
+    handle_path /static/media/* {
+        root * /var/www/media
+        file_server
+    }
     handle_path /static/* {
         root * /var/www/static
         file_server

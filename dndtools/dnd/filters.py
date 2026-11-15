@@ -3,7 +3,7 @@
 import django_filters2
 from dnd.models import (
     Spell, DndEdition, SpellSchool, SpellSubSchool, SpellDescriptor, FeatCategory,
-    CharacterClass, Rulebook, Domain, Feat, Skill, Item, Language, Race, RaceType, ItemSlot,
+    CharacterClass, CharacterClassVariant, Rulebook, Domain, Feat, Skill, Item, Language, Race, Monster, RaceType, ItemSlot,
     ItemProperty, Deity, Rule)
 from dnd.filters_fields import FeatMultiPrerequisiteFieldFilter
 
@@ -15,7 +15,7 @@ def rulebook_choices(unknown_entry=True):
           for rulebook in edition.rulebook_set.all()])
         for edition in DndEdition.objects.all()]
     if unknown_entry:
-        rulebook_choices.insert(0, ('', 'Unknown'))
+        rulebook_choices.insert(0, ('', 'All'))
 
     return rulebook_choices
 
@@ -24,7 +24,7 @@ def edition_choices(unknown_entry=True):
     edition_choices = [(edition.slug, edition.name) for edition in
                        DndEdition.objects.all()]
     if unknown_entry:
-        edition_choices.insert(0, ('', 'Unknown'))
+        edition_choices.insert(0, ('', 'All'))
 
     return edition_choices
 
@@ -60,7 +60,7 @@ def character_class_choices():
     character_class_choices = [
         (clazz.slug, clazz.name) for clazz in CharacterClass.objects.all()
     ]
-    character_class_choices.insert(0, ('', 'Unknown'))
+    character_class_choices.insert(0, ('', 'All'))
 
     return character_class_choices
 
@@ -70,7 +70,7 @@ def character_class_casting_choices():
         (clazz.slug, clazz.name) for clazz in
         CharacterClass.objects.filter(spellclasslevel__id__isnull=False).distinct()
     ]
-    character_class_choices.insert(0, ('', 'Unknown'))
+    character_class_choices.insert(0, ('', 'All'))
 
     return character_class_choices
 
@@ -79,25 +79,25 @@ def domain_choices():
     domain_choices = [
         (domain.slug, domain.name) for domain in Domain.objects.all()
     ]
-    domain_choices.insert(0, ('', 'Unknown'))
+    domain_choices.insert(0, ('', 'All'))
 
     return domain_choices
 
 
 def school_choices():
-    return [('', 'Unknown')] + [(school.slug, school.name) for school in SpellSchool.objects.all()]
+    return [('', 'All')] + [(school.slug, school.name) for school in SpellSchool.objects.all()]
 
 
 def sub_school_choices():
-    return [('', 'Unknown')] + [(school.slug, school.name) for school in SpellSubSchool.objects.all()]
+    return [('', 'All')] + [(school.slug, school.name) for school in SpellSubSchool.objects.all()]
 
 
 def descriptor_choices():
-    return [('', 'Unknown')] + [(descriptor.slug, descriptor.name) for descriptor in SpellDescriptor.objects.all()]
+    return [('', 'All')] + [(descriptor.slug, descriptor.name) for descriptor in SpellDescriptor.objects.all()]
 
 
 def item_slot_choices():
-    return [('', 'Unknown')] + [(slot.slug, slot.name) for slot in ItemSlot.objects.all()]
+    return [('', 'All')] + [(slot.slug, slot.name) for slot in ItemSlot.objects.all()]
 
 
 def property_choices():
@@ -205,7 +205,7 @@ class SpellFilterAdmin(SpellFilter):
 
 class ItemFilter(django_filters2.FilterSet):
     type_choices = [itemType for itemType in Item.ITEM_TYPE]
-    type_choices.insert(0, ('', 'Unknown'))
+    type_choices.insert(0, ('', 'All'))
 
     name = django_filters2.CharFilter(
         lookup_type='icontains', label='Item name'
@@ -290,7 +290,7 @@ class CharacterClassFilter(django_filters2.FilterSet):
     )
 
     class Meta:
-        model = CharacterClass
+        model = CharacterClassVariant
         fields = ['character_class__name', 'rulebook__slug', 'rulebook__dnd_edition__slug',
                   'character_class__prestige',
                   'required_bab', 'skill_points',
@@ -377,7 +377,7 @@ class SkillFilter(django_filters2.FilterSet):
     armor_check_penalty = django_filters2.BooleanFilter()
     base_skill = django_filters2.ChoiceFilter(
         choices=(
-            ('', 'Unknown'),
+            ('', 'All'),
             ('STR', 'STR'),
             ('CON', 'CON'),
             ('DEX', 'DEX'),
@@ -426,7 +426,7 @@ class MonsterFilter(django_filters2.FilterSet):
     )
 
     class Meta:
-        model = Spell
+        model = Monster
         fields = [
             'name', 'rulebook__slug', 'rulebook__dnd_edition__slug', ]
 
@@ -444,17 +444,17 @@ class RaceFilter(django_filters2.FilterSet):
     )
 
     class Meta:
-        model = Spell
+        model = Race
         fields = [
             'name', 'rulebook__slug', 'rulebook__dnd_edition__slug', ]
 
 
 class RaceTypeFilter(django_filters2.FilterSet):
     save_type_choices = [raceTypePair for raceTypePair in RaceType.BASE_SAVE_TYPE_CHOICES]
-    save_type_choices.insert(0, ('', 'Unknown'))
+    save_type_choices.insert(0, ('', 'All'))
 
     base_attack_type_choices = [raceTypePair for raceTypePair in RaceType.BASE_ATTACK_TYPE_CHOICES]
-    base_attack_type_choices.insert(0, ('', 'Unknown'))
+    base_attack_type_choices.insert(0, ('', 'All'))
 
     name = django_filters2.CharFilter(
         lookup_type='icontains', label='Race type name'

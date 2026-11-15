@@ -1,12 +1,33 @@
-"""Check the public shell, search, and mobile layout in a real browser."""
+"""Exercise navigation, search and filters at compact and desktop widths."""
 
 import os
 import time
+from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 
 BASE = os.environ.get('DND_TEST_BASE_URL', 'http://127.0.0.1:8765')
+OUTPUT = Path(os.environ['DND_QA_OUTPUT']) if os.environ.get('DND_QA_OUTPUT') else None
+DETAIL = os.environ.get('DND_QA_DETAIL_URL', '')
+REAL_DATA = os.environ.get('DND_QA_REAL_DATA') == '1'
+MISSING_IMAGE = os.environ.get('DND_QA_MISSING_IMAGE_URL', '')
+
+
+def screenshot(page, name):
+    if OUTPUT:
+        OUTPUT.mkdir(parents=True, exist_ok=True)
+        page.screenshot(path=str(OUTPUT / name), full_page=True)
+
+
+def visit(page, path):
+    for attempt in range(10):
+        try:
+            return page.goto(BASE + path, wait_until='networkidle', timeout=12000)
+        except Exception:
+            if attempt == 9:
+                raise
+            time.sleep(1)
 
 
 def main():
@@ -14,31 +35,122 @@ def main():
         executable = os.environ.get('DND_BROWSER_EXECUTABLE')
         browser = playwright.chromium.launch(headless=True, executable_path=executable)
         try:
-            for width in (390, 1440):
-                page = browser.new_page(viewport={'width': width, 'height': 850})
-                for attempt in range(10):
-                    try:
-                        response = page.goto(BASE + '/', wait_until='networkidle', timeout=10000)
-                        break
-                    except Exception:
-                        if attempt == 9:
-                            raise
-                        time.sleep(1)
-                assert response.status == 200
-                assert page.get_by_role('searchbox', name='Search the catalog').count() == 1
+            for width in (360, 390, 768, 1440):
+                page = browser.new_page(viewport={'width': width, 'height': 750})
+                assert visit(page, '/').status == 200
+                toggle = page.get_by_role('button', name='Toggle catalog menu')
+                sidebar = page.locator('#catalog-sidebar')
+                assert page.get_by_role('combobox', name='Search the catalog').count() == 1
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-                assert page.goto(BASE + '/search/?q=ember', wait_until='networkidle').status == 200
+                if width <= 900:
+                    assert not sidebar.is_visible()
+                    toggle.click()
+                    expect(sidebar).to_be_visible()
+                    expect(page.locator('#navigation-close')).to_be_focused()
+                    assert sidebar.get_attribute('aria-modal') == 'true'
+                    page.keyboard.press('Shift+Tab')
+                    assert sidebar.evaluate('(element) => element.contains(document.activeElement)')
+                    page.get_by_role('button', name='Toggle Character Options sections').click()
+                    page.get_by_role('button', name='Toggle Feats sections').click()
+                    page.get_by_role('button', name='Toggle Feat categories sections').click()
+                    assert page.get_by_role('link', name='Traits', exact=True).is_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    screenshot(page, f'menu-{width}.png')
+                    page.keyboard.press('Escape')
+                    expect(sidebar).to_be_hidden()
+                    expect(toggle).to_be_focused()
+                else:
+                    assert sidebar.is_visible()
+                    page.get_by_role('button', name='Toggle Character Options sections').click()
+                    screenshot(page, f'menu-{width}.png')
+                    toggle.click()
+                    expect(sidebar).to_be_hidden()
+                    toggle.click()
+                    expect(sidebar).to_be_visible()
+                assert visit(page, '/search/?q=ember').status == 200
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-                assert page.goto(BASE + '/contacts/', wait_until='networkidle').status == 200
+                assert visit(page, '/spells/').status == 200
+                assert page.get_by_text('spells found.').count() >= 1 or page.get_by_text('spell found.').count() >= 1
+                assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                screenshot(page, f'spells-{width}.png')
+                assert visit(page, '/contacts/').status == 200
                 assert page.get_by_text('Open a project issue').count() >= 1
+                if DETAIL and width in (390, 1440):
+                    assert visit(page, DETAIL).status == 200
+                    screenshot(page, f'detail-{width}.png')
+                    assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
+                    screenshot(page, f'filters-{width}.png')
                 page.close()
             page = browser.new_page()
-            page.goto(BASE + '/m/spells/', wait_until='networkidle')
-            assert page.url.rstrip('/') == BASE + '/spells'
+            visit(page, '/m/spells/by-rulebooks/')
+            assert page.url.rstrip('/') == BASE + '/spells/by-rulebooks'
+            visit(page, '/')
+            page.set_viewport_size({'width': 360, 'height': 600})
+            page.get_by_role('button', name='Toggle catalog menu').click()
+            expect(page.locator('#catalog-sidebar')).to_be_visible()
+            page.set_viewport_size({'width': 1440, 'height': 750})
+            expect(page.locator('#catalog-sidebar')).to_be_visible()
             page.close()
+            if REAL_DATA:
+                page = browser.new_page()
+                visit(page, '/')
+                destinations = set(page.locator('#catalog-sidebar a[href]').evaluate_all(
+                    '(links) => links.map((link) => link.getAttribute("href"))'))
+                for path in sorted(destinations):
+                    response = page.request.get(BASE + path)
+                    assert response.status == 200, f'Navigation destination {path}: {response.status}'
+                for path in ('/rulebooks/', '/feats/', '/monsters/', '/races/', '/items/',
+                             '/skills/', '/languages/', '/rules/', '/deities/',
+                             '/spells/domains/', '/spells/descriptors/'):
+                    response = page.request.get(BASE + path + '?name=a')
+                    assert response.status == 200, f'Filtered category {path}: {response.status}'
+                response = page.request.get(BASE + '/classes/?character_class__name=a')
+                assert response.status == 200, f'Filtered classes: {response.status}'
+                assert visit(page, '/search/').status == 200
+                categories = page.locator('#catalog-category option').evaluate_all(
+                    '(options) => options.map((option) => option.value).filter(Boolean)')
+                for category in categories:
+                    response = page.request.get(BASE + '/search/?q=a&category=' + category)
+                    assert response.status == 200, f'Search category {category}: {response.status}'
+                for path, expected in (
+                    ('/spells/?name=Elation&class_levels__slug=wizard&spellclasslevel__level=3', '1 spell found.'),
+                    ('/spells/?name=Elation&class_levels__slug=wizard&spellclasslevel__level=2', '0 spells found.'),
+                    ('/spells/?class_levels__slug=wizard&spellclasslevel__level=0', '53 spells found.'),
+                    ('/spells/?name=unfindable-nonsense-zzzzz', '0 spells found.'),
+                ):
+                    assert visit(page, path).status == 200
+                    assert page.get_by_text(expected).is_visible(), path
+                page.go_back(wait_until='networkidle')
+                assert page.get_by_text('53 spells found.').is_visible()
+                assert visit(page, '/search/?q=Acid&category=spells').status == 200
+                assert page.get_by_text('Acid Splash', exact=True).count() > 0
+                assert visit(page, '/search/?q=ácid&category=spells').status == 200
+                assert page.get_by_text('Acid Splash', exact=True).count() > 0
+                assert visit(page, '/search/?q=a&category=spells&page=2').status == 200
+                assert page.get_by_text('Page 2 of').count() > 0
+                assert visit(page, '/').status == 200
+                search = page.get_by_role('combobox', name='Search the catalog')
+                search.fill('Acid')
+                expect(page.locator('#site-suggestions a').first).to_be_visible()
+                search.press('ArrowDown')
+                search.press('Enter')
+                assert page.url.startswith(BASE + '/') and '/search/' not in page.url
+                assert visit(page, '/').status == 200
+                search = page.get_by_role('combobox', name='Search the catalog')
+                search.fill('zzzzz-no-catalog-match')
+                expect(page.locator('#site-search-status')).to_have_text(
+                    'No suggestions. Press Enter to search all content.')
+                page.route('**/search/suggest/**', lambda route: route.abort())
+                search.fill('Acid')
+                expect(page.locator('#site-search-status')).to_have_text(
+                    'Suggestions unavailable. Press Enter to search the catalog.')
+                if MISSING_IMAGE:
+                    assert visit(page, MISSING_IMAGE).status == 200
+                    assert page.get_by_role('img', name='Cover unavailable').is_visible()
+                page.close()
         finally:
             browser.close()
-    print('Browser smoke passed at 390px and 1440px.')
+    print('Browser smoke passed at 360px, 390px, 768px and 1440px.')
 
 
 if __name__ == '__main__':

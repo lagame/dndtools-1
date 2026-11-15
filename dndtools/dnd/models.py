@@ -2,7 +2,7 @@
 
 from PIL import Image
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 
 from dnd.utilities import update_html_cache_attributes
@@ -1843,15 +1843,21 @@ class Race(models.Model):
 
     def save(self, *args, **kwargs):
         update_html_cache_attributes(self, 'description', 'combat', 'racial_traits')
-        super(Race, self).save(*args, **kwargs)
+        pending_image = self.image if self.image and not self.pk and not self.image._committed else None
+        with transaction.atomic():
+            if pending_image:
+                self.image = None
+            super(Race, self).save(*args, **kwargs)
+            if pending_image:
+                self.image = pending_image
+                super(Race, self).save(update_fields=['image'])
 
-        # resize
-        if self.image:
-            filename = self.image.path
-            image = Image.open(filename)
-            assert isinstance(image, Image.Image)
-            image.thumbnail((500, 500), Image.ANTIALIAS)
-            image.save(filename)
+            # resize
+            if self.image:
+                filename = self.image.path
+                with Image.open(filename) as image:
+                    image.thumbnail((500, 500), Image.Resampling.LANCZOS)
+                    image.save(filename)
 
     class Meta:
         unique_together = (("name", "rulebook",))

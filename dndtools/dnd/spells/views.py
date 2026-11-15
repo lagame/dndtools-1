@@ -7,7 +7,8 @@ from django.template.context import RequestContext
 from dnd.menu import MenuItem
 from dnd.menu import menu_item, submenu_item
 from dnd.dnd_paginator import DndPaginator
-from dnd.filters import SpellFilter, SpellDomainFilter, SpellDescriptorFilter, SpellFilterAdmin
+from dnd.filters import SpellDomainFilter, SpellDescriptorFilter
+from dnd.spells.filtering import SpellCatalogForm, filter_spells
 from dnd.models import (Rulebook, SpellSchool, SpellDescriptor,
                         SpellSubSchool, Spell, Domain, Rule, DomainVariant)
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object, is_admin
@@ -16,25 +17,32 @@ from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect
 @menu_item(MenuItem.MAGIC)
 @submenu_item(MenuItem.Magic.SPELLS)
 def spell_index(request):
-    if is_admin(request):
-        f = SpellFilterAdmin(request.GET, queryset=Spell.objects.select_related(
-            'rulebook', 'rulebook__dnd_edition', 'school', 'verified_author').distinct())
-    else:
-        f = SpellFilter(request.GET, queryset=Spell.objects.select_related(
-            'rulebook', 'rulebook__dnd_edition', 'school').distinct())
-
-    paginator = DndPaginator(f.qs, request)
-
-    form_submitted = 1 if '_filter' in request.GET else 0
-
-    return render_to_response('dnd/spells/spell_index.html',
+    form = SpellCatalogForm(request.GET, is_staff=is_admin(request))
+    valid = form.is_valid()
+    queryset = Spell.objects.select_related('rulebook', 'rulebook__dnd_edition', 'school')
+    if valid:
+        queryset = filter_spells(queryset, form.cleaned_data)
+    paginator = DndPaginator(queryset, request)
+    response = render_to_response('dnd/spells/spell_index.html',
                               {
                                   'request': request,
                                   'spell_list': paginator.items(),
                                   'paginator': paginator,
-                                  'filter': f,
-                                  'form_submitted': form_submitted,
+                                  'spell_filter_form': form,
+                                  'filter_error': not valid,
                               }, context_instance=RequestContext(request), )
+    if not valid:
+        response.status_code = 400
+    return response
+
+
+@menu_item(MenuItem.MAGIC)
+@submenu_item(MenuItem.Magic.SPELLS)
+def spell_list_by_rulebook(request):
+    paginator = DndPaginator(Rulebook.objects.select_related('dnd_edition').order_by('name'), request)
+    return render_to_response('dnd/spells/spell_list_by_rulebook.html', {
+        'request': request, 'rulebook_list': paginator.items(), 'paginator': paginator,
+    }, context_instance=RequestContext(request))
 
 
 @menu_item(MenuItem.MAGIC)

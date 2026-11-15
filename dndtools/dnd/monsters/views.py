@@ -10,6 +10,22 @@ from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect
 
 @menu_item(MenuItem.BESTIARY)
 @submenu_item(MenuItem.Bestiary.MONSTERS)
+def monster_type_list(request):
+    return render(request, 'dnd/monsters/monster_kind_list.html', {
+        'kinds': MonsterType.objects.order_by('name'), 'kind_label': 'Types',
+    })
+
+
+@menu_item(MenuItem.BESTIARY)
+@submenu_item(MenuItem.Bestiary.MONSTERS)
+def monster_subtype_list(request):
+    return render(request, 'dnd/monsters/monster_kind_list.html', {
+        'kinds': MonsterSubtype.objects.order_by('name'), 'kind_label': 'Subtypes',
+    })
+
+
+@menu_item(MenuItem.BESTIARY)
+@submenu_item(MenuItem.Bestiary.MONSTERS)
 def monster_type_detail(request, slug):
     kind = get_object_or_404(MonsterType, slug=slug)
     monsters = Monster.objects.filter(type=kind).select_related('rulebook').order_by('name')

@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from dnd.feeds import AdminLogFeed
 from dnd.sitemap import sitemaps
-from dnd.search import search
+from dnd.search import search, search_suggest
 from dndproject import settings
 
 urlpatterns = patterns(
@@ -19,6 +19,7 @@ urlpatterns = patterns(
         name='index',
     ),
     url(r'^search/$', search, name='search'),
+    url(r'^search/suggest/$', search_suggest, name='search_suggest'),
 
 
     # Rulebooks
@@ -84,6 +85,7 @@ urlpatterns = patterns(
 )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static('/static/media/', document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += patterns(

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from pathlib import PurePosixPath
 from urllib import parse as urlparse
 from django import template
 from django.utils.safestring import mark_safe
@@ -74,5 +75,18 @@ def media(filename, flags=''):
         if os.path.exists(fullname):
             url += '?%d' % os.path.getmtime(fullname)
     return url
+
+
+@register.simple_tag
+def available_catalog_image(image):
+    """Use the existing media volume when a legacy image is actually present."""
+    if not image:
+        return ''
+    name = image.name.removeprefix('media/').lstrip('/')
+    path = PurePosixPath(name)
+    if not name or '..' in path.parts or not os.path.isfile(
+            os.path.join(dndproject.settings.MEDIA_ROOT, *path.parts)):
+        return ''
+    return dndproject.settings.MEDIA_URL + urlparse.quote(path.as_posix())
 
 register.tag('set', set_var)

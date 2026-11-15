@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from dnd.menu import MenuItem
 from dnd.models import NewsEntry
+from dnd.navigation import catalog_navigation
 
 
 def unread_news(request):
@@ -40,5 +41,6 @@ def is_admin(request):
 
 def menu_constants(request):
     return {
-        'MenuItem': MenuItem
+        'MenuItem': MenuItem,
+        'catalog_navigation': catalog_navigation(request),
     }

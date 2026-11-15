@@ -1,0 +1,14 @@
+<ul class="navigation-level">
+  {% for node in nodes %}
+    <li class="navigation-item{% if node.active %} is-active{% endif %}">
+      <div class="navigation-row">
+        {% if node.url %}<a href="{{ node.url }}"{% if node.current %} aria-current="page"{% endif %}>{{ node.label }}</a>
+        {% else %}<span class="navigation-label">{{ node.label }}{% if node.planned %}<small>Planned</small>{% endif %}</span>{% endif %}
+        {% if node.children %}<button class="navigation-expand" type="button" aria-label="Toggle {{ node.label }} sections" aria-controls="{{ node.id }}" aria-expanded="{% if node.active %}true{% else %}false{% endif %}"><span aria-hidden="true">⌄</span></button>{% endif %}
+      </div>
+      {% if node.children %}<div id="{{ node.id }}"{% if not node.active %} hidden{% endif %}>
+        {% include 'dnd/navigation_nodes.html' with nodes=node.children %}
+      </div>{% endif %}
+    </li>
+  {% endfor %}
+</ul>

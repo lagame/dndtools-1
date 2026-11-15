@@ -9,7 +9,7 @@ from django.utils.text import capfirst
 
 from django_filters2.filters import Filter, CharFilter, BooleanFilter, \
     ChoiceFilter, DateFilter, DateTimeFilter, TimeFilter, ModelChoiceFilter, \
-    ModelMultipleChoiceFilter, NumberFilter
+    ModelMultipleChoiceFilter, MultipleChoiceFilter, NumberFilter
 
 ORDER_BY_FIELD = 'o'
 
@@ -202,8 +202,12 @@ class BaseFilterSet(object):
     def qs(self):
         if not hasattr(self, '_qs'):
             qs = self.queryset.all()
+            if self.is_bound and not self.form.is_valid():
+                self._qs = qs
+                return self._qs
             grouped_dict = {}
             grouped_list = []
+            needs_distinct = False
             for name, filter_ in self.filters.items():
                 try:
                     if self.is_bound:
@@ -211,6 +215,8 @@ class BaseFilterSet(object):
                     else:
                         data = self.form.initial.get(name, self.form[name].field.initial)
                     val = self.form.fields[name].clean(data)
+                    if val and isinstance(filter_, MultipleChoiceFilter):
+                        needs_distinct = True
                     if filter_.grouped:
                         grouped_filter = filter_.filter_grouped(qs, val)
                         # Q objects are added as non-named parameters.
@@ -233,6 +239,8 @@ class BaseFilterSet(object):
                         qs = qs.order_by(value)
                 except forms.ValidationError:
                     pass
+            if needs_distinct:
+                qs = qs.distinct()
             self._qs = qs
         return self._qs
 

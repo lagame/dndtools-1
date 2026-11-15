@@ -6,6 +6,7 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'dnd.skills.views',
 
+    url(r'^by-rulebooks/$', 'skills_list_by_rulebook', name='skills_list_by_rulebook'),
     # skills
     url(
         r'^$',

@@ -1,9 +1,16 @@
-<details class="filter-panel" {% if form_submitted %}open{% endif %}>
-  <summary>Filter results</summary>
+{% load catalog_ui %}
+{% filter_chips as active_filters %}
+<details class="filter-panel" {% if form_submitted or active_filters %}open{% endif %}>
+  <summary>Filters{% if active_filters %} <span class="filter-count">{{ active_filters|length }} active</span>{% endif %}</summary>
   <form action="{{ request.path }}" method="get">
+    {% if filter.form.errors %}<p class="query-error" role="alert">These filters could not be applied. Correct the highlighted fields; the list below is unfiltered.</p>{% endif %}
     <div class="form_settings">
       {{ filter.form.as_p }}
-      <p><input class="submit" type="submit" name="_filter" value="Apply filters"></p>
     </div>
+    <div class="filter-actions"><button type="submit" name="_filter" value="1">Apply filters</button><a href="{{ request.path }}">Clear all</a></div>
   </form>
 </details>
+{% if active_filters %}<div class="active-filters" aria-label="Active filters">
+  {% for chip in active_filters %}<a href="{{ chip.url }}" aria-label="Remove {{ chip.label }}">{{ chip.label }} <span aria-hidden="true">×</span></a>{% endfor %}
+</div>{% endif %}
+{% if paginator %}<p class="result-count" role="status">{{ paginator.count }} result{{ paginator.count|pluralize }} found.</p>{% endif %}

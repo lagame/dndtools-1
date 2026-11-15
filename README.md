@@ -92,3 +92,5 @@ py -3 scripts\verify_mysql_backup.py 'C:\Backups\dndtools\dndtools-mysql-YYYY-MM
 On Linux use `python3` and a private backup directory such as `/var/backups/dndtools`. Protect backups with restricted access and copy them to encrypted off-site storage. `verify_mysql_backup.py` creates and drops only its own temporary restore database. The SQL dump is **not encrypted by the script**. Back up `.env` and uploaded media separately in a protected location. The original SQLite snapshot should remain untouched.
 
 See [modernization status](docs/modernization-status.md) for the verified baseline and remaining activation gates.
+
+The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) identify catalog images still missing from the private media volume. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the latest local checks and remaining limits.

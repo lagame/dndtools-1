@@ -14,19 +14,26 @@
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header" id="header">
     <div class="header-inner">
+      <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="Toggle catalog menu" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span> Menu</button>
       <a class="brand" href="{% url 'index' %}" aria-label="D&amp;D Tools home">
         <span class="brand-symbol" aria-hidden="true">D20</span>
         <span><strong>D&amp;D<span>tools</span></strong><small>Explore the worlds of 3.5</small></span>
       </a>
-      <form class="header-search" role="search" action="{% url 'search' %}" method="get">
+      <form class="header-search" role="search" action="{% url 'search' %}" method="get" data-search-suggest data-suggest-url="{% url 'search_suggest' %}">
         <label class="visually-hidden" for="site-search">Search the catalog</label>
-        <input id="site-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search spells, feats, books…" maxlength="100" required>
+        <div class="search-input-wrap"><input id="site-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search spells, feats, books…" maxlength="100" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="site-suggestions" aria-describedby="site-search-status" aria-expanded="false">
+          <ul id="site-suggestions" class="search-suggestions" role="listbox" hidden></ul>
+          <div id="site-search-status" class="search-suggestion-status" role="status" hidden></div></div>
         <button type="submit">Search</button>
       </form>
     </div>
-    {% include 'dnd/menu.html' %}
   </header>
 
+  <div id="navigation-backdrop" class="navigation-backdrop" hidden></div>
+  <div class="site-frame">
+  <aside id="catalog-sidebar" class="catalog-sidebar" aria-label="Browse catalog">
+    {% include 'dnd/menu.html' %}
+  </aside>
   <div id="main" class="site-shell">
     {% if display_3e_warning %}<div class="edition-warning" role="note">This page describes D&amp;D 3.0 material. Check whether a 3.5 edition version exists.</div>{% endif %}
     <nav id="breadcrumbs" class="breadcrumbs" aria-label="Breadcrumbs"><a href="{% url 'index' %}">Home</a> {% block breadcrumbs %}{% endblock %}</nav>
@@ -46,10 +53,13 @@
       </aside>
     </div>
   </div>
+  </div>
 
   <footer class="site-footer" id="footer">
     <div><strong>D&amp;D Tools</strong><p>A community maintained reference for tabletop adventurers.</p></div>
     <nav aria-label="Footer"><a href="{% url 'contact' %}">Contact</a><a href="https://github.com/lagame/dndtools-1">Source and setup</a></nav>
   </footer>
+  <script defer src="{% static 'js/navigation.js' %}"></script>
+  <script defer src="{% static 'js/search_suggest.js' %}"></script>
 </body>
 </html>

@@ -29,6 +29,15 @@ def skill_list(request):
 
 @menu_item(MenuItem.CHARACTER_OPTIONS)
 @submenu_item(MenuItem.CharacterOptions.SKILLS)
+def skills_list_by_rulebook(request):
+    paginator = DndPaginator(Rulebook.objects.select_related('dnd_edition').order_by('name'), request)
+    return render_to_response('dnd/skills/skills_list_by_rulebook.html', {
+        'request': request, 'rulebook_list': paginator.items(), 'paginator': paginator,
+    }, context_instance=RequestContext(request))
+
+
+@menu_item(MenuItem.CHARACTER_OPTIONS)
+@submenu_item(MenuItem.CharacterOptions.SKILLS)
 def skill_detail(request, skill_slug, rulebook_slug=None,
                  rulebook_id=None):
     # fetch the class

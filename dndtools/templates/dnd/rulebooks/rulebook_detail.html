@@ -36,7 +36,8 @@
 <div class="nice-textile">
 <p>
   {% if rulebook.image %}
-        <span class="right"><img src="{% static rulebook.image.name "timestamp" %}" alt="{{ rulebook.name }}" /></span>
+        {% available_catalog_image rulebook.image as cover_url %}
+        <span class="right">{% if cover_url %}<img src="{{ cover_url }}" alt="Cover of {{ rulebook.name }}" />{% else %}<span class="image-placeholder" role="img" aria-label="Cover unavailable">Cover unavailable</span>{% endif %}</span>
   {% endif %}
   {{ rulebook.description|linebreaksbr }}
 </p>
