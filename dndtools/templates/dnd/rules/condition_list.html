@@ -1,0 +1,9 @@
+{% extends "dnd/rules/rule_layout.html" %}
+{% block title %}Conditions{% endblock %}
+{% block breadcrumbs %} &raquo; <a href="{% url 'rule_list' %}">Rules</a> &raquo; Conditions{% endblock %}
+{% block content %}
+<header class="page-heading"><span class="eyebrow">Rules reference</span><h1>Conditions</h1></header>
+<ul class="result-list">{% for condition in conditions %}
+  <li><a href="{{ condition.get_absolute_url }}">{{ condition.name }}</a></li>
+{% empty %}<li>No conditions available.</li>{% endfor %}</ul>
+{% endblock %}

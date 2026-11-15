@@ -1,12 +1,28 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import RequestContext
 from dnd.dnd_paginator import DndPaginator
 from dnd.filters import RuleFilter
 from dnd.menu import menu_item, MenuItem, submenu_item
 from dnd.views import permanent_redirect_object
-from dnd.models import Rule
+from dnd.models import Rule, RuleCondition
 from dnd.views import is_3e_edition
+
+
+@menu_item(MenuItem.RULEBOOKS)
+@submenu_item(MenuItem.Rulebooks.RULES)
+def condition_list(request):
+    return render(request, 'dnd/rules/condition_list.html', {
+        'conditions': RuleCondition.objects.all(),
+    })
+
+
+@menu_item(MenuItem.RULEBOOKS)
+@submenu_item(MenuItem.Rulebooks.RULES)
+def condition_detail(request, condition_id):
+    return render(request, 'dnd/rules/condition_detail.html', {
+        'condition': get_object_or_404(RuleCondition, pk=condition_id),
+    })
 
 
 @menu_item(MenuItem.RULEBOOKS)

@@ -6,6 +6,9 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'dnd.rules.views',
 
+    url(r'^conditions/$', 'condition_list', name='rule_condition_list'),
+    url(r'^conditions/(?P<condition_id>\d+)/$', 'condition_detail', name='rule_condition_detail'),
+
     # rules list
     url(
         r'^$',

@@ -3,6 +3,7 @@
 from PIL import Image
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 
 from dnd.utilities import update_html_cache_attributes
 
@@ -935,9 +936,10 @@ class SkillVariant(models.Model):
         blank=True,
     )
 
-    check = models.TextField(
+    check_text = models.TextField(
         blank=True,
         help_text='Textile enabled!',
+        db_column='check',
     )
     check_html = models.TextField(
         editable=False,
@@ -1002,7 +1004,7 @@ class SkillVariant(models.Model):
         unique_together = (("skill", "rulebook",))
 
     def save(self, *args, **kwargs):
-        update_html_cache_attributes(self, 'description', 'check', 'action',
+        update_html_cache_attributes(self, 'description', ('check_text', 'check_html'), 'action',
                                      'try_again', 'special', 'synergy', 'restriction', 'untrained')
         super(SkillVariant, self).save(*args, **kwargs)
 
@@ -1344,14 +1346,8 @@ class MonsterType(models.Model):
             }
         )
 
-    @models.permalink
     def get_absolute_url_mobile(self):
-        return (
-            'monster_type_detail_mobile', (),
-            {
-                'slug': self.slug,
-            }
-        )
+        return self.get_absolute_url()
 
 
 class MonsterSubtype(models.Model):
@@ -1379,14 +1375,8 @@ class MonsterSubtype(models.Model):
             }
         )
 
-    @models.permalink
     def get_absolute_url_mobile(self):
-        return (
-            'monster_subtype_detail_mobile', (),
-            {
-                'slug': self.slug,
-            }
-        )
+        return self.get_absolute_url()
 
 
 class Monster(models.Model):
@@ -2312,3 +2302,20 @@ class Rule(models.Model):
                 'rulebook_id': self.rulebook.id,
             }
         )
+
+
+class RuleCondition(models.Model):
+    """Recovered conditions catalog, previously stored without a Django model."""
+
+    name = models.CharField(max_length=64)
+    description = models.TextField()
+
+    class Meta:
+        db_table = 'dnd_rules_conditions'
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('rule_condition_detail', kwargs={'condition_id': self.pk})

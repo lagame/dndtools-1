@@ -23,10 +23,10 @@
 
     <div class="close-paragraphs">
         <p>
-            <strong>{{ monster.size }} {{ monster.type.name }}
+            <strong>{{ monster.size }} <a href="{{ monster.type.get_absolute_url }}">{{ monster.type.name }}</a>
                 {% if monster_subtypes %}
                     ({% for subtype in monster_subtypes %}{% if not forloop.first %}
-                    , {% endif %}{{ subtype.name }}{% endfor %})
+                    , {% endif %}<a href="{{ subtype.get_absolute_url }}">{{ subtype.name }}</a>{% endfor %})
                 {% endif %}
             </strong>
         </p>

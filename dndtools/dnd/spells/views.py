@@ -1,6 +1,7 @@
 # Create your views here.
 from datetime import datetime
 from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from dnd.menu import MenuItem
@@ -138,6 +139,7 @@ def spell_detail(request, rulebook_slug, rulebook_id, spell_slug, spell_id):
                               context_instance=RequestContext(request), )
 
 
+@require_POST
 def spell_verify(request, spell_id):
     if not is_admin(request):
         return HttpResponseForbidden("Forbidden.")

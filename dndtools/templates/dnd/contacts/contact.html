@@ -1,31 +1,9 @@
 {% extends "dnd/contacts/contact_layout.html" %}
-
+{% block title %}Contact{% endblock %}
 {% block content %}
-
-    {{ debug }}
-
-  <p>Hi, if you want to leave a feedback, please, feel free to do so. If you want to criticise, please, say what you do not like and how you would
-  like it better. We read all the messages and even if it takes some time to work them in, we consider every one.
-  </p>
-
-  <form action="{% url 'contact' %}" method="post">{% csrf_token %}
-    <div class="form_settings">
-      {% for field in form %}
-        <p>
-          {{ field.errors }}
-          {% if field.field.required %}
-            <span class="required">{{ field.label_tag }}</span>
-          {% else %}
-            <span>{{ field.label_tag }}</span>
-          {% endif %}
-          {{ field }}
-          {% if field.help_text %} <small>{{ field.help_text }}</small> {% endif %}
-        </p>
-      {% endfor %}
-      <p style="padding-top: 15px">
-        <span>&nbsp;</span><input class="submit" type="submit" name="contact_submitted" value="submit"/>
-      </p>
-    </div>
-  </form>
-
+<header class="page-heading"><span class="eyebrow">Community</span><h1>Contact the project</h1>
+<p>Questions, corrections and contributions are welcome.</p></header>
+<p>Open an issue in the project repository to report a problem or ask for access to the private database. We will agree on a private channel for the file; please do not attach it to the issue.</p>
+<p><a class="text-link" href="https://github.com/lagame/dndtools-1/issues/new">Open a project issue →</a></p>
+<p>The <a href="https://github.com/lagame/dndtools-1#readme">README</a> explains how to run and host your own copy.</p>
 {% endblock %}

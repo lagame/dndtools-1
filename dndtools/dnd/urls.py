@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from dnd.feeds import AdminLogFeed
 from dnd.sitemap import sitemaps
+from dnd.search import search
 from dndproject import settings
 
 urlpatterns = patterns(
@@ -17,6 +18,7 @@ urlpatterns = patterns(
         'index',
         name='index',
     ),
+    url(r'^search/$', search, name='search'),
 
 
     # Rulebooks
@@ -74,18 +76,15 @@ urlpatterns = patterns(
     (r'^rss.xml$', AdminLogFeed()),
     (r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}),
 
-    # job
-    url(
-        r'^very_secret_url/$',
-        'very_secret_url',
-        name='very_secret_url',
-    ),
+    # Old mobile links now use the responsive pages.
+    url(r'^m/(?P<path>.*)$', 'legacy_mobile_redirect', name='legacy_mobile_redirect'),
 
-    # MOBILE
+    # Keep names for older model URL helpers; incoming requests redirect above.
     (r'^m/', include('dnd.mobile.urls')),
 )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += patterns(
     '',
@@ -93,5 +92,5 @@ urlpatterns += patterns(
     ('^contact/$', RedirectView.as_view(url='/contacts/')),
     ('^staff/$', RedirectView.as_view(url='/contacts/staff/')),
     ('^editions/$', RedirectView.as_view(url='/rulebooks/editions/')),
-    ('^feat-(?P<feat_id>\d+)-(.*)\.html$', RedirectView.as_view(url='/feats/a--1/a--%(feat_id)s/')),
+    (r'^feat-(?P<feat_id>\d+)-(.*)\.html$', RedirectView.as_view(url='/feats/a--1/a--%(feat_id)s/')),
 )

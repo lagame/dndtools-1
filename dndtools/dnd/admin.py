@@ -13,7 +13,7 @@ from dnd.models import (FeatCategory, Skill, SpecialFeatPrerequisite, TextFeatPr
                         ItemSlot, ItemAuraType, ItemActivationType, ItemProperty, Language, RaceType, Deity,
                         DndEdition, Rulebook, CharacterClass, SpellDescriptor,
                         SpellSchool, SpellSubSchool, Spell, SpellClassLevel,
-                        Domain, SpellDomainLevel, DomainVariant)
+                        Domain, SpellDomainLevel, DomainVariant, RuleCondition)
 
 
 class ModifiedUserAdmin(UserAdmin):
@@ -402,6 +402,7 @@ admin.site.register(RaceType, RaceTypeAdmin)
 admin.site.register(NewsEntry, NewsEntryAdmin)
 admin.site.register(StaticPage, StaticPageAdmin)
 admin.site.register(Rule, RuleAdmin)
+admin.site.register(RuleCondition)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(ItemSlot, ItemSlotAdmin)
 admin.site.register(ItemProperty, ItemPropertyAdmin)

@@ -1,13 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from django.core.mail.message import EmailMessage
 from django.core.urlresolvers import reverse
+from django.urls import Resolver404, resolve
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from django.views.decorators.http import require_GET
 from dnd.menu import menu_item, submenu_item, MenuItem
-from dnd.forms import InaccurateContentForm
 from dnd.models import NewsEntry
+
+
+def legacy_mobile_redirect(request, path=''):
+    candidate = '/' + path
+    try:
+        resolve(candidate)
+    except Resolver404:
+        section = path.split('/', 1)[0]
+        candidate = '/' + section + '/' if section in {
+            'rulebooks', 'classes', 'feats', 'spells', 'skills', 'races',
+            'monsters', 'items', 'languages', 'deities', 'rules',
+        } else '/'
+    if request.GET:
+        candidate += '?' + request.GET.urlencode()
+    return HttpResponsePermanentRedirect(candidate)
 
 
 def permanent_redirect_view(request, view_name, args=None, kwargs=None):
@@ -56,105 +71,11 @@ def index(request):
     return response
 
 
+@require_GET
 def inaccurate_content(request):
-    if request.method == 'POST':
-        form = InaccurateContentForm(request.POST, initial={
-            'captcha': request.META['REMOTE_ADDR']})
-        if form.is_valid():
-            if form.cleaned_data['sender']:
-                headers = {
-                    'Reply-To': form.cleaned_data['sender']}
-            else:
-                headers = {}
-
-            email = EmailMessage(
-                subject='Problem in url %s' % form.cleaned_data['url'],
-                body="Message: %s\n\nUrl: %s\n\nBetter desc:%s\nFrom: %s" % (
-                    form.cleaned_data['message'], form.cleaned_data['url'],
-                    form.cleaned_data['better_description'],
-                    form.cleaned_data['sender']),
-                from_email='mailer@dndtools.eu',
-                to=('dndtoolseu@googlegroups.com', 'dndtools.eu@gmail.com'),
-                headers=headers,
-            )
-
-            email.send()
-
-            # Trello email
-
-            email = EmailMessage(
-                subject='#2 BUGFIXES: %s' % form.cleaned_data['url'],
-                body="Message: %s\n\nUrl: %s\n\nBetter desc:%s\nFrom: %s" % (
-                    form.cleaned_data['message'], form.cleaned_data['url'],
-                    form.cleaned_data['better_description'],
-                    form.cleaned_data['sender']),
-                from_email='mailer@dndtools.eu',
-                to=('dndtoolsbugfixes+fdpadeovxynhkxuyzjqf@boards.trello.com', ),
-                headers=headers,
-            )
-
-            email.send()
-
-            # Redirect after POST
-            return HttpResponseRedirect(reverse('inaccurate_content_sent'))
-
-    else:
-        form = InaccurateContentForm(
-            initial={
-                'url': request.GET.get('url', ''),
-            })
-
     return render_to_response('dnd/inaccurate_content.html',
-                              {
-                                  'request': request,
-                                  'form': form, }, context_instance=RequestContext(request), )
-
+                              {'request': request, 'reported_url': request.GET.get('url', '')},
+                              context_instance=RequestContext(request))
 
 def inaccurate_content_sent(request):
-    return render_to_response('dnd/inaccurate_content_sent.html',
-                              {
-                                  'request': request,
-                              }, context_instance=RequestContext(request), )
-
-
-#@revision.create_on_success
-def very_secret_url(request):
-    log = ''
-
-    #noinspection PyUnresolvedReferences
-    revision.comment = "Automatic (updating PHB spell pages)"
-    #noinspection PyUnresolvedReferences
-    revision.user = User.objects.get(username='dndtools')
-
-    #    counter = 1
-    #
-    #    phb = Rulebook.objects.get(abbr='PH')
-    #
-    #    for line in data.split('\n'):
-    #        line = line.strip()
-    #        m = re.match('([^\t]+)\tPH \t(\d+)', line)
-    #        if m:
-    #            spells = Spell.objects.filter(rulebook=phb, slug=slugify(m.group(1).strip()))
-    #            spell = spells[0] if spells else None
-    #
-    #            if spell and spell.page is None:
-    #                spell.page = m.group(2).strip()
-    #                spell.save()
-    #
-    #                message = '%05d %s saved\n' % (counter, spell)
-    #                log += message
-    #                print message,
-    #                counter += 1
-    #            else:
-    #                message = '%05d %s IGNORED\n' % (counter, spell)
-    #                log += message
-    #                print message,
-    #                counter += 1
-
-    return render_to_response('dnd/very_secret_url.html',
-                              {
-                                  'request': request,
-                                  'log': log,
-                              }, context_instance=RequestContext(request), )
-
-
+    return HttpResponseRedirect(reverse('inaccurate_content'))

@@ -49,6 +49,9 @@ def create_hr(s):
 
 def update_html_cache_attributes(object, *args):
     for attr_name in args:
+        html_attr_name = '%s_html' % attr_name
+        if isinstance(attr_name, tuple):
+            attr_name, html_attr_name = attr_name
         value = getattr(object, attr_name)
 
         # remove ligatures and other bad characters
@@ -66,7 +69,7 @@ def update_html_cache_attributes(object, *args):
                        r'<span class="errata-old">\1</span><span class="errata-new">\2</span>', value)
 
         # set it to '_html'
-        setattr(object, '%s_html' % attr_name, value)
+        setattr(object, html_attr_name, value)
 
 
 def int_with_commas(x):

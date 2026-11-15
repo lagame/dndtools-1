@@ -1,0 +1,39 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Create private test settings
+        run: python scripts/setup_local.py
+      - name: Start MySQL
+        run: docker compose up -d --wait db
+      - name: Prepare test database
+        run: python scripts/prepare_test_db.py
+      - name: Build app
+        run: docker compose build app
+      - name: Migrate application database
+        run: docker compose run --rm app python manage.py migrate --noinput
+      - name: Django tests
+        run: docker compose run --rm app python manage.py test dnd --keepdb --noinput
+      - name: Migration drift
+        run: docker compose run --rm app python manage.py makemigrations --check --dry-run
+      - name: Deployment checks
+        run: docker compose run --rm -e DND_DEBUG=0 app python manage.py check --deploy --fail-level WARNING
+      - name: Install browser test tools
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+      - name: Browser smoke
+        run: |
+          docker compose up -d app
+          python scripts/browser_smoke.py
+      - name: Stop containers
+        if: always()
+        run: docker compose down

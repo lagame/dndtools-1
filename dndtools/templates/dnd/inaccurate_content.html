@@ -1,30 +1,9 @@
 {% extends "dnd/layout.html" %}
-
+{% block title %}Report an issue{% endblock %}
 {% block content %}
-
-  <form action="{% url 'inaccurate_content' %}" method="post">{% csrf_token %}
-    <div class="form_settings">
-      {% for field in form %}
-        {% if field.name == "url" %}
-          {{ field.as_hidden }}
-        {% else %}
-        <p>
-        {{ field.errors }}
-
-          {% if field.field.required %}
-            <span class="required">{{ field.label_tag }}</span>
-          {% else %}
-            <span>{{ field.label_tag }}</span>
-          {% endif %}
-          {{ field }}
-          {% if field.help_text %} <small>{{ field.help_text }}</small> {% endif %}
-        </p>
-        {% endif %}
-      {% endfor %}
-      <p style="padding-top: 15px">
-        <span>&nbsp;</span><input class="submit" type="submit" name="contact_submitted" value="submit"/>
-      </p>
-    </div>
-  </form>
-
+<header class="page-heading"><span class="eyebrow">Improve the catalog</span><h1>Report an issue</h1>
+<p>Thank you for helping us correct the project.</p></header>
+{% if reported_url %}<p>Page to mention in your report: <code>{{ reported_url }}</code></p>{% endif %}
+<p>Open a GitHub issue and describe what is wrong, the rulebook and page number if available, and your proposed correction. Do not upload the private database or copyrighted source scans.</p>
+<p><a class="text-link" href="https://github.com/lagame/dndtools-1/issues/new">Open a project issue →</a></p>
 {% endblock %}

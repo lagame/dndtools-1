@@ -6,6 +6,9 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'dnd.monsters.views',
 
+    url(r'^types/(?P<slug>[^/]+)/$', 'monster_type_detail', name='monster_type_detail'),
+    url(r'^subtypes/(?P<slug>[^/]+)/$', 'monster_subtype_detail', name='monster_subtype_detail'),
+
     # monsters
     url(
         r'^$',

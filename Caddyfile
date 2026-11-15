@@ -1,0 +1,12 @@
+{$DND_PUBLIC_HOST} {
+    encode zstd gzip
+    handle_path /static/* {
+        root * /var/www/static
+        file_server
+    }
+    handle_path /media/* {
+        root * /var/www/media
+        file_server
+    }
+    reverse_proxy app:8765
+}

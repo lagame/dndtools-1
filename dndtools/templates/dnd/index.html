@@ -1,27 +1,43 @@
 {% extends "dnd/index_layout.html" %}
-
+{% block title %}Explore the library{% endblock %}
 {% block content %}
+<section class="home-hero">
+  <div><span class="eyebrow">The D&amp;D reference library</span>
+    <h1>Every adventure starts with a discovery.</h1>
+    <p>Browse spells, feats, classes and sourcebooks in a searchable catalog built for tabletop explorers.</p>
+    <div class="hero-actions"><a href="{% url 'search' %}">Search the catalog</a><a href="{% url 'rulebook_list' %}">Explore rulebooks</a></div>
+  </div>
+  <div class="hero-mark" aria-hidden="true">D20</div>
+</section>
 
-<h3>Project update — November 14, 2026</h3>
-<p style="font-size: 11px;">A modernized local version of D&amp;D Tools is now running again on current Python and Django versions.</p>
+<section aria-labelledby="browse-heading"><div class="section-heading"><h2 id="browse-heading">Browse by category</h2></div>
+  <div class="category-grid">
+    <a href="{% url 'spell_index' %}">Spells<small>Schools, levels and sources</small></a>
+    <a href="{% url 'feat_index' %}">Feats<small>Options for every build</small></a>
+    <a href="{% url 'character_class_list' %}">Classes<small>Base and prestige classes</small></a>
+    <a href="{% url 'race_index' %}">Races<small>Origins and traits</small></a>
+    <a href="{% url 'monster_index' %}">Monsters<small>Creatures of the realms</small></a>
+    <a href="{% url 'item_index' %}">Items<small>Equipment and treasures</small></a>
+    <a href="{% url 'skill_list' %}">Skills<small>Checks and training</small></a>
+    <a href="{% url 'rulebook_list' %}">Rulebooks<small>Browse by edition</small></a>
+  </div>
+</section>
 
-<div class="nice-textile">
-<p>The project can be updated again with new corrections and content. If there is enough interest, we can also publish a current version on a VPS and make it available online.</p>
-<p>The README contains complete instructions for running and hosting the project locally. If you would like to help or request the database, please open an issue in the <a href="https://github.com/lagame/dndtools-1">project repository</a> so we can coordinate the next steps.</p>
-</div>
+<section class="project-update" aria-labelledby="update-heading">
+  <span class="eyebrow">Project update · November 14, 2026</span>
+  <h2 id="update-heading">The library is being renewed</h2>
+  <p>This community fork is modernizing the original D&amp;D Tools application and its private catalog. We can resume corrections and carefully reviewed additions. A VPS deployment can follow when the project is ready.</p>
+  <p>The <a href="https://github.com/lagame/dndtools-1#readme">README</a> explains how to run and host a copy with MySQL. To contribute or request the private database, <a href="https://github.com/lagame/dndtools-1/issues">open a project issue</a>; file transfer is arranged privately.</p>
+</section>
 
-{% for news_entry in news_entries %}
-<h3>{{ news_entry.title }}</h3>
-<p style="font-size: 11px;">{{ news_entry.published }}</p>
+{% if news_entries %}<section aria-labelledby="news-heading"><h2 id="news-heading">News and updates</h2>
+  {% for news_entry in news_entries %}
+    <article class="news-entry"><h3>{{ news_entry.title }}</h3><p class="eyebrow">{{ news_entry.published }}</p>
+      <div class="nice-textile">{{ news_entry.body_html|safe }}</div></article>
+  {% endfor %}
+</section>{% endif %}
 
-<div class="nice-textile">
-{{ news_entry.body_html|safe }}
-</div>
-{% endfor %}
-
-<h3>Disclaimer</h3>
-
-<p>If you, by any chance, wonder on a page from a rulebook you do not OWN (the source material is always referred both in url and in page contents),
-  please, leave that page, buy the book and then return.</p>
-
+<section class="disclaimer"><h2>About the sources</h2>
+  <p>Pages identify their sourcebooks and editions. Consult the original books for authoritative rules and support their publishers.</p>
+</section>
 {% endblock %}

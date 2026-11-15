@@ -1,11 +1,31 @@
 # Create your views here.
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render, render_to_response
 from django.template.context import RequestContext
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
 from dnd.filters import MonsterFilter
-from dnd.models import Rulebook, Monster
+from dnd.models import Rulebook, Monster, MonsterType, MonsterSubtype
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object
+
+
+@menu_item(MenuItem.BESTIARY)
+@submenu_item(MenuItem.Bestiary.MONSTERS)
+def monster_type_detail(request, slug):
+    kind = get_object_or_404(MonsterType, slug=slug)
+    monsters = Monster.objects.filter(type=kind).select_related('rulebook').order_by('name')
+    return render(request, 'dnd/monsters/monster_kind_detail.html', {
+        'kind': kind, 'kind_label': 'type', 'monsters': monsters,
+    })
+
+
+@menu_item(MenuItem.BESTIARY)
+@submenu_item(MenuItem.Bestiary.MONSTERS)
+def monster_subtype_detail(request, slug):
+    kind = get_object_or_404(MonsterSubtype, slug=slug)
+    monsters = Monster.objects.filter(subtypes=kind).select_related('rulebook').order_by('name')
+    return render(request, 'dnd/monsters/monster_kind_detail.html', {
+        'kind': kind, 'kind_label': 'subtype', 'monsters': monsters,
+    })
 
 
 @menu_item(MenuItem.BESTIARY)

@@ -1,0 +1,31 @@
+{% extends "dnd/layout.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<header class="page-heading"><p class="eyebrow">Library</p><h1>Search the catalog</h1>
+<p>Find spells, feats, classes, books and more.</p></header>
+<form method="get" action="{% url 'search' %}" class="search-page-form">
+  <label for="catalog-query">Search terms</label>
+  <div class="search-row"><input id="catalog-query" name="q" type="search" value="{{ query }}" maxlength="100" required>
+  <label for="catalog-category">Category</label><select id="catalog-category" name="category">
+    <option value="">All categories</option>
+    {% for key, label, model, fields, related in categories %}<option value="{{ key }}" {% if selected == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select><button type="submit">Search</button></div>
+</form>
+{% if query %}
+  {% if sections %}
+    {% for section in sections %}
+      <section class="result-section"><div class="section-heading"><h2>{{ section.label }}</h2><span>{{ section.count }} result{{ section.count|pluralize }}</span></div>
+      {% if section.results %}<ul class="result-list">
+        {% for result in section.results %}<li><a href="{{ result.url }}">{{ result.title }}</a>{% if result.source %}<small>{{ result.source }}</small>{% endif %}</li>{% endfor %}
+      </ul>{% else %}<p>No results in this category.</p>{% endif %}
+      {% if not selected and section.count > 8 %}<a class="text-link" href="{% url 'search' %}?q={{ query|urlencode }}&amp;category={{ section.key }}">See all {{ section.count }} {{ section.label|lower }} →</a>{% endif %}
+      {% if section.page and section.page.paginator.num_pages > 1 %}<nav class="search-pagination" aria-label="Search pages">
+        {% if section.page.has_previous %}<a href="?q={{ query|urlencode }}&amp;category={{ section.key }}&amp;page={{ section.page.previous_page_number }}">Previous</a>{% endif %}
+        <span>Page {{ section.page.number }} of {{ section.page.paginator.num_pages }}</span>
+        {% if section.page.has_next %}<a href="?q={{ query|urlencode }}&amp;category={{ section.key }}&amp;page={{ section.page.next_page_number }}">Next</a>{% endif %}
+      </nav>{% endif %}
+      </section>
+    {% endfor %}
+  {% else %}<p class="empty-state">No matches for “{{ query }}”. Try another name or category.</p>{% endif %}
+{% else %}<p class="empty-state">Enter a name or description to explore the library.</p>{% endif %}
+{% endblock %}

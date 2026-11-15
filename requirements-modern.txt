@@ -1,3 +1,0 @@
-Django>=5.2,<5.3
-Pillow>=11,<14
-textile>=4,<5

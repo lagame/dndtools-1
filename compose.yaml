@@ -1,0 +1,57 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DND_DB_NAME}
+      MYSQL_USER: ${DND_DB_USER}
+      MYSQL_PASSWORD: ${DND_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DND_MYSQL_ROOT_PASSWORD}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_as_cs"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      DND_DB_HOST: db
+      DND_DB_PORT: "3306"
+      DND_STATIC_ROOT: /var/www/static
+      DND_MEDIA_ROOT: /var/www/media
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - static_data:/var/www/static
+      - media_data:/var/www/media
+
+  proxy:
+    image: caddy:2
+    profiles: ["production"]
+    environment:
+      DND_PUBLIC_HOST: ${DND_PUBLIC_HOST:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - static_data:/var/www/static:ro
+      - media_data:/var/www/media:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app
+
+volumes:
+  mysql_data:
+  static_data:
+  media_data:
+  caddy_data:
+  caddy_config:

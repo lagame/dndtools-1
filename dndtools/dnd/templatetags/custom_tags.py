@@ -2,7 +2,6 @@
 import os
 from urllib import parse as urlparse
 from django import template
-from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 import dndproject.settings
 
@@ -38,8 +37,9 @@ def set_var(parser, token):
 def _absolute_url(url):
     if url.startswith('http://') or url.startswith('https://'):
         return url
-    domain = Site.objects.get_current().domain
-    return 'http://%s%s' % (domain, url)
+    domain = dndproject.settings.PUBLIC_HOST
+    scheme = 'https' if dndproject.settings.FORCE_HTTPS else 'http'
+    return '%s://%s%s' % (scheme, domain, url)
 
 
 @register.simple_tag

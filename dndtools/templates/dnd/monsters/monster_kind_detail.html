@@ -1,0 +1,9 @@
+{% extends "dnd/monsters/monster_layout.html" %}
+{% block title %}{{ kind.name }} monsters{% endblock %}
+{% block breadcrumbs %} &raquo; <a href="{% url 'monster_index' %}">Monsters</a> &raquo; {{ kind.name }}{% endblock %}
+{% block content %}
+<header class="page-heading"><span class="eyebrow">Bestiary · {{ kind_label }}</span><h1>{{ kind.name }}</h1></header>
+{% if monsters %}<ul class="result-list">
+  {% for monster in monsters %}<li><a href="{{ monster.get_absolute_url }}">{{ monster.name }}</a><small>{{ monster.rulebook.name }}</small></li>{% endfor %}
+</ul>{% else %}<p class="empty-state">No monsters in this {{ kind_label }} yet.</p>{% endif %}
+{% endblock %}

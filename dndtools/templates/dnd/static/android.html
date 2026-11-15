@@ -5,7 +5,11 @@
 {% block content %}
 
     <div class="nice-textile">
-        {{ page_body.body_html|safe }}
+        {% if page_body %}
+            {{ page_body.body_html|safe }}
+        {% else %}
+            <p>The original Android page is not available in this catalog snapshot. Check the <a href="https://github.com/lagame/dndtools-1/issues">project issues</a> for updates.</p>
+        {% endif %}
     </div>
 
 {% endblock %}
