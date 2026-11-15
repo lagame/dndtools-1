@@ -11,6 +11,7 @@ from django.urls import reverse
 from dnd.models import (
     CharacterClass, DndEdition, Domain, Feat, FeatCategory, Race, RaceSize,
     RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool,
+    TextFeatPrerequisite,
 )
 
 
@@ -162,6 +163,28 @@ class CatalogSmokeTests(TestCase):
             'feat_categories__slug': ['general', 'combat']})
         self.assertContains(response, '1 result found.')
         self.assertEqual(response.context['paginator'].count(), 1)
+
+    def test_catalog_text_filters_ignore_case(self):
+        feat = Feat.objects.create(rulebook=self.spell.rulebook, name='Power Attack',
+                                   slug='power-attack', description='A stronger blow.',
+                                   benefit='Trade accuracy for damage.')
+        TextFeatPrerequisite.objects.create(feat=feat, text='Strength 13')
+        for term in ('Power', 'power', 'POWER'):
+            response = self.client.get('/feats/', {'name': term})
+            self.assertContains(response, feat.get_absolute_url())
+            self.assertEqual(response.context['paginator'].count(), 1)
+        for term in ('Strength', 'strength', 'STRENGTH'):
+            response = self.client.get('/feats/', {'prerequisite': term})
+            self.assertContains(response, feat.get_absolute_url())
+            self.assertEqual(response.context['paginator'].count(), 1)
+        accented = Feat.objects.create(rulebook=self.spell.rulebook, name='Ágil Mind',
+                                       slug='agil-mind', description='Think quickly.', benefit='Focus.')
+        self.assertContains(self.client.get('/feats/', {'name': 'agil'}),
+                            accented.get_absolute_url())
+        for term in ('Test', 'test', 'TEST'):
+            response = self.client.get('/rulebooks/', {'name': term})
+            self.assertContains(response, self.spell.rulebook.get_absolute_url())
+            self.assertEqual(response.context['paginator'].count(), 1)
 
     def test_race_image_upload_uses_supported_pillow_resampling(self):
         size = RaceSize.objects.create(name='Medium', order=1)

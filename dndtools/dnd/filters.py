@@ -5,7 +5,7 @@ from dnd.models import (
     Spell, DndEdition, SpellSchool, SpellSubSchool, SpellDescriptor, FeatCategory,
     CharacterClass, CharacterClassVariant, Rulebook, Domain, Feat, Skill, Item, Language, Race, Monster, RaceType, ItemSlot,
     ItemProperty, Deity, Rule)
-from dnd.filters_fields import FeatMultiPrerequisiteFieldFilter
+from dnd.filters_fields import CatalogCharFilter, FeatMultiPrerequisiteFieldFilter
 
 
 def rulebook_choices(unknown_entry=True):
@@ -109,26 +109,26 @@ def feat_category_choices():
 
 
 class SpellFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Spell name'
     )
     # noinspection PyShadowingBuiltins
-    range = django_filters2.CharFilter(
+    range = CatalogCharFilter(
         lookup_type='icontains',
     )
-    casting_time = django_filters2.CharFilter(
+    casting_time = CatalogCharFilter(
         lookup_type='icontains',
     )
-    spell_resistance = django_filters2.CharFilter(
+    spell_resistance = CatalogCharFilter(
         lookup_type='icontains',
     )
-    area = django_filters2.CharFilter(
+    area = CatalogCharFilter(
         lookup_type='icontains'
     )
-    duration = django_filters2.CharFilter(
+    duration = CatalogCharFilter(
         lookup_type='icontains'
     )
-    saving_throw = django_filters2.CharFilter(
+    saving_throw = CatalogCharFilter(
         lookup_type='icontains'
     )
 
@@ -155,7 +155,7 @@ class SpellFilter(django_filters2.FilterSet):
     rulebook__slug = django_filters2.ChoiceFilter(
         label='Rulebook', choices=rulebook_choices
     )
-    description = django_filters2.CharFilter(
+    description = CatalogCharFilter(
         lookup_type='icontains',
     )
     class_levels__slug = django_filters2.ChoiceFilter(
@@ -207,7 +207,7 @@ class ItemFilter(django_filters2.FilterSet):
     type_choices = [itemType for itemType in Item.ITEM_TYPE]
     type_choices.insert(0, ('', 'All'))
 
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Item name'
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
@@ -242,7 +242,7 @@ class ItemFilter(django_filters2.FilterSet):
 
 
 class LanguageFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Language name'
     )
 
@@ -252,7 +252,7 @@ class LanguageFilter(django_filters2.FilterSet):
 
 
 class CharacterClassFilter(django_filters2.FilterSet):
-    character_class__name = django_filters2.CharFilter(
+    character_class__name = CatalogCharFilter(
         lookup_type='icontains', label='Class name'
     )
     character_class__prestige = django_filters2.BooleanFilter()
@@ -269,7 +269,7 @@ class CharacterClassFilter(django_filters2.FilterSet):
     skill_points = django_filters2.RangeFilter(
         label='Skill points/level (range)',
     )
-    class_features = django_filters2.CharFilter(
+    class_features = CatalogCharFilter(
         label='Class feature',
         lookup_type='icontains',
     )
@@ -285,7 +285,7 @@ class CharacterClassFilter(django_filters2.FilterSet):
     required_feats__feat = django_filters2.MultipleChoiceFilter(
         label='Feats', choices=feat_choices
     )
-    requirements = django_filters2.CharFilter(
+    requirements = CatalogCharFilter(
         label='Requirement', lookup_type='icontains',
     )
 
@@ -298,7 +298,7 @@ class CharacterClassFilter(django_filters2.FilterSet):
 
 
 class RulebookFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains'
     )
     dnd_edition__slug = django_filters2.ChoiceFilter(
@@ -311,7 +311,7 @@ class RulebookFilter(django_filters2.FilterSet):
 
 
 class FeatFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Feat name'
     )
     feat_categories__slug = django_filters2.MultipleChoiceFilter(
@@ -326,16 +326,16 @@ class FeatFilter(django_filters2.FilterSet):
         choices=lambda: edition_choices(unknown_entry=False),
         label='Edition',
     )
-    description = django_filters2.CharFilter(
+    description = CatalogCharFilter(
         lookup_type='icontains',
     )
-    benefit = django_filters2.CharFilter(
+    benefit = CatalogCharFilter(
         lookup_type='icontains',
     )
-    special = django_filters2.CharFilter(
+    special = CatalogCharFilter(
         lookup_type='icontains',
     )
-    normal = django_filters2.CharFilter(
+    normal = CatalogCharFilter(
         lookup_type='icontains',
     )
     prerequisite = FeatMultiPrerequisiteFieldFilter(
@@ -350,7 +350,7 @@ class FeatFilter(django_filters2.FilterSet):
 
 
 class SpellDomainFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Domain name'
     )
 
@@ -360,7 +360,7 @@ class SpellDomainFilter(django_filters2.FilterSet):
 
 
 class SpellDescriptorFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Descriptor name'
     )
 
@@ -370,7 +370,7 @@ class SpellDescriptorFilter(django_filters2.FilterSet):
 
 
 class SkillFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains'
     )
     trained_only = django_filters2.BooleanFilter()
@@ -394,7 +394,7 @@ class SkillFilter(django_filters2.FilterSet):
 
 
 class RuleFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains'
     )
 
@@ -404,7 +404,7 @@ class RuleFilter(django_filters2.FilterSet):
 
 
 class DeityFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains'
     )
 
@@ -414,7 +414,7 @@ class DeityFilter(django_filters2.FilterSet):
 
 
 class MonsterFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Monster name'
     )
     rulebook__slug = django_filters2.ChoiceFilter(
@@ -432,7 +432,7 @@ class MonsterFilter(django_filters2.FilterSet):
 
 
 class RaceFilter(django_filters2.FilterSet):
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Race name'
     )
     rulebook__slug = django_filters2.ChoiceFilter(
@@ -456,7 +456,7 @@ class RaceTypeFilter(django_filters2.FilterSet):
     base_attack_type_choices = [raceTypePair for raceTypePair in RaceType.BASE_ATTACK_TYPE_CHOICES]
     base_attack_type_choices.insert(0, ('', 'All'))
 
-    name = django_filters2.CharFilter(
+    name = CatalogCharFilter(
         lookup_type='icontains', label='Race type name'
     )
     hit_die_size = django_filters2.RangeFilter(

@@ -43,6 +43,8 @@ Magias permitem filtrar nome, classe, nível, escola, subescola, descritor, comp
 
 Livros, classes, talentos, criaturas, raças, itens, perícias, idiomas, regras, domínios, descritores e divindades mantêm seus filtros próprios definidos em `dnd/filters.py`. O painel compartilhado mostra contagem, seleções ativas e ações para remover e limpar. Os modelos incorretos dos filtros de classes, monstros e raças foram corrigidos. As opções vazias antes rotuladas “Unknown” agora dizem “All”, pois não aplicam restrição; seleções múltiplas não duplicam registros. O filtro legado ainda usa `django_filters2`; valores inválidos exibem erro e não são aplicados parcialmente. Esse componente deve ser substituído gradualmente para permitir semântica uniforme de “Not specified” em todas as categorias.
 
+Os filtros textuais do catálogo, inclusive pré-requisitos dos talentos, aplicam a collation MySQL `utf8mb4_0900_ai_ci` na consulta. Assim, maiúsculas e acentos não alteram a correspondência, mesmo que as colunas estejam na collation original sensível a maiúsculas. A busca global e os filtros de magia usam a mesma collation.
+
 ## Referências visuais
 
 A estrutura usa grupos e subgrupos do catálogo local, inspirada no [guia de navegação do Mintlify](https://www.mintlify.com/docs/organize/navigation). A busca e a separação dos filtros de magia foram comparadas com a [página de magias do D&D Beyond](https://www.dndbeyond.com/spells); os campos de D&D 5e não foram importados como regras de D&D 3.5.

@@ -11,7 +11,8 @@
 
 ## Local checks
 
-- `docker compose run --rm app python manage.py test dnd --keepdb --noinput`: 13 focused tests passed, including search, filters, redirects, staff verification, invalid input, duplicate prevention and a new race illustration upload.
+- `docker compose run --rm app python manage.py test dnd --keepdb --noinput`: 14 focused tests passed, including search, case-insensitive text filters, redirects, staff verification, invalid input, duplicate prevention and a new race illustration upload.
+- Real MySQL regression: `/feats/?name=Power`, `power` and `POWER` now each return 96 results; before the correction they returned 72, 25 and 0. The same `a`/`A` comparison returned identical totals in 12 catalog sections, including feats, books, classes, monsters, races, items, skills, languages, rules, deities, domains and descriptors.
 - `docker compose run --rm app python manage.py audit_catalog`: 43 representative detail pages returned HTTP 200. `import_legacy_sqlite --verify` compared every field of all 50,958 rows in the 58 catalog tables against the private SQLite snapshot.
 - `py -3 scripts/browser_smoke.py` with `DND_QA_REAL_DATA=1` and `DND_QA_MISSING_IMAGE_URL=/rulebooks/forgotten-realms-35--4/serpent-kingdoms--24/` against the local MySQL copy: passed at 360, 390, 768 and 1440 px. It visited every link in the catalog sidebar, filtered 12 content sections, queried all 21 search categories, checked the spell class/level mismatch, level 0, no results, search pagination, accent variation, suggestions with keyboard selection plus empty/error states, browser Back, menu focus/closing/resizing, and a rulebook with a missing cover.
 - A global `/search/?q=a` request returned HTTP 200 in 229 ms on the local Docker catalog. This is an observation on the local data and hardware, not a production latency guarantee.
