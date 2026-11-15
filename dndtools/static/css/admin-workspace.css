@@ -1,0 +1,173 @@
+/* Use Django's native controls and theme preference with the Standard palette. */
+@font-face {
+  font-family: Inter;
+  src: url('../fonts/InterVariable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root, html[data-theme="light"] {
+  --primary: #6750a4;
+  --secondary: #53389e;
+  --accent: #fff;
+  --primary-fg: #fff;
+  --body-fg: #1c1b1f;
+  --body-bg: #fef7ff;
+  --body-quiet-color: #625b71;
+  --body-loud-color: #1c1b1f;
+  --header-color: #1c1b1f;
+  --header-branding-color: #53389e;
+  --header-bg: #f6f0fa;
+  --header-link-color: #53389e;
+  --breadcrumbs-fg: #625b71;
+  --breadcrumbs-link-fg: #53389e;
+  --breadcrumbs-bg: #fff;
+  --link-fg: #53389e;
+  --link-hover-color: #3b247d;
+  --link-selected-fg: #53389e;
+  --hairline-color: #ece4f2;
+  --border-color: #d7cae9;
+  --darkened-bg: #f6f0fa;
+  --selected-bg: #f2ebf9;
+  --selected-row: #eee4fa;
+  --close-button-bg: #625b71;
+  --close-button-hover-bg: #494254;
+  --button-bg: #6750a4;
+  --button-hover-bg: #53389e;
+  --default-button-bg: #53389e;
+  --default-button-hover-bg: #3b247d;
+  --workspace-surface: #fff;
+  --font-family-primary: Inter, system-ui, sans-serif;
+}
+
+html[data-theme="dark"] {
+  --primary: #6750a4;
+  --secondary: #53389e;
+  --button-bg: #6750a4;
+  --button-hover-bg: #53389e;
+  --default-button-bg: #6750a4;
+  --default-button-hover-bg: #53389e;
+  --body-fg: #e9e1ed;
+  --body-bg: #19161f;
+  --body-quiet-color: #c8bed3;
+  --body-loud-color: #f6effa;
+  --header-color: #e9e1ed;
+  --header-branding-color: #ddc8ff;
+  --header-bg: #292332;
+  --header-link-color: #ddc8ff;
+  --breadcrumbs-fg: #c8bed3;
+  --breadcrumbs-link-fg: #ddc8ff;
+  --breadcrumbs-bg: #211c28;
+  --link-fg: #d4baff;
+  --link-hover-color: #eadcff;
+  --link-selected-fg: #eadcff;
+  --hairline-color: #39313f;
+  --border-color: #51445e;
+  --darkened-bg: #292332;
+  --selected-bg: #382b49;
+  --selected-row: #40304f;
+  --workspace-surface: #211c28;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="auto"] {
+    --primary: #6750a4;
+    --secondary: #53389e;
+    --button-bg: #6750a4;
+    --button-hover-bg: #53389e;
+    --default-button-bg: #6750a4;
+    --default-button-hover-bg: #53389e;
+    --body-fg: #e9e1ed;
+    --body-bg: #19161f;
+    --body-quiet-color: #c8bed3;
+    --body-loud-color: #f6effa;
+    --header-color: #e9e1ed;
+    --header-branding-color: #ddc8ff;
+    --header-bg: #292332;
+    --header-link-color: #ddc8ff;
+    --breadcrumbs-fg: #c8bed3;
+    --breadcrumbs-link-fg: #ddc8ff;
+    --breadcrumbs-bg: #211c28;
+    --link-fg: #d4baff;
+    --link-hover-color: #eadcff;
+    --link-selected-fg: #eadcff;
+    --hairline-color: #39313f;
+    --border-color: #51445e;
+    --darkened-bg: #292332;
+    --selected-bg: #382b49;
+    --selected-row: #40304f;
+    --workspace-surface: #211c28;
+  }
+}
+
+body:not(.login) { font-size: 15px; line-height: 1.5; }
+body:not(.login) #header { box-sizing: border-box; height: auto; min-height: 78px; flex-shrink: 0; padding: 20px 32px; border-bottom: 1px solid var(--hairline-color); }
+body:not(.login) #site-name { font-weight: 800; letter-spacing: -.035em; }
+body:not(.login) #site-name a { color: var(--header-branding-color); }
+body:not(.login) #site-name span { margin-left: 8px; color: var(--body-quiet-color); font-size: .8em; font-weight: 500; letter-spacing: 0; }
+body:not(.login) #user-tools { font-size: 12px; text-transform: none; letter-spacing: 0; line-height: 2; }
+body:not(.login) #content { padding: 32px; min-width: 0; }
+body:not(.login) #content > h1 { color: var(--body-loud-color); font-size: 1.8rem; font-weight: 750; letter-spacing: -.035em; }
+body:not(.login) div.breadcrumbs { padding: 12px 32px; border-bottom: 1px solid var(--hairline-color); font-size: 13px; }
+body:not(.login) .module { overflow: hidden; border: 1px solid var(--hairline-color); border-radius: 12px; background: var(--workspace-surface); }
+body:not(.login) .module h2, body:not(.login) .module caption { padding: 14px 16px; background: var(--darkened-bg); color: var(--body-loud-color); font-size: 13px; font-weight: 700; }
+body:not(.login) .module caption a.section { color: var(--link-fg); }
+body:not(.login) #nav-sidebar { box-sizing: border-box; padding: 12px; background: var(--workspace-surface); border-right: 1px solid var(--hairline-color); }
+body:not(.login) #nav-sidebar th, body:not(.login) #nav-sidebar td { padding: 10px; font-size: 13px; overflow-wrap: anywhere; }
+body:not(.login) #nav-sidebar #nav-filter { box-sizing: border-box; margin-bottom: 12px; padding: 10px; border-radius: 8px; }
+body:not(.login) #nav-sidebar .current-model { background: var(--selected-bg); }
+body:not(.login) .button, body:not(.login) input[type="submit"], body:not(.login) .submit-row a { border-radius: 8px; padding: 10px 16px; }
+body:not(.login) .object-tools a { padding: 9px 16px; border-radius: 999px; background-color: var(--primary); }
+body:not(.login) .object-tools a:hover { background-color: var(--secondary); }
+body:not(.login) input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]), body:not(.login) select, body:not(.login) textarea { box-sizing: border-box; max-width: 100%; padding: 9px 11px; border-radius: 8px; font: inherit; }
+body:not(.login) a:focus-visible, body:not(.login) button:focus-visible, body:not(.login) input:focus-visible, body:not(.login) select:focus-visible, body:not(.login) textarea:focus-visible, body:not(.login) summary:focus-visible { outline: 3px solid #9a82db; outline-offset: 3px; }
+body:not(.login) #changelist { border: 1px solid var(--hairline-color); border-radius: 12px; background: var(--workspace-surface); }
+body:not(.login) #changelist .results { overflow-x: auto; }
+body:not(.login) #changelist table thead th { padding: 14px 10px; background: var(--darkened-bg); }
+body:not(.login) #changelist table tbody td, body:not(.login) #changelist table tbody th { padding: 13px 10px; }
+body:not(.login) #changelist #toolbar { padding: 16px; background: var(--workspace-surface); }
+body:not(.login) #changelist #toolbar form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+body:not(.login) #changelist #toolbar #changelist-search > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+body:not(.login) #changelist #toolbar form #searchbar { width: min(360px, 100%); height: auto; }
+body:not(.login) #changelist #toolbar input[type="submit"] { min-height: 40px; padding: 9px 14px; border: 0; background: var(--primary); color: var(--primary-fg); font: inherit; }
+body:not(.login) #changelist .actions { padding: 12px 16px; background: var(--workspace-surface); }
+body:not(.login) .submit-row { border: 1px solid var(--hairline-color); border-radius: 12px; background: var(--workspace-surface); }
+body:not(.login) ul.messagelist li { padding: 14px 40px; border-radius: 8px; }
+body.dashboard #content { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 24px; width: auto; margin: 0; }
+body.dashboard #content-main, body.dashboard #content-related { float: none; width: auto; min-width: 0; margin: 0; }
+body.dashboard #content-related { background: transparent; }
+body.dashboard #content-related .module { padding-bottom: 12px; }
+body.dashboard #content-related h3, body.dashboard #content-related p, body.dashboard #content-related ul { padding-right: 16px; padding-left: 16px; }
+.workspace-intro { grid-column: 1 / -1; padding-bottom: 4px; }
+.workspace-intro h1 { margin: 6px 0 10px; color: var(--body-loud-color); font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -.045em; }
+.workspace-intro p, .workspace-help { margin: 0 0 18px; color: var(--body-quiet-color); }
+.workspace-eyebrow { color: var(--link-fg); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.workspace-shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 18px 0 28px; }
+.workspace-card { padding: 22px; border: 1px solid var(--hairline-color); border-radius: 16px; background: var(--workspace-surface); }
+.workspace-card:hover { border-color: var(--border-color); }
+.workspace-card h3 { margin: 0 0 24px; font-size: 1.15rem; font-weight: 750; }
+.workspace-card h3 a { color: var(--body-loud-color); }
+.workspace-card-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 13px; font-weight: 600; }
+.workspace-directory { padding: 18px; border: 1px solid var(--hairline-color); border-radius: 12px; background: var(--workspace-surface); }
+.workspace-directory summary { cursor: pointer; font-weight: 700; }
+.workspace-directory[open] summary { margin-bottom: 18px; }
+.workspace-directory table { width: 100%; }
+.workspace-directory th, .workspace-directory td { padding: 12px; }
+
+@media (max-width: 1024px) {
+  body.dashboard #content { grid-template-columns: minmax(0, 1fr); }
+  body:not(.login) #header, body:not(.login) #content { padding: 22px; }
+}
+@media (max-width: 767px) {
+  body:not(.login) #header { padding: 18px 16px; }
+  body:not(.login) #content { padding: 20px 16px; }
+  body:not(.login) div.breadcrumbs { padding: 12px 16px; }
+  body:not(.login) #site-name span { display: block; margin-left: 0; }
+  body:not(.login) .object-tools { display: flex; justify-content: flex-end; gap: 8px; }
+  body:not(.login) .object-tools li { float: none; }
+  .workspace-shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .workspace-card { padding: 16px; }
+  .workspace-card h3 { font-size: 1rem; }
+  .workspace-directory { padding: 12px; }
+}

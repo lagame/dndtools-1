@@ -9,6 +9,7 @@
   white-space: nowrap;
 }
 .theme-picker[hidden] { display: none; }
+.navigation-toggle .navigation-toggle-label { font-size: .82rem; font-weight: 700; }
 .site-header .brand { order: 0; }
 .site-header .navigation-toggle { order: 1; }
 .theme-picker select {

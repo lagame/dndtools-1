@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from PIL import Image
 from axes.models import AccessAttempt
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -105,6 +105,28 @@ class AdminSecurityTests(TestCase):
         self.assertEqual(self.client.get(reverse('admin:index')).status_code, 200)
         with self.assertRaises(ValidationError):
             validate_password('short')
+
+    def test_workspace_links_follow_model_permissions(self):
+        editor = User.objects.create_user(username='book-editor', is_staff=True)
+        editor.user_permissions.add(Permission.objects.get(
+            content_type__app_label='dnd', codename='view_rulebook'))
+        self.client.force_login(editor)
+        response = self.client.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Catalog workspace')
+        self.assertContains(response, 'css/admin-workspace.css?v=')
+        self.assertContains(response, reverse('admin:dnd_rulebook_changelist'))
+        self.assertNotContains(response, reverse('admin:dnd_rulebook_add'))
+        self.assertNotContains(response, reverse('admin:dnd_spell_changelist'))
+        self.assertEqual(self.client.get(reverse('admin:dnd_spell_changelist')).status_code, 403)
+        self.assertEqual(self.client.get(reverse('admin:dnd_rulebook_add')).status_code, 403)
+
+    def test_workspace_explains_missing_permissions(self):
+        editor = User.objects.create_user(username='unassigned-editor', is_staff=True)
+        self.client.force_login(editor)
+        response = self.client.get(reverse('admin:index'))
+        self.assertContains(response, 'You don’t have permission to view or edit anything.')
+        self.assertNotContains(response, 'workspace-card-actions')
 
 
 class CatalogSmokeTests(TestCase):
