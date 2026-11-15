@@ -1,4 +1,5 @@
 {% extends "dnd/deities/deity_layout.html" %}
+{% load catalog_html %}
 
 {% block title %}{{ deity.name }} &ndash; Deities{% endblock %}
 
@@ -18,7 +19,7 @@
 
 {% if deity.description_html %}
 <div class="nice-textile">
-    {{ deity.description_html|safe }}
+    {{ deity.description_html|safe_catalog_html }}
 </div>
 {% endif %}
 

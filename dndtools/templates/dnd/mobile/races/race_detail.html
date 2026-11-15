@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/races/race_layout.html" %}
+{% load catalog_html %}
 
 {% load custom_filters %}
 {% load custom_tags %}
@@ -132,15 +133,15 @@
     <div class="nice-textile">
         <h3>Description</h3>
 
-        {{ race.description_html|safe }}
+        {{ race.description_html|safe_catalog_html }}
 
         <h3>Combat</h3>
 
-        {{ race.combat_html|safe }}
+        {{ race.combat_html|safe_catalog_html }}
 
         <h3>Racial Traits</h3>
 
-        {{ race.racial_traits_html|safe }}
+        {{ race.racial_traits_html|safe_catalog_html }}
     </div>
 
     {% if related_races %}

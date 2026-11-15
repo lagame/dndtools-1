@@ -38,6 +38,34 @@ def main():
             for width in (360, 390, 768, 1440):
                 page = browser.new_page(viewport={'width': width, 'height': 750})
                 assert visit(page, '/').status == 200
+                notice = page.locator('#privacy-notice')
+                expect(notice).to_be_visible()
+                lore_mark = page.get_by_role('link', name='Oghma')
+                expect(lore_mark).to_be_visible()
+                assert lore_mark.get_attribute('href').startswith('/')
+                assert lore_mark.get_attribute('href').endswith('/')
+                assert lore_mark.get_attribute('rel') == 'nofollow noopener'
+                assert lore_mark.locator('svg[aria-hidden="true"]').count() == 1
+                assert lore_mark.inner_text().strip() == ''
+                assert lore_mark.evaluate('(link) => getComputedStyle(link).position') == 'fixed'
+                assert lore_mark.bounding_box()['y'] + lore_mark.bounding_box()['height'] < notice.bounding_box()['y']
+                assert all('?v=' in url for url in page.locator('link[rel="stylesheet"][href]').evaluate_all('(links) => links.map(link => link.href)'))
+                assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
+                if width in (390, 1440):
+                    screenshot(page, f'privacy-notice-{width}.png')
+                notice.get_by_role('button', name='Got it').click()
+                expect(notice).to_be_hidden()
+                shortcut_y = lore_mark.bounding_box()['y']
+                page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
+                assert abs(lore_mark.bounding_box()['y'] - shortcut_y) <= 1
+                assert visit(page, '/').status == 200
+                expect(notice).to_be_hidden()
+                if width == 390:
+                    page.evaluate("localStorage.setItem('dnd_privacy_notice_v1', String(Date.now() - 181 * 86400000))")
+                    assert visit(page, '/').status == 200
+                    expect(notice).to_be_visible()
+                    assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
+                    notice.get_by_role('button', name='Got it').click()
                 toggle = page.get_by_role('button', name='Toggle catalog menu')
                 sidebar = page.locator('#catalog-sidebar')
                 assert page.get_by_role('combobox', name='Search the catalog').count() == 1
@@ -73,14 +101,108 @@ def main():
                 assert page.get_by_text('spells found.').count() >= 1 or page.get_by_text('spell found.').count() >= 1
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 screenshot(page, f'spells-{width}.png')
+                picker = page.get_by_role('combobox', name='Site theme')
+                expect(picker).to_be_visible()
+                assert picker.input_value() == 'standard'
+                assert page.evaluate("localStorage.getItem('dnd_theme_v2')") is None
+                for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'), ('standard', 'Inter')):
+                    picker.select_option(theme)
+                    assert page.evaluate('document.documentElement.dataset.theme') == theme
+                    brand_x = page.locator('.site-header .brand').bounding_box()['x']
+                    menu_x = page.locator('#navigation-toggle').bounding_box()['x']
+                    theme_x = picker.bounding_box()['x']
+                    assert brand_x < menu_x < theme_x
+                    assert page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")') == (theme == 'standard')
+                    assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
+                    assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if width in (390, 1440):
+                        screenshot(page, f'theme-{theme}-spells-{width}.png')
+                    assert visit(page, '/spells/').status == 200
+                    assert picker.input_value() == theme
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if theme in ('simple', 'modern') and width in (390, 1440):
+                        assert visit(page, '/').status == 200
+                        if theme == 'simple':
+                            assert page.locator('.home-hero p').evaluate('(text) => getComputedStyle(text).color') == 'rgb(51, 51, 51)'
+                        screenshot(page, f'theme-{theme}-home-{width}.png')
+                        assert visit(page, '/spells/').status == 200
+                assert not page.context.cookies(BASE)
                 assert visit(page, '/contacts/').status == 200
                 assert page.get_by_text('Open a project issue').count() >= 1
+                if width in (390, 1440):
+                    assert visit(page, '/privacy/').status == 200
+                    expect(page.get_by_role('heading', name='Privacy at D&D Tools')).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if width == 390:
+                        assert page.locator('.privacy-policy table').evaluate('(el) => el.scrollWidth <= el.clientWidth')
+                    screenshot(page, f'privacy-policy-{width}.png')
+                    page.get_by_role('link', name='Português (Brasil)').click()
+                    expect(page.get_by_role('heading', name='Privacidade no D&D Tools')).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if width == 390:
+                        assert page.locator('.privacy-policy table').evaluate('(el) => el.scrollWidth <= el.clientWidth')
+                        screenshot(page, 'privacy-policy-pt-390.png')
                 if DETAIL and width in (390, 1440):
                     assert visit(page, DETAIL).status == 200
                     screenshot(page, f'detail-{width}.png')
                     assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
                     screenshot(page, f'filters-{width}.png')
                 page.close()
+            for theme in ('simple', 'modern'):
+                returning = browser.new_page(viewport={'width': 390, 'height': 750})
+                returning.add_init_script(f"localStorage.setItem('dnd_theme_v2', '{theme}')")
+                assert visit(returning, '/').status == 200
+                expect(returning.locator('#privacy-notice')).to_be_visible()
+                assert returning.get_by_role('combobox', name='Site theme').input_value() == theme
+                assert returning.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                screenshot(returning, f'theme-{theme}-notice-390.png')
+                returning.get_by_role('button', name='Got it').click()
+                assert visit(returning, '/privacy/?lang=pt').status == 200
+                assert returning.locator('.privacy-policy table').evaluate('(table) => table.scrollWidth <= table.clientWidth')
+                assert returning.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                returning.close()
+            for old, current in (('modern', 'standard'), ('classic', 'modern'), ('simple', 'simple')):
+                migrating = browser.new_page()
+                migrating.add_init_script(f"localStorage.setItem('dnd_theme_v1', '{old}')")
+                assert visit(migrating, '/').status == 200
+                assert migrating.get_by_role('combobox', name='Site theme').input_value() == current
+                assert migrating.evaluate("localStorage.getItem('dnd_theme_v1')") is None
+                assert migrating.evaluate("localStorage.getItem('dnd_theme_v2')") == current
+                migrating.close()
+            simple_page = browser.new_page()
+            simple_page.add_init_script("""
+                localStorage.setItem('dnd_theme_v2', 'simple');
+                document.addEventListener('DOMContentLoaded', () => {
+                    const image = document.createElement('img');
+                    image.dataset.themeSrc = '/static/favicon.ico?theme-image-test=1';
+                    document.body.prepend(image);
+                });
+            """)
+            simple_requests = []
+            simple_page.on('request', lambda request: simple_requests.append(request))
+            assert visit(simple_page, '/').status == 200
+            assert not simple_page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")')
+            assert simple_page.locator('#site-icon').get_attribute('href') == 'data:,'
+            assert simple_page.locator('img[data-theme-src]').get_attribute('src') is None
+            assert not any(request.resource_type in ('image', 'font') or 'identity.css' in request.url
+                           for request in simple_requests)
+            with simple_page.expect_request(lambda request: request.resource_type == 'image' and request.url.endswith('/static/favicon.ico?theme-image-test=1')):
+                simple_page.get_by_role('combobox', name='Site theme').select_option('modern')
+            assert simple_page.locator('img[data-theme-src]').get_attribute('src') == '/static/favicon.ico?theme-image-test=1'
+            simple_page.get_by_role('combobox', name='Site theme').select_option('simple')
+            assert simple_page.locator('img[data-theme-src]').get_attribute('src') is None
+            simple_page.close()
+            without_js = browser.new_page(java_script_enabled=False)
+            fallback_requests = []
+            without_js.on('request', lambda request: fallback_requests.append(request.url))
+            assert visit(without_js, '/').status == 200
+            assert any('identity.css' in url for url in fallback_requests)
+            without_js.close()
+            portuguese = browser.new_page(locale='pt-BR')
+            assert visit(portuguese, '/').status == 200
+            expect(portuguese.get_by_role('heading', name='Sua privacidade')).to_be_visible()
+            portuguese.close()
             page = browser.new_page()
             visit(page, '/m/spells/by-rulebooks/')
             assert page.url.rstrip('/') == BASE + '/spells/by-rulebooks'

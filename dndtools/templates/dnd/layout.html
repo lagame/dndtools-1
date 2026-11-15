@@ -1,12 +1,17 @@
-{% load static %}<!doctype html>
+{% load static versioned_static %}<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Browse D&amp;D spells, feats, classes, creatures, items and rulebooks.">
   <title>{% block title %}Home{% endblock %} | D&amp;D Tools</title>
-  <link rel="icon" href="{% static 'favicon.ico' %}">
-  <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+  <link id="site-icon" rel="icon" href="data:," data-href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% versioned_static 'css/modern.css' %}">
+  <link id="identity-stylesheet" rel="stylesheet" data-href="{% versioned_static 'css/identity.css' %}">
+  <script src="{% versioned_static 'js/theme.js' %}"></script>
+  <noscript><link rel="stylesheet" href="{% versioned_static 'css/identity.css' %}"><link rel="icon" href="{% static 'favicon.ico' %}"></noscript>
+  <link rel="stylesheet" href="{% versioned_static 'css/privacy.css' %}">
+  <link rel="stylesheet" href="{% versioned_static 'css/themes.css' %}">
   {% block extra_meta %}{% endblock %}
   {% block extra_link %}{% endblock %}
 </head>
@@ -14,11 +19,12 @@
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header" id="header">
     <div class="header-inner">
-      <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="Toggle catalog menu" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span> Menu</button>
+      <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="Toggle catalog menu" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span><span class="navigation-toggle-label">Menu</span></button>
       <a class="brand" href="{% url 'index' %}" aria-label="D&amp;D Tools home">
         <span class="brand-symbol" aria-hidden="true">D20</span>
         <span><strong>D&amp;D<span>tools</span></strong><small>Explore the worlds of 3.5</small></span>
       </a>
+      <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">Theme</span><select id="theme-select" aria-label="Site theme"><option value="standard">Standard</option><option value="modern">Modern</option><option value="simple">Simple</option></select></label>
       <form class="header-search" role="search" action="{% url 'search' %}" method="get" data-search-suggest data-suggest-url="{% url 'search_suggest' %}">
         <label class="visually-hidden" for="site-search">Search the catalog</label>
         <div class="search-input-wrap"><input id="site-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search spells, feats, books…" maxlength="100" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="site-suggestions" aria-describedby="site-search-status" aria-expanded="false">
@@ -57,9 +63,32 @@
 
   <footer class="site-footer" id="footer">
     <div><strong>D&amp;D Tools</strong><p>A community maintained reference for tabletop adventurers.</p></div>
-    <nav aria-label="Footer"><a href="{% url 'contact' %}">Contact</a><a href="https://github.com/lagame/dndtools-1">Source and setup</a></nav>
+    <nav aria-label="Footer"><a href="{% url 'contact' %}">Contact</a><a href="{% url 'privacy' %}?lang={{ privacy_language }}">{% if privacy_language == 'pt' %}Privacidade e cookies{% else %}Privacy and cookies{% endif %}</a><a href="https://github.com/lagame/dndtools-1">Source and setup</a></nav>
   </footer>
-  <script defer src="{% static 'js/navigation.js' %}"></script>
-  <script defer src="{% static 'js/search_suggest.js' %}"></script>
+  <a class="lore-mark" href="{% url 'admin:index' %}" rel="nofollow noopener" aria-label="Oghma">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
+      <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
+    </svg>
+  </a>
+  <section class="privacy-notice" id="privacy-notice" lang="{% if privacy_language == 'pt' %}pt-BR{% else %}en{% endif %}" aria-labelledby="privacy-notice-heading">
+    <div class="privacy-notice-inner">
+      <span class="privacy-notice-icon" aria-hidden="true">D20</span>
+      <div class="privacy-notice-copy">
+        <h2 id="privacy-notice-heading">{% if privacy_language == 'pt' %}Sua privacidade{% else %}Your privacy{% endif %}</h2>
+        {% if privacy_language == 'pt' %}
+          <p>Usamos cookies para segurança e acesso administrativo. Se você dispensar este aviso, guardaremos essa escolha no navegador por até 180 dias. Não usamos cookies de publicidade ou análise de audiência.</p>
+          <a href="{% url 'privacy' %}?lang=pt">Como tratamos seus dados</a>
+        {% else %}
+          <p>We use cookies for security and admin access. If you dismiss this notice, we will remember that choice in your browser for up to 180 days. We do not use advertising or analytics cookies.</p>
+          <a href="{% url 'privacy' %}?lang=en">How we handle your data</a>
+        {% endif %}
+      </div>
+      <button class="privacy-notice-dismiss" id="privacy-notice-dismiss" type="button">{% if privacy_language == 'pt' %}Entendi{% else %}Got it{% endif %}</button>
+    </div>
+  </section>
+  <script defer src="{% versioned_static 'js/navigation.js' %}"></script>
+  <script defer src="{% versioned_static 'js/search_suggest.js' %}"></script>
+  <script defer src="{% versioned_static 'js/privacy_notice.js' %}"></script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+/* The editor login follows the public site's Standard visual identity. */
+body.login, body.admin-lockout { min-height: 100vh; margin: 0; background: #fef7ff; color: #1c1b1f; font: 16px/1.5 system-ui, sans-serif; }
+body.login #container { width: min(440px, calc(100% - 32px)); min-width: 0; margin: clamp(32px, 10vh, 100px) auto 32px; overflow: hidden; border: 1px solid #e8dff0; border-radius: 20px; background: #fff; box-shadow: 0 18px 56px #6750a420; }
+body.login #header { padding: 24px 28px; background: #f6f0fa; color: #1c1b1f; text-align: left; justify-content: flex-start; }
+body.login #site-name { font-size: 1.3rem; font-weight: 800; line-height: 1.25; }
+body.login #site-name a { color: #53389e; text-decoration: none; }
+body.login #site-name span { color: #1c1b1f; }
+body.login #content { padding: 28px; }
+body.login #content h2 { margin: 0 0 8px; color: #1c1b1f; font-size: 1.45rem; }
+body.login .login-intro, body.login .login-help { color: #625b71; }
+body.login .login-intro { margin: 0 0 24px; }
+body.login .form-row { padding: 0 0 18px; }
+body.login .form-row label { display: block; margin-bottom: 6px; color: #1c1b1f; font-weight: 650; }
+body.login .form-row #id_username, body.login .form-row #id_password { box-sizing: border-box; width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #bfaee0; border-radius: 10px; background: #fff; color: #1c1b1f; font: inherit; }
+body.login .form-row input:focus-visible, body.login .submit-row input:focus-visible, body.login a:focus-visible, body.admin-lockout a:focus-visible { outline: 3px solid #9a82db; outline-offset: 2px; }
+body.login .submit-row { padding: 0; border: 0; background: transparent; }
+body.login .submit-row input { width: 100%; min-height: 46px; border: 0; border-radius: 999px; background: #6750a4; color: #fff; font: 700 1rem system-ui, sans-serif; cursor: pointer; }
+body.login .submit-row input:hover { background: #53389e; }
+body.login .login-help { margin: 20px 0 0; font-size: .85rem; }
+body.login .login-back { margin: 22px 0 0; }
+body.login .login-back a, body.admin-lockout a { color: #53389e; }
+body.login .errornote { border: 1px solid #d19696; border-radius: 8px; background: #fff3f3; color: #821d1d; }
+body.login .errorlist { color: #821d1d; }
+body.admin-lockout { display: grid; place-items: center; padding: 16px; box-sizing: border-box; }
+body.admin-lockout .lockout-card { box-sizing: border-box; width: min(440px, 100%); padding: 32px; border: 1px solid #e8dff0; border-radius: 20px; background: #fff; box-shadow: 0 18px 56px #6750a420; }
+body.admin-lockout .lockout-mark { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: #6750a4; color: #fff; font-weight: 800; }
+body.admin-lockout h1 { margin: 20px 0 8px; font-size: 1.5rem; }
+body.admin-lockout p { color: #625b71; }
+@media (max-width: 480px) { body.login #container { margin-top: 24px; } body.login #header, body.login #content { padding: 22px; } }

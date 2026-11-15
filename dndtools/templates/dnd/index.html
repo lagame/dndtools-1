@@ -1,4 +1,5 @@
 {% extends "dnd/index_layout.html" %}
+{% load catalog_html %}
 {% block title %}Explore the library{% endblock %}
 {% block content %}
 <section class="home-hero">
@@ -24,18 +25,19 @@
 </section>
 
 <section class="project-update" aria-labelledby="update-heading">
-  <span class="eyebrow">Project update · November 14, 2026</span>
-  <h2 id="update-heading">The library is being renewed</h2>
-  <p>This community fork is modernizing the original D&amp;D Tools application and its private catalog. We can resume corrections and carefully reviewed additions. A VPS deployment can follow when the project is ready.</p>
+  <span class="eyebrow">Project update · November 15, 2026</span>
+  <h2 id="update-heading">The library is online again</h2>
+  <p>This community fork now runs on current Python, Django and MySQL. We can resume corrections and carefully reviewed D&amp;D 3.5 additions.</p>
   <p>The <a href="https://github.com/lagame/dndtools-1#readme">README</a> explains how to run and host a copy with MySQL. To contribute or request the private database, <a href="https://github.com/lagame/dndtools-1/issues">open a project issue</a>; file transfer is arranged privately.</p>
 </section>
 
-{% if news_entries %}<section aria-labelledby="news-heading"><h2 id="news-heading">News and updates</h2>
+{% if news_entries %}<details class="news-archive"><summary>Original project archive</summary>
+  <p>These announcements are preserved from the original project. Their team and project status information may be outdated.</p>
   {% for news_entry in news_entries %}
     <article class="news-entry"><h3>{{ news_entry.title }}</h3><p class="eyebrow">{{ news_entry.published }}</p>
-      <div class="nice-textile">{{ news_entry.body_html|safe }}</div></article>
+      <div class="nice-textile">{{ news_entry.body_html|safe_catalog_html }}</div></article>
   {% endfor %}
-</section>{% endif %}
+</details>{% endif %}
 
 <section class="disclaimer"><h2>About the sources</h2>
   <p>Pages identify their sourcebooks and editions. Consult the original books for authoritative rules and support their publishers.</p>

@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/index/index_layout.html" %}
+{% load catalog_html %}
 
 {% block content %}
 
@@ -15,7 +16,7 @@
 <p style="font-size: 11px;">{{ newsEntry.published }}</p>
 
 <div class="nice-textile">
-{{ newsEntry.body_html|safe }}
+{{ newsEntry.body_html|safe_catalog_html }}
 </div>
 {% endfor %}
 

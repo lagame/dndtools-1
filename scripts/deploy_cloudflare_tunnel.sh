@@ -28,6 +28,7 @@ fi
 
 python3 scripts/setup_local.py
 python3 - <<'PY'
+import secrets
 from pathlib import Path
 
 env = Path('.env')
@@ -37,6 +38,7 @@ values = {
     'DND_ALLOWED_HOSTS': 'dndtools.quest,www.dndtools.quest',
     'DND_CSRF_TRUSTED_ORIGINS': 'https://dndtools.quest,https://www.dndtools.quest',
     'DND_PUBLIC_HOST': 'dndtools.quest',
+    'DJANGO_ADMIN_URL': 'archive-' + secrets.token_urlsafe(24).replace('-', '_'),
 }
 lines = env.read_text(encoding='utf-8').splitlines()
 present = set()

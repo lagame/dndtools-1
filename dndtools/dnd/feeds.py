@@ -24,7 +24,7 @@ class AdminLogFeed(Feed):
             object_rep = entry.object_repr
             try:
                 obj = entry.get_edited_object()
-                object_rep = obj.__unicode__()
+                object_rep = str(obj)
                 url = obj.get_absolute_url()
             except Exception:
                 pass

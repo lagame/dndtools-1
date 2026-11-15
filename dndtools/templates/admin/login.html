@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static versioned_static %}
+
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{{ block.super }}{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/login.css' %}"><link rel="stylesheet" href="{% versioned_static 'css/admin-login.css' %}">{{ form.media }}{% endblock %}
+{% block dark-mode-vars %}{% endblock %}
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<h2>Catalog administration</h2>
+<p class="login-intro">Sign in with your editor account to manage D&amp;D Tools content.</p>
+{% if form.errors and not form.non_field_errors %}
+<p class="errornote">Please correct the errors below.</p>
+{% endif %}
+{% for error in form.non_field_errors %}<p class="errornote">{{ error }}</p>{% endfor %}
+{% if user.is_authenticated %}
+<p class="errornote">This account does not have access to the administration. Sign in with a staff account.</p>
+{% endif %}
+<form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+  <div class="form-row">{{ form.username.errors }}{{ form.username.label_tag }} {{ form.username }}</div>
+  <div class="form-row">{{ form.password.errors }}{{ form.password.label_tag }} {{ form.password }}<input type="hidden" name="next" value="{{ next }}"></div>
+  <div class="submit-row"><input type="submit" value="Log in"></div>
+</form>
+<p class="login-help">Too many attempts? Wait 15 minutes before trying again. Administrators can reset the lockout from the server.</p>
+<p class="login-back"><a href="/">← Back to the catalog</a></p>
+{% endblock %}

@@ -6,6 +6,7 @@ target_sha="$1"
 [[ "$target_sha" =~ ^[0-9a-f]{40}$ ]]
 cd /opt/dndtools
 test -f .env
+grep -Eq '^DJANGO_ADMIN_URL=[a-zA-Z0-9_-]{16,64}$' .env || { echo 'Set a private DJANGO_ADMIN_URL in .env and protect its path with Cloudflare Access before updating.' >&2; exit 1; }
 test -z "$(git status --porcelain)" || { echo 'Working tree has local changes.' >&2; exit 1; }
 git fetch --no-tags origin master
 test "$(git rev-parse origin/master)" = "$target_sha" || { echo 'Selected SHA is not the current fork master.' >&2; exit 1; }

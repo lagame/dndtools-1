@@ -65,9 +65,6 @@ def index(request):
                                   },
                                   context_instance=RequestContext(request), )
 
-    if len(news_entries):
-        response.set_cookie('top_news', news_entries[0].pk, 10 * 365 * 24 * 60 * 60)
-
     return response
 
 

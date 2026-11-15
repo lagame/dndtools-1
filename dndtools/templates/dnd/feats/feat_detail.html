@@ -1,4 +1,5 @@
 {% extends "dnd/feats/feat_layout.html" %}
+{% load catalog_html %}
 
 {% block title %}{{ feat.name }} &ndash; Feat{% endblock %}
 
@@ -26,7 +27,7 @@
 
 
 {% if feat.description_html %}
-    {{ feat.description_html|safe }}
+    {{ feat.description_html|safe_catalog_html }}
 {% else %}
     <p>{{ feat.description|linebreaksbr }}</p>
 {% endif %}
@@ -65,7 +66,7 @@
     {% if feat.benefit_html or feat.benefit %}
         <h4>Benefit </h4>
         {% if feat.benefit_html %}
-        {{ feat.benefit_html|safe }}
+        {{ feat.benefit_html|safe_catalog_html }}
         {% else %}
             <p>{{ feat.benefit|linebreaksbr }}</p>
         {% endif %}
@@ -74,7 +75,7 @@
     {% if feat.special_html or feat.special %}
         <h4>Special </h4>
         {% if feat.special_html %}
-            {{ feat.special_html|safe }}
+            {{ feat.special_html|safe_catalog_html }}
         {% else %}
             <p>{{ feat.special|linebreaksbr }}</p>
         {% endif %}
@@ -83,7 +84,7 @@
     {% if feat.normal_html or feat.normal %}
         <h4>Normal </h4>
         {% if feat.normal_html %}
-            {{ feat.normal_html|safe }}
+            {{ feat.normal_html|safe_catalog_html }}
         {% else %}
             <p>{{ feat.normal|linebreaksbr }}</p>
         {% endif %}
