@@ -23,7 +23,7 @@
         <span class="brand-symbol" aria-hidden="true">D20</span>
         <span><strong>D&amp;D<span>tools</span></strong><small>Explore the worlds of 3.5</small></span>
       </a>
-      <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">Theme</span><select id="theme-select" aria-label="Site theme"><option value="modern">Modern</option><option value="simple">Simple</option><option value="classic">Classic</option></select></label>
+      <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">Theme</span><select id="theme-select" aria-label="Site theme"><option value="standard">Standard</option><option value="modern">Modern</option><option value="simple">Simple</option></select></label>
       <form class="header-search" role="search" action="{% url 'search' %}" method="get" data-search-suggest data-suggest-url="{% url 'search_suggest' %}">
         <label class="visually-hidden" for="site-search">Search the catalog</label>
         <div class="search-input-wrap"><input id="site-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search spells, feats, books…" maxlength="100" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="site-suggestions" aria-describedby="site-search-status" aria-expanded="false">
@@ -64,6 +64,7 @@
     <div><strong>D&amp;D Tools</strong><p>A community maintained reference for tabletop adventurers.</p></div>
     <nav aria-label="Footer"><a href="{% url 'contact' %}">Contact</a><a href="{% url 'privacy' %}?lang={{ privacy_language }}">{% if privacy_language == 'pt' %}Privacidade e cookies{% else %}Privacy and cookies{% endif %}</a><a href="https://github.com/lagame/dndtools-1">Source and setup</a></nav>
   </footer>
+  <a class="admin-shortcut" href="{% url 'admin:index' %}">{% if is_admin %}Admin{% else %}Admin login{% endif %}</a>
   <section class="privacy-notice" id="privacy-notice" lang="{% if privacy_language == 'pt' %}pt-BR{% else %}en{% endif %}" aria-labelledby="privacy-notice-heading">
     <div class="privacy-notice-inner">
       <span class="privacy-notice-icon" aria-hidden="true">D20</span>

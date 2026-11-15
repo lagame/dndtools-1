@@ -5,6 +5,9 @@
 
   const key = 'dnd_privacy_notice_v1';
   const lifetime = 180 * 24 * 60 * 60 * 1000;
+  const syncShortcutPosition = () => {
+    document.documentElement.style.setProperty('--privacy-notice-height', notice.hidden ? '0px' : `${notice.offsetHeight}px`);
+  };
   try {
     const stored = localStorage.getItem(key);
     const acknowledgedAt = Number(stored);
@@ -17,9 +20,13 @@
   } catch (_) {
     // The notice remains usable when browser storage is unavailable.
   }
+  syncShortcutPosition();
+  window.addEventListener('resize', syncShortcutPosition);
+  if (window.ResizeObserver) new ResizeObserver(syncShortcutPosition).observe(notice);
 
   dismiss.addEventListener('click', () => {
     try { localStorage.setItem(key, String(Date.now())); } catch (_) { /* no storage */ }
     notice.hidden = true;
+    syncShortcutPosition();
   });
 })();

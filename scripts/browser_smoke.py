@@ -40,12 +40,20 @@ def main():
                 assert visit(page, '/').status == 200
                 notice = page.locator('#privacy-notice')
                 expect(notice).to_be_visible()
+                admin_shortcut = page.get_by_role('link', name='Admin login')
+                expect(admin_shortcut).to_be_visible()
+                assert admin_shortcut.get_attribute('href') == '/admin/'
+                assert admin_shortcut.evaluate('(link) => getComputedStyle(link).position') == 'fixed'
+                assert admin_shortcut.bounding_box()['y'] + admin_shortcut.bounding_box()['height'] < notice.bounding_box()['y']
                 assert all('?v=' in url for url in page.locator('link[rel="stylesheet"]').evaluate_all('(links) => links.map(link => link.href)'))
                 assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
                 if width in (390, 1440):
                     screenshot(page, f'privacy-notice-{width}.png')
                 notice.get_by_role('button', name='Got it').click()
                 expect(notice).to_be_hidden()
+                shortcut_y = admin_shortcut.bounding_box()['y']
+                page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
+                assert abs(admin_shortcut.bounding_box()['y'] - shortcut_y) <= 1
                 assert visit(page, '/').status == 200
                 expect(notice).to_be_hidden()
                 if width == 390:
@@ -91,13 +99,13 @@ def main():
                 screenshot(page, f'spells-{width}.png')
                 picker = page.get_by_role('combobox', name='Site theme')
                 expect(picker).to_be_visible()
-                assert picker.input_value() == 'modern'
-                assert page.evaluate("localStorage.getItem('dnd_theme_v1')") is None
-                for theme, heading_font in (('simple', 'Arial'), ('classic', 'Georgia'), ('modern', 'Inter')):
+                assert picker.input_value() == 'standard'
+                assert page.evaluate("localStorage.getItem('dnd_theme_v2')") is None
+                for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'), ('standard', 'Inter')):
                     picker.select_option(theme)
                     assert page.evaluate('document.documentElement.dataset.theme') == theme
-                    assert page.locator('#identity-stylesheet').evaluate('(link) => link.disabled') == (theme != 'modern')
-                    assert page.evaluate("localStorage.getItem('dnd_theme_v1')") == theme
+                    assert page.locator('#identity-stylesheet').evaluate('(link) => link.disabled') == (theme != 'standard')
+                    assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
                     assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                     if width in (390, 1440):
@@ -105,7 +113,7 @@ def main():
                     assert visit(page, '/spells/').status == 200
                     assert picker.input_value() == theme
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-                    if theme in ('simple', 'classic') and width in (390, 1440):
+                    if theme in ('simple', 'modern') and width in (390, 1440):
                         assert visit(page, '/').status == 200
                         if theme == 'simple':
                             assert page.locator('.home-hero p').evaluate('(text) => getComputedStyle(text).color') == 'rgb(51, 51, 51)'
@@ -133,9 +141,9 @@ def main():
                     assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
                     screenshot(page, f'filters-{width}.png')
                 page.close()
-            for theme in ('simple', 'classic'):
+            for theme in ('simple', 'modern'):
                 returning = browser.new_page(viewport={'width': 390, 'height': 750})
-                returning.add_init_script(f"localStorage.setItem('dnd_theme_v1', '{theme}')")
+                returning.add_init_script(f"localStorage.setItem('dnd_theme_v2', '{theme}')")
                 assert visit(returning, '/').status == 200
                 expect(returning.locator('#privacy-notice')).to_be_visible()
                 assert returning.get_by_role('combobox', name='Site theme').input_value() == theme
@@ -146,6 +154,14 @@ def main():
                 assert returning.locator('.privacy-policy table').evaluate('(table) => table.scrollWidth <= table.clientWidth')
                 assert returning.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 returning.close()
+            for old, current in (('modern', 'standard'), ('classic', 'modern'), ('simple', 'simple')):
+                migrating = browser.new_page()
+                migrating.add_init_script(f"localStorage.setItem('dnd_theme_v1', '{old}')")
+                assert visit(migrating, '/').status == 200
+                assert migrating.get_by_role('combobox', name='Site theme').input_value() == current
+                assert migrating.evaluate("localStorage.getItem('dnd_theme_v1')") is None
+                assert migrating.evaluate("localStorage.getItem('dnd_theme_v2')") == current
+                migrating.close()
             portuguese = browser.new_page(locale='pt-BR')
             assert visit(portuguese, '/').status == 200
             expect(portuguese.get_by_role('heading', name='Sua privacidade')).to_be_visible()

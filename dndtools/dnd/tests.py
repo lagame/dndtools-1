@@ -108,7 +108,7 @@ class CatalogSmokeTests(TestCase):
         policy = self.client.get(reverse('privacy'))
         self.assertContains(policy, 'ronassic@gmail.com')
         self.assertContains(policy, 'dnd_privacy_notice_v1')
-        self.assertContains(policy, 'dnd_theme_v1')
+        self.assertContains(policy, 'dnd_theme_v2')
         self.assertContains(policy, 'Privacy at D&amp;D Tools')
         self.assertNotContains(policy, 'Privacidade no D&amp;D Tools')
         portuguese_policy = self.client.get(reverse('privacy'), {'lang': 'pt'})
@@ -132,6 +132,9 @@ class CatalogSmokeTests(TestCase):
 
     def test_navigation_keeps_legacy_destinations_and_mobile_redirects(self):
         page = self.client.get('/spells/')
+        self.assertContains(page, 'href="%s"' % reverse('admin:index'))
+        self.assertContains(page, 'Admin login')
+        self.assertEqual(self.client.get(reverse('admin:index')).status_code, 302)
         self.assertContains(page, reverse('feat_category_list'))
         self.assertContains(page, reverse('spell_school_list'))
         self.assertContains(page, reverse('race_type_index'))
