@@ -94,6 +94,8 @@ O script cria `.env` com senhas aleatórias, configura os dois hosts e HTTPS, so
 
 Confira no VPS `curl -I -H 'Host: dndtools.quest' http://127.0.0.1:8766/` e `curl -I http://127.0.0.1:8766/static/css/modern.css` (respostas HTTP 200). Depois, no painel **Cloudflare Zero Trust → Networks → Tunnels → túnel existente → Published applications**, edite as rotas de `dndtools.quest` e `www.dndtools.quest`: em ambas, defina **Service URL** como `http://127.0.0.1:8766`. Remova as opções de origem HTTPS/SNI que foram configuradas para `https://127.0.0.1:443`, pois esta nova origem usa HTTP apenas no loopback do VPS. Não altere as rotas dos outros domínios. O HTTPS público continua na Cloudflare; o proxy local informa o esquema externo ao Django. Antes de divulgar o site com o catálogo privado, revise os direitos de publicação desse conteúdo.
 
+Para testar a ligação **GitHub Actions → VPS** sem publicar nada, há o workflow manual **Check VPS connection**. Ele requer os segredos do próprio fork `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (chave de deploy dedicada), `VPS_KNOWN_HOSTS` (chave pública do host previamente conferida) e, opcionalmente, `VPS_PORT` (padrão 22). A chave pública da chave de deploy precisa estar autorizada para esse usuário no VPS. Em **Actions → Check VPS connection → Run workflow**, uma execução bem-sucedida confirma SSH, Docker, espaço e estado das portas 8765/8766. Esse workflow não altera o VPS e não usa o banco. Os segredos do HeroForge pertencem ao outro repositório e não são compartilhados automaticamente com este fork.
+
 ## Backups and verification
 
 Before each release, save a MySQL dump **outside the repository** and test its restoration into a temporary database:
