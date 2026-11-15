@@ -36,7 +36,7 @@ def main():
         browser = playwright.chromium.launch(headless=True, executable_path=executable)
         try:
             for width in (360, 390, 768, 1440):
-                page = browser.new_page(viewport={'width': width, 'height': 750})
+                page = browser.new_page(viewport={'width': width, 'height': 750}, locale='en-US')
                 assert visit(page, '/').status == 200
                 notice = page.locator('#privacy-notice')
                 expect(notice).to_be_visible()
@@ -105,7 +105,8 @@ def main():
                 expect(picker).to_be_visible()
                 assert picker.input_value() == 'standard'
                 assert page.evaluate("localStorage.getItem('dnd_theme_v2')") is None
-                for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'), ('standard', 'Inter')):
+                for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'),
+                                            ('standard', 'Inter'), ('dark', 'Georgia')):
                     picker.select_option(theme)
                     assert page.evaluate('document.documentElement.dataset.theme') == theme
                     brand_x = page.locator('.site-header .brand').bounding_box()['x']
@@ -115,6 +116,30 @@ def main():
                     assert page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")') == (theme == 'standard')
                     assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
                     assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
+                    if theme == 'dark':
+                        contrast = page.evaluate("""() => {
+                            const luminance = (color) => {
+                                const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(Number).map((v) => {
+                                    v /= 255;
+                                    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+                                });
+                                return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+                            };
+                            const ratio = (foreground, background) => {
+                                const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+                                return (values[0] + 0.05) / (values[1] + 0.05);
+                            };
+                            const body = getComputedStyle(document.body);
+                            const link = getComputedStyle(document.querySelector('#content a'));
+                            return {
+                                body: ratio(body.color, body.backgroundColor),
+                                link: ratio(link.color, body.backgroundColor),
+                                background: body.backgroundColor,
+                            };
+                        }""")
+                        assert contrast['body'] >= 4.5, contrast
+                        assert contrast['link'] >= 4.5, contrast
+                        assert contrast['background'] == 'rgb(16, 26, 35)', contrast
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                     if width in (390, 1440):
                         screenshot(page, f'theme-{theme}-spells-{width}.png')
@@ -149,8 +174,8 @@ def main():
                     assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
                     screenshot(page, f'filters-{width}.png')
                 page.close()
-            for theme in ('simple', 'modern'):
-                returning = browser.new_page(viewport={'width': 390, 'height': 750})
+            for theme in ('simple', 'modern', 'dark'):
+                returning = browser.new_page(viewport={'width': 390, 'height': 750}, locale='en-US')
                 returning.add_init_script(f"localStorage.setItem('dnd_theme_v2', '{theme}')")
                 assert visit(returning, '/').status == 200
                 expect(returning.locator('#privacy-notice')).to_be_visible()
