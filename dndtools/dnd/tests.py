@@ -3,6 +3,7 @@ from datetime import date
 from hashlib import sha256
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from PIL import Image
 from django.conf import settings
@@ -18,6 +19,7 @@ from dnd.models import (
     TextFeatPrerequisite,
 )
 from dnd.templatetags.versioned_static import versioned_static
+from dndproject import settings as project_settings
 
 
 class CatalogSmokeTests(TestCase):
@@ -245,10 +247,15 @@ class CatalogSmokeTests(TestCase):
         buffer = BytesIO()
         Image.new('RGB', (600, 600), color='blue').save(buffer, format='JPEG')
         upload = SimpleUploadedFile('portrait.jpg', buffer.getvalue(), content_type='image/jpeg')
-        with TemporaryDirectory() as media_dir, override_settings(MEDIA_ROOT=media_dir):
+        with TemporaryDirectory() as media_dir, override_settings(MEDIA_ROOT=media_dir), \
+                patch.object(project_settings, 'MEDIA_ROOT', media_dir):
             race = Race.objects.create(
                 rulebook=self.spell.rulebook, size=size, name='Test Race', slug='test-race',
                 space=5, reach=5, image=upload)
             self.assertEqual(race.image.name, f'race/{race.pk}.jpg')
             with Image.open(race.image.path) as saved:
                 self.assertEqual(saved.size, (500, 500))
+            detail = self.client.get(race.get_absolute_url())
+            self.assertContains(detail, f'data-theme-src="/media/race/{race.pk}.jpg"')
+            self.assertContains(detail, 'Illustration hidden in Simple')
+            self.assertContains(detail, f'<noscript><img src="/media/race/{race.pk}.jpg"')

@@ -45,7 +45,7 @@ def main():
                 assert admin_shortcut.get_attribute('href') == '/admin/'
                 assert admin_shortcut.evaluate('(link) => getComputedStyle(link).position') == 'fixed'
                 assert admin_shortcut.bounding_box()['y'] + admin_shortcut.bounding_box()['height'] < notice.bounding_box()['y']
-                assert all('?v=' in url for url in page.locator('link[rel="stylesheet"]').evaluate_all('(links) => links.map(link => link.href)'))
+                assert all('?v=' in url for url in page.locator('link[rel="stylesheet"][href]').evaluate_all('(links) => links.map(link => link.href)'))
                 assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
                 if width in (390, 1440):
                     screenshot(page, f'privacy-notice-{width}.png')
@@ -104,7 +104,7 @@ def main():
                 for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'), ('standard', 'Inter')):
                     picker.select_option(theme)
                     assert page.evaluate('document.documentElement.dataset.theme') == theme
-                    assert page.locator('#identity-stylesheet').evaluate('(link) => link.disabled') == (theme != 'standard')
+                    assert page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")') == (theme == 'standard')
                     assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
                     assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -162,6 +162,35 @@ def main():
                 assert migrating.evaluate("localStorage.getItem('dnd_theme_v1')") is None
                 assert migrating.evaluate("localStorage.getItem('dnd_theme_v2')") == current
                 migrating.close()
+            simple_page = browser.new_page()
+            simple_page.add_init_script("""
+                localStorage.setItem('dnd_theme_v2', 'simple');
+                document.addEventListener('DOMContentLoaded', () => {
+                    const image = document.createElement('img');
+                    image.dataset.themeSrc = '/static/favicon.ico?theme-image-test=1';
+                    document.body.prepend(image);
+                });
+            """)
+            simple_requests = []
+            simple_page.on('request', lambda request: simple_requests.append(request))
+            assert visit(simple_page, '/').status == 200
+            assert not simple_page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")')
+            assert simple_page.locator('#site-icon').get_attribute('href') == 'data:,'
+            assert simple_page.locator('img[data-theme-src]').get_attribute('src') is None
+            assert not any(request.resource_type in ('image', 'font') or 'identity.css' in request.url
+                           for request in simple_requests)
+            with simple_page.expect_request(lambda request: request.resource_type == 'image' and request.url.endswith('/static/favicon.ico?theme-image-test=1')):
+                simple_page.get_by_role('combobox', name='Site theme').select_option('modern')
+            assert simple_page.locator('img[data-theme-src]').get_attribute('src') == '/static/favicon.ico?theme-image-test=1'
+            simple_page.get_by_role('combobox', name='Site theme').select_option('simple')
+            assert simple_page.locator('img[data-theme-src]').get_attribute('src') is None
+            simple_page.close()
+            without_js = browser.new_page(java_script_enabled=False)
+            fallback_requests = []
+            without_js.on('request', lambda request: fallback_requests.append(request.url))
+            assert visit(without_js, '/').status == 200
+            assert any('identity.css' in url for url in fallback_requests)
+            without_js.close()
             portuguese = browser.new_page(locale='pt-BR')
             assert visit(portuguese, '/').status == 200
             expect(portuguese.get_by_role('heading', name='Sua privacidade')).to_be_visible()

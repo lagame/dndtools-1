@@ -19,6 +19,9 @@
   font-weight: 650;
 }
 .header-search { order: 3; }
+.theme-image-placeholder, img[data-theme-src]:not([src]) { display: none; }
+html[data-theme="simple"] img[data-theme-src] { display: none; }
+html[data-theme="simple"] .theme-image-placeholder { display: inline-block; }
 
 .admin-shortcut {
   position: fixed;

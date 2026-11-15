@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Browse D&amp;D spells, feats, classes, creatures, items and rulebooks.">
   <title>{% block title %}Home{% endblock %} | D&amp;D Tools</title>
-  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <link id="site-icon" rel="icon" href="data:," data-href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% versioned_static 'css/modern.css' %}">
-  <link id="identity-stylesheet" rel="stylesheet" href="{% versioned_static 'css/identity.css' %}">
+  <link id="identity-stylesheet" rel="stylesheet" data-href="{% versioned_static 'css/identity.css' %}">
   <script src="{% versioned_static 'js/theme.js' %}"></script>
+  <noscript><link rel="stylesheet" href="{% versioned_static 'css/identity.css' %}"><link rel="icon" href="{% static 'favicon.ico' %}"></noscript>
   <link rel="stylesheet" href="{% versioned_static 'css/privacy.css' %}">
   <link rel="stylesheet" href="{% versioned_static 'css/themes.css' %}">
   {% block extra_meta %}{% endblock %}

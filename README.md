@@ -65,7 +65,7 @@ Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos
 
 A fonte Inter é servida pelo próprio projeto e sua licença OFL está em `dndtools/static/fonts/LICENSE-Inter.txt`. Após publicar esta branch, a página `/privacy/?lang=pt` informará os dados técnicos tratados, o contato do responsável e a duração do armazenamento no navegador.
 
-O seletor **Theme** no cabeçalho oferece três visuais responsivos: **Standard** (roxo, inspirado no HeroForge), **Modern** (azul e dourado do projeto) e **Simple** (branco, preto e links azuis). A escolha fica apenas no `localStorage` deste navegador, sem conta ou cookie adicional, e permanece depois que você o fecha. O atalho **Admin login**, fixo perto da borda inferior, abre a administração do Django; o acesso continua protegido por autenticação.
+O seletor **Theme** no cabeçalho oferece três visuais responsivos: **Standard** (roxo, inspirado no HeroForge), **Modern** (azul e dourado do projeto) e **Simple** (branco, preto e links azuis). A escolha fica apenas no `localStorage` deste navegador, sem conta ou cookie adicional, e permanece depois que você o fecha. No Simple, as próximas páginas não pedem o CSS roxo, a fonte Inter, o favicon nem as imagens de capa e raça; estas são substituídas por texto. A página HTML, os estilos básicos e os scripts necessários à navegação e busca continuam carregando. O atalho **Admin login**, fixo perto da borda inferior, abre a administração do Django; o acesso continua protegido por autenticação.
 
 ### Cache e atualização do visual
 

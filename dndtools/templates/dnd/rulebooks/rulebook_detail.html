@@ -37,7 +37,7 @@
 <p>
   {% if rulebook.image %}
         {% available_catalog_image rulebook.image as cover_url %}
-        <span class="right">{% if cover_url %}<img src="{{ cover_url }}" alt="Cover of {{ rulebook.name }}" />{% else %}<span class="image-placeholder" role="img" aria-label="Cover unavailable">Cover unavailable</span>{% endif %}</span>
+        <span class="right">{% if cover_url %}<img data-theme-src="{{ cover_url }}" loading="lazy" alt="Cover of {{ rulebook.name }}" /><span class="image-placeholder theme-image-placeholder">Cover hidden in Simple</span><noscript><img src="{{ cover_url }}" alt="Cover of {{ rulebook.name }}" /></noscript>{% else %}<span class="image-placeholder" role="img" aria-label="Cover unavailable">Cover unavailable</span>{% endif %}</span>
   {% endif %}
   {{ rulebook.description|linebreaksbr }}
 </p>
