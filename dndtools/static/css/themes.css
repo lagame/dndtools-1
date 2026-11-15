@@ -212,6 +212,8 @@ html[data-theme="dark"] .filter-actions button,
 html[data-theme="dark"] .form_settings input[type="submit"],
 html[data-theme="dark"] .form_settings button,
 html[data-theme="dark"] .main-content .submit { background: #176787; color: #fff; }
+html[data-theme="dark"] .hero-actions a { color: #17212a; }
+html[data-theme="dark"] .hero-actions a + a { color: #edf3f7; }
 html[data-theme="dark"] .main-content table th { border-color: var(--line); background: #263946; color: #f0c777; }
 html[data-theme="dark"] .main-content table td { border-color: #3b4b57; color: #e8eef2; }
 html[data-theme="dark"] .main-content tr:hover td { background: #22343f; }

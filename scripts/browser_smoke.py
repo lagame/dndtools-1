@@ -140,6 +140,20 @@ def main():
                         assert contrast['body'] >= 4.5, contrast
                         assert contrast['link'] >= 4.5, contrast
                         assert contrast['background'] == 'rgb(16, 26, 35)', contrast
+                        assert visit(page, '/').status == 200
+                        action_contrast = page.locator('.hero-actions a').first.evaluate("""(link) => {
+                            const luminance = (color) => {
+                                const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(Number).map((v) => {
+                                    v /= 255;
+                                    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+                                });
+                                return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+                            };
+                            const style = getComputedStyle(link);
+                            const values = [luminance(style.color), luminance(style.backgroundColor)].sort((a, b) => b - a);
+                            return (values[0] + 0.05) / (values[1] + 0.05);
+                        }""")
+                        assert action_contrast >= 4.5, action_contrast
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                     if width in (390, 1440):
                         screenshot(page, f'theme-{theme}-spells-{width}.png')
