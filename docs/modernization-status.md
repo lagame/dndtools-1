@@ -1,4 +1,4 @@
-# Modernization status — 2026-11-14
+# Modernization status — 2026-11-15
 
 ## Delivered and verified locally
 
@@ -12,6 +12,7 @@
 
 ## Activation gates
 
-- No VPS deployment has been attempted. Configure a private staging host, backup destination, DNS and access controls before using the production profile.
+- The fork is installed at `/opt/dndtools` on the VPS with MySQL 8.4, Django and the tunnel proxy bound to `127.0.0.1:8766`. The imported catalog was verified against the private SQLite snapshot. A private MySQL dump was restored successfully to a temporary database on the VPS. Local origin checks returned HTTP 200 for the home page, catalog, staff page, formerly failing spell detail and CSS.
+- The public Cloudflare Tunnel routes for `dndtools.quest` and `www.dndtools.quest` still need to point to `http://127.0.0.1:8766`. Until then, public requests are served by the VPS's existing Nginx virtual host, not this application.
 - Review publication rights for the private sourcebook content before opening the VPS publicly. The code license does not grant rights to the database content.
 - Check the availability of legacy uploaded images; the repository does not contain every image named in the original database.
