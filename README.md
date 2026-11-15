@@ -80,6 +80,20 @@ The Compose stack runs MySQL internally, Django/Gunicorn as the application, and
 
 For either environment, apply migrations and import the private snapshot as shown above before starting the app. Do **not** publish the MySQL port, `.env`, SQLite file, or SQL dumps. The old third-party contact form is replaced by [project Issues](https://github.com/lagame/dndtools-1/issues).
 
+### Publicação pelo Cloudflare Tunnel existente (`dndtools.quest`)
+
+Se o VPS já roda `cloudflared` e Docker Compose, não é preciso instalar outro painel, alterar o Nginx dos demais sites nem ocupar as portas públicas 80/443. O proxy deste projeto escuta **somente** em `127.0.0.1:8766` e serve a aplicação, CSS e arquivos de mídia. Verifique antes de começar que a porta 8766 está livre. A rota atual do túnel em `https://127.0.0.1:443` só deve ser trocada depois da verificação local.
+
+No terminal do VPS, para uma **instalação nova**:
+
+```bash
+git clone https://github.com/lagame/dndtools-1.git /opt/dndtools && cd /opt/dndtools && bash scripts/deploy_cloudflare_tunnel.sh
+```
+
+O script cria `.env` com senhas aleatórias, configura os dois hosts e HTTPS, sobe MySQL, aplica as migrações e inicia aplicação e proxy. Ele recusa uma instalação já existente para evitar alterações no banco sem backup. Sem o arquivo privado, o catálogo fica vazio. Para carregar o snapshot SQLite **revisado**, transfira-o por um canal privado para o VPS **antes** da instalação e passe o caminho absoluto ao script, por exemplo `bash scripts/deploy_cloudflare_tunnel.sh /root/dnd.sqlite`. Não envie o banco ao GitHub nem por Issue. Os arquivos de mídia ausentes do repositório precisam ser transferidos separadamente, se disponíveis.
+
+Confira no VPS `curl -I -H 'Host: dndtools.quest' http://127.0.0.1:8766/` e `curl -I http://127.0.0.1:8766/static/css/modern.css` (respostas HTTP 200). Depois, no painel **Cloudflare Zero Trust → Networks → Tunnels → túnel existente → Published applications**, edite as rotas de `dndtools.quest` e `www.dndtools.quest`: em ambas, defina **Service URL** como `http://127.0.0.1:8766`. Remova as opções de origem HTTPS/SNI que foram configuradas para `https://127.0.0.1:443`, pois esta nova origem usa HTTP apenas no loopback do VPS. Não altere as rotas dos outros domínios. O HTTPS público continua na Cloudflare; o proxy local informa o esquema externo ao Django. Antes de divulgar o site com o catálogo privado, revise os direitos de publicação desse conteúdo.
+
 ## Backups and verification
 
 Before each release, save a MySQL dump **outside the repository** and test its restoration into a temporary database:

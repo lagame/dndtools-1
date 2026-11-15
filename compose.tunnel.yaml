@@ -1,0 +1,11 @@
+services:
+  tunnel_proxy:
+    image: caddy:2
+    volumes:
+      - ./Caddyfile.tunnel:/etc/caddy/Caddyfile:ro
+      - static_data:/var/www/static:ro
+      - media_data:/var/www/media:ro
+    ports:
+      - "127.0.0.1:8766:80"
+    depends_on:
+      - app
