@@ -65,6 +65,8 @@ Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos
 
 A fonte Inter é servida pelo próprio projeto e sua licença OFL está em `dndtools/static/fonts/LICENSE-Inter.txt`. Após publicar esta branch, a página `/privacy/?lang=pt` informará os dados técnicos tratados, o contato do responsável e a duração do armazenamento no navegador.
 
+O seletor **Theme** no cabeçalho oferece três visuais responsivos: **Modern** (roxo, inspirado no HeroForge), **Simple** (branco, preto e links azuis) e **Classic** (azul e dourado do projeto). A escolha fica apenas no `localStorage` deste navegador, sem conta ou cookie adicional, e permanece depois que você o fecha.
+
 ### Cache e atualização do visual
 
 O HTML do catálogo pede revalidação a cada visita. Os CSS e JavaScript usados pelo layout recebem automaticamente `?v=` com um resumo do conteúdo do arquivo. Quando um deles muda, a URL muda; o navegador e a Cloudflare buscam a versão nova sem depender de um *refresh* forçado ou de limpar todo o cache. Os arquivos antigos podem permanecer no cache até expirar sem afetar o HTML novo.
@@ -126,3 +128,5 @@ See [modernization status](docs/modernization-status.md) for the verified baseli
 The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) identify catalog images still missing from the private media volume. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the latest local checks and remaining limits.
 
 The [identity and privacy QA report](docs/identity-privacy-qa-2026-11-15.md) records the visual checks, browser storage behavior and legal details still to confirm before publishing that branch.
+
+The [cache and themes QA report](docs/cache-themes-qa-2026-11-15.md) records the cache observation, responsive theme checks and release caveats.

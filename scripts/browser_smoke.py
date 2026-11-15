@@ -89,6 +89,29 @@ def main():
                 assert page.get_by_text('spells found.').count() >= 1 or page.get_by_text('spell found.').count() >= 1
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 screenshot(page, f'spells-{width}.png')
+                picker = page.get_by_role('combobox', name='Site theme')
+                expect(picker).to_be_visible()
+                assert picker.input_value() == 'modern'
+                assert page.evaluate("localStorage.getItem('dnd_theme_v1')") is None
+                for theme, heading_font in (('simple', 'Arial'), ('classic', 'Georgia'), ('modern', 'Inter')):
+                    picker.select_option(theme)
+                    assert page.evaluate('document.documentElement.dataset.theme') == theme
+                    assert page.locator('#identity-stylesheet').evaluate('(link) => link.disabled') == (theme != 'modern')
+                    assert page.evaluate("localStorage.getItem('dnd_theme_v1')") == theme
+                    assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if width in (390, 1440):
+                        screenshot(page, f'theme-{theme}-spells-{width}.png')
+                    assert visit(page, '/spells/').status == 200
+                    assert picker.input_value() == theme
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    if theme in ('simple', 'classic') and width in (390, 1440):
+                        assert visit(page, '/').status == 200
+                        if theme == 'simple':
+                            assert page.locator('.home-hero p').evaluate('(text) => getComputedStyle(text).color') == 'rgb(51, 51, 51)'
+                        screenshot(page, f'theme-{theme}-home-{width}.png')
+                        assert visit(page, '/spells/').status == 200
+                assert not page.context.cookies(BASE)
                 assert visit(page, '/contacts/').status == 200
                 assert page.get_by_text('Open a project issue').count() >= 1
                 if width in (390, 1440):
@@ -110,6 +133,19 @@ def main():
                     assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
                     screenshot(page, f'filters-{width}.png')
                 page.close()
+            for theme in ('simple', 'classic'):
+                returning = browser.new_page(viewport={'width': 390, 'height': 750})
+                returning.add_init_script(f"localStorage.setItem('dnd_theme_v1', '{theme}')")
+                assert visit(returning, '/').status == 200
+                expect(returning.locator('#privacy-notice')).to_be_visible()
+                assert returning.get_by_role('combobox', name='Site theme').input_value() == theme
+                assert returning.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                screenshot(returning, f'theme-{theme}-notice-390.png')
+                returning.get_by_role('button', name='Got it').click()
+                assert visit(returning, '/privacy/?lang=pt').status == 200
+                assert returning.locator('.privacy-policy table').evaluate('(table) => table.scrollWidth <= table.clientWidth')
+                assert returning.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                returning.close()
             portuguese = browser.new_page(locale='pt-BR')
             assert visit(portuguese, '/').status == 200
             expect(portuguese.get_by_role('heading', name='Sua privacidade')).to_be_visible()

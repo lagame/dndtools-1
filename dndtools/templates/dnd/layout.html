@@ -7,8 +7,10 @@
   <title>{% block title %}Home{% endblock %} | D&amp;D Tools</title>
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% versioned_static 'css/modern.css' %}">
-  <link rel="stylesheet" href="{% versioned_static 'css/identity.css' %}">
+  <link id="identity-stylesheet" rel="stylesheet" href="{% versioned_static 'css/identity.css' %}">
+  <script src="{% versioned_static 'js/theme.js' %}"></script>
   <link rel="stylesheet" href="{% versioned_static 'css/privacy.css' %}">
+  <link rel="stylesheet" href="{% versioned_static 'css/themes.css' %}">
   {% block extra_meta %}{% endblock %}
   {% block extra_link %}{% endblock %}
 </head>
@@ -16,11 +18,12 @@
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header" id="header">
     <div class="header-inner">
-      <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="Toggle catalog menu" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span> Menu</button>
+      <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="Toggle catalog menu" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span><span class="navigation-toggle-label">Menu</span></button>
       <a class="brand" href="{% url 'index' %}" aria-label="D&amp;D Tools home">
         <span class="brand-symbol" aria-hidden="true">D20</span>
         <span><strong>D&amp;D<span>tools</span></strong><small>Explore the worlds of 3.5</small></span>
       </a>
+      <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">Theme</span><select id="theme-select" aria-label="Site theme"><option value="modern">Modern</option><option value="simple">Simple</option><option value="classic">Classic</option></select></label>
       <form class="header-search" role="search" action="{% url 'search' %}" method="get" data-search-suggest data-suggest-url="{% url 'search_suggest' %}">
         <label class="visually-hidden" for="site-search">Search the catalog</label>
         <div class="search-input-wrap"><input id="site-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search spells, feats, books…" maxlength="100" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="site-suggestions" aria-describedby="site-search-status" aria-expanded="false">

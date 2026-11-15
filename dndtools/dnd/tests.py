@@ -17,6 +17,7 @@ from dnd.models import (
     NewsEntry, RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool, StaticPage,
     TextFeatPrerequisite,
 )
+from dnd.templatetags.versioned_static import versioned_static
 
 
 class CatalogSmokeTests(TestCase):
@@ -49,10 +50,16 @@ class CatalogSmokeTests(TestCase):
     def test_html_revalidates_and_asset_urls_change_with_content(self):
         response = self.client.get('/')
         self.assertEqual(response['Cache-Control'], 'no-cache, max-age=0, must-revalidate')
-        for path in ('css/modern.css', 'css/identity.css', 'css/privacy.css',
-                     'js/navigation.js', 'js/search_suggest.js', 'js/privacy_notice.js'):
+        for path in ('css/modern.css', 'css/identity.css', 'css/privacy.css', 'css/themes.css',
+                     'js/theme.js', 'js/navigation.js', 'js/search_suggest.js', 'js/privacy_notice.js'):
             digest = sha256((Path(settings.STATIC_DIR) / path).read_bytes()).hexdigest()[:12]
             self.assertContains(response, '/static/%s?v=%s' % (path, digest))
+        with TemporaryDirectory() as static_dir, override_settings(STATIC_DIR=static_dir, DEBUG=True):
+            asset = Path(static_dir) / 'theme-check.css'
+            asset.write_text('body { color: blue; }', encoding='utf-8')
+            before = versioned_static(asset.name)
+            asset.write_text('body { color: red; }', encoding='utf-8')
+            self.assertNotEqual(before, versioned_static(asset.name))
 
     def test_old_mobile_detail_redirects_to_same_content(self):
         response = self.client.get('/m' + self.spell.get_absolute_url(), {'page': '2'})
@@ -101,6 +108,7 @@ class CatalogSmokeTests(TestCase):
         policy = self.client.get(reverse('privacy'))
         self.assertContains(policy, 'ronassic@gmail.com')
         self.assertContains(policy, 'dnd_privacy_notice_v1')
+        self.assertContains(policy, 'dnd_theme_v1')
         self.assertContains(policy, 'Privacy at D&amp;D Tools')
         self.assertNotContains(policy, 'Privacidade no D&amp;D Tools')
         portuguese_policy = self.client.get(reverse('privacy'), {'lang': 'pt'})
