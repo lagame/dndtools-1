@@ -13,7 +13,7 @@
 ## Activation gates
 
 - The fork is installed at `/opt/dndtools` on the VPS with MySQL 8.4, Django and the tunnel proxy bound to `127.0.0.1:8766`. The imported catalog was verified against the private SQLite snapshot. A private MySQL dump was restored successfully to a temporary database on the VPS. Local origin checks returned HTTP 200 for the home page, catalog, staff page, formerly failing spell detail and CSS.
-- The public Cloudflare Tunnel routes for `dndtools.quest` and `www.dndtools.quest` point to `http://127.0.0.1:8766`. Both public hostnames served the D&D Tools application with HTTP 200 at the deployed baseline. The visual and privacy changes on `design/heroforge-family` are local until separately released.
+- The public Cloudflare Tunnel routes for `dndtools.quest` and `www.dndtools.quest` point to `http://127.0.0.1:8766`. Both public hostnames served the released visual, privacy and security changes with HTTP 200 at commit `8a09e3c`; see [production release QA](production-release-qa-2026-11-15.md).
 - The local visual and privacy branch uses the HeroForge visual family, self-hosts Inter, retires the old `top_news` cookie and adds a bilingual privacy page. The notice is informational because no advertising or analytics cookies are active. Browser smoke passed at 360, 390, 768 and 1440 pixels on the branch.
 - Review publication rights for the private sourcebook content before opening the VPS publicly. The code license does not grant rights to the database content.
 - Check the availability of legacy uploaded images; the repository does not contain every image named in the original database.

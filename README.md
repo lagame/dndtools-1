@@ -2,7 +2,7 @@
 
 A community fork of the original D&D Tools catalog, modernized for Python 3.14, Django 5.2 and MySQL 8.4. The public pages keep the original catalog URLs and now use a responsive layout and first-party search. The source code is MIT licensed; rights to individual book content must be assessed separately.
 
-The site is available at [dndtools.quest](https://dndtools.quest/). The redesign in this branch uses the HeroForge visual family with a self-hosted Inter font. Once released, `/privacy/` will explain the site's technical cookies, the browser preference used to dismiss the notice, and how to contact the maintainer. No optional advertising or analytics cookies are active, so the notice is informational; adding such services requires a real choice before they run.
+The site is available at [dndtools.quest](https://dndtools.quest/). It uses the HeroForge visual family with a self-hosted Inter font. `/privacy/` explains the site's technical cookies, the browser preference used to dismiss the notice, and how to contact the maintainer. No optional advertising or analytics cookies are active, so the notice is informational; adding such services requires a real choice before they run.
 
 **The database is not in this repository.** To request the private SQLite snapshot, [open an issue](https://github.com/lagame/dndtools-1/issues). We will arrange a private transfer. Never attach the database, a dump, or source scans to an issue or commit.
 
