@@ -25,12 +25,15 @@ On Windows PowerShell, from the repository root:
 
 ```sh
 # Clone the repository
-git clone https://github.com/dndtools/dndtools.git
-cd dndtools/
+git clone https://github.com/lagame/dndtools-1.git
+cd dndtools-1/
 
 # Create and use a Python 3 virtual environment
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-modern.txt
+
+# Create local settings from the example
+Copy-Item dndtools\dndproject\local.py.sample dndtools\dndproject\local.py
 
 # Put the SQLite data file at the repository root as dnd.sqlite.
 # Then apply only the framework migrations; the legacy content tables already
@@ -46,6 +49,11 @@ The site is then available at <http://127.0.0.1:8765/>.
 The file `dndtools/dndproject/local.py` is intentionally local-only and is
 ignored by Git. Copy `dndtools/dndproject/local.py.sample` to that path when
 setting up a fresh checkout.
+
+The fork also includes seven source-reviewed 3.5 cantrips that can be imported
+into a supplied database after taking a backup. Preview with
+`python dndtools/manage.py import_reviewed_cantrips`; append `--apply` to write.
+See [the review of all 74 candidates](docs/reviewed-cantrips-35.md).
 
 Configuração local em português (Windows)
 ------------------------------------------
@@ -73,12 +81,18 @@ Copy-Item dndtools\dndproject\local.py.sample dndtools\dndproject\local.py
 # Aplicar as migrações do Django
 .\.venv\Scripts\python.exe dndtools\manage.py migrate --noinput
 
+# Opcional: conferir e adicionar as 7 magias revisadas, após fazer backup do banco
+.\.venv\Scripts\python.exe dndtools\manage.py import_reviewed_cantrips
+.\.venv\Scripts\python.exe dndtools\manage.py import_reviewed_cantrips --apply
+
 # Iniciar o site
 .\.venv\Scripts\python.exe dndtools\manage.py runserver 127.0.0.1:8765
 ```
 
 Depois, abra <http://127.0.0.1:8765/> no navegador. Não faça commit do
 `dnd.sqlite`: o arquivo contém os dados do site e fica fora do repositório.
+O [relatório das 74 candidatas](docs/reviewed-cantrips-35.md) explica o que já
+existia, o que foi incluído e o que ainda depende de validação.
 
 Legacy installation
 -------------------
