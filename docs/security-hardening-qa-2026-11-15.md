@@ -24,7 +24,7 @@
 
 Do not deploy this branch until Cloudflare Access protects the configured custom path and its subpaths on both public hostnames. The old `/admin` rules do not move with Django's route. Verify blocked unauthenticated access and authorized access from a private browser session. The project cannot assert the Cloudflare account configuration from code. Do not publish the private `.env` or database. Production has not been deployed from this branch.
 
-The subsequent [Cloudflare Access QA](cloudflare-access-qa-2026-11-15.md) records the applied edge configuration and successful unauthenticated checks. The owner's authorized MFA login remains a release prerequisite.
+The subsequent [Cloudflare Access QA](cloudflare-access-qa-2026-11-15.md) records the applied edge configuration, successful unauthenticated checks, and the owner's completed MFA and Django sign-in. The owner has authorized release; additional administration workspace changes are deferred.
 
 ## References
 

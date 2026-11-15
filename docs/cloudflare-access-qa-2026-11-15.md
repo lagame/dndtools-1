@@ -12,14 +12,16 @@
 ## Verified
 
 - Reopened the saved application and confirmed the destinations and the persisted authenticator-app MFA requirement.
-- After enabling the App Launcher, the owner's existing browser session reached the authenticated MFA enrollment screen. Completing enrollment and testing the protected admin are still pending owner action.
+- The owner enrolled and verified an authenticator-app MFA device, completed the protected admin sign-in, and reached the Django administration using a password entered privately.
+- A read-only database check confirmed the owner's active staff/superuser account. A fresh MySQL backup was restored to a temporary database before account creation, preserving 58 content tables and 4,918 spells.
 - In a fresh browser context, both public home pages returned HTTP 200 and the catalog title.
 - On both hostnames, the old and replacement admin base paths and login subpaths redirected to the Cloudflare Access sign-in page. The configured identity provider is Cloudflare.
 - The existing HeroForge, Bianca portfolio and Cursai home pages each returned HTTP 200 after the Access configuration.
 - No database, private environment file, key, authentication code or backup was added to Git.
 
-## Still required before release
+## Release handoff
 
-- The owner must complete the Cloudflare identity login and authenticator enrollment/verification. Authorized access has not yet been verified end to end.
-- The replacement Django route becomes active only after the reviewed code is deployed. Its current Access protection was verified independently of deployment.
-- Complete the remaining privacy/publication review, merge the draft PR when approved, and use the manual deployment workflow with its verified MySQL backup.
+- The owner explicitly authorized publication of the reviewed public-site changes. Additional administration workspace changes are deferred to a separate iteration.
+- The replacement Django route becomes active only after the reviewed code is deployed. Its current Access protection was verified independently of deployment; verify the route again after release.
+- Merge the reviewed PR and use the manual deployment workflow with its verified MySQL backup. Verify the deployed commit, both hostnames, protected administration and the existing VPS sites afterward.
+- Infrastructure log/backup retention and the legal data-controller review remain operational follow-up work; this report does not certify legal compliance.
