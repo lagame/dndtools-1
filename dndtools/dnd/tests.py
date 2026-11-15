@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from dnd.models import (
     CharacterClass, DndEdition, Domain, Feat, FeatCategory, Race, RaceSize,
-    RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool,
+    RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDomainLevel, SpellSchool, StaticPage,
     TextFeatPrerequisite,
 )
 
@@ -71,6 +71,14 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(self.client.get(reverse('contact')), 'Open a project issue')
         self.assertEqual(self.client.post(reverse('contact')).status_code, 405)
         self.assertEqual(self.client.post(reverse('inaccurate_content')).status_code, 405)
+
+    def test_staff_page_shows_current_maintainer_without_legacy_staff(self):
+        response = self.client.get(reverse('staff'))
+        self.assertContains(response, 'Ronassic')
+        self.assertContains(response, 'mailto:ronassic@gmail.com')
+        self.assertContains(response, 'Maintainer')
+        StaticPage.objects.create(name='staff', body='Outdated volunteer listing')
+        self.assertNotContains(self.client.get(reverse('staff')), 'Outdated volunteer listing')
 
     def test_conditions_and_missing_legacy_android_page(self):
         condition = RuleCondition.objects.create(name='Dazed', description='Limited actions.')

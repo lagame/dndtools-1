@@ -81,7 +81,7 @@ def catalog_navigation(request):
         _link('Contacts', 'contact', children=[
             _link('News', 'index'),
             _link('Contact us', 'contact'),
-            _link('Staff', 'staff'),
+            _link('Maintainer', 'staff'),
             _link('Android', 'android'),
         ]),
         _link('My D&D', planned=True),

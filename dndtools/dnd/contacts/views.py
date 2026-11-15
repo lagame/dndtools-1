@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET
 
 from dnd.menu import menu_item, submenu_item, MenuItem
@@ -20,9 +20,7 @@ def contact_sent(request):
 @menu_item(MenuItem.CONTACTS)
 @submenu_item(MenuItem.Contacts.STAFF)
 def staff(request):
-    return render(request, 'dnd/contacts/staff.html', {
-        'page_body': get_object_or_404(StaticPage, name='staff'),
-    })
+    return render(request, 'dnd/contacts/staff.html')
 
 
 @menu_item(MenuItem.ANDROID)
