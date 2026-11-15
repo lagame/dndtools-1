@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v5
       - name: Deploy after a verified database backup
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -36,35 +37,13 @@ jobs:
           printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/dndtools_deploy_key ~/.ssh/known_hosts
 
-          ssh -F /dev/null -o BatchMode=yes -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=yes -o ConnectTimeout=10 \
-            -i ~/.ssh/dndtools_deploy_key -p "$VPS_PORT" \
-            "$VPS_USER@$VPS_HOST" "bash -se -- '$DEPLOY_SHA'" <<'REMOTE'
-          set -euo pipefail
-          target_sha="$1"
-          [[ "$target_sha" =~ ^[0-9a-f]{40}$ ]]
-          cd /opt/dndtools
-          test -f .env
-          test -z "$(git status --porcelain)" || { echo 'Working tree has local changes.' >&2; exit 1; }
-          git fetch --no-tags origin master
-          test "$(git rev-parse origin/master)" = "$target_sha" || { echo 'Selected SHA is not the current fork master.' >&2; exit 1; }
-          previous_sha="$(git rev-parse HEAD)"
-          git merge-base --is-ancestor "$previous_sha" "$target_sha" || { echo 'Deployment must move forward from the installed SHA.' >&2; exit 1; }
-
-          install -d -m 700 /var/backups/dndtools
-          umask 077
-          backup_file="$(python3 scripts/backup_mysql.py --output-dir /var/backups/dndtools | awk '/^Backup: / { print substr($0, 9) }')"
-          test -f "$backup_file"
-          python3 scripts/verify_mysql_backup.py "$backup_file"
-
-          git switch --detach --quiet "$target_sha"
-          compose=(docker compose -f compose.yaml -f compose.tunnel.yaml)
-          "${compose[@]}" config --quiet
-          "${compose[@]}" build app
-          "${compose[@]}" run --rm app python manage.py migrate --noinput
-          "${compose[@]}" up -d --wait app tunnel_proxy
-          curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/
-          curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null http://127.0.0.1:8766/static/css/modern.css
-          test "$(git rev-parse HEAD)" = "$target_sha"
-          printf 'Deployed %s; verified MySQL backup: %s\n' "$target_sha" "$backup_file"
-          REMOTE
+          [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
+          remote="$VPS_USER@$VPS_HOST"
+          script="/root/.cache/dndtools-deploy/update-$DEPLOY_SHA.sh"
+          ssh_args=(-F /dev/null -o BatchMode=yes -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=10
+            -i ~/.ssh/dndtools_deploy_key -p "$VPS_PORT")
+          ssh "${ssh_args[@]}" "$remote" 'install -d -m 700 /root/.cache/dndtools-deploy'
+          ssh "${ssh_args[@]}" "$remote" "umask 077; cat > '$script'" < scripts/update_vps.sh
+          ssh "${ssh_args[@]}" "$remote" \
+            "bash '$script' '$DEPLOY_SHA'; status=\$?; rm -f '$script'; exit \$status"
