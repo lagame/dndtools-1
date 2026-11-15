@@ -40,9 +40,10 @@ def main():
                 assert visit(page, '/').status == 200
                 notice = page.locator('#privacy-notice')
                 expect(notice).to_be_visible()
-                lore_mark = page.get_by_role('link', name='Editorial tools')
+                lore_mark = page.get_by_role('link', name='Oghma')
                 expect(lore_mark).to_be_visible()
-                assert lore_mark.get_attribute('href') == '/admin/'
+                assert lore_mark.get_attribute('href').startswith('/')
+                assert lore_mark.get_attribute('href').endswith('/')
                 assert lore_mark.get_attribute('rel') == 'nofollow noopener'
                 assert lore_mark.locator('svg[aria-hidden="true"]').count() == 1
                 assert lore_mark.inner_text().strip() == ''

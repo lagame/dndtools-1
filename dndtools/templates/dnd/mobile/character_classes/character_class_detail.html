@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/character_classes/character_class_layout.html" %}
+{% load catalog_html %}
 
 {% block title %}{{ character_class.name }} &ndash; Class{% endblock %}
 
@@ -10,7 +11,7 @@
 {% endif %}
 
 <div class="nice-textile">
-{{ character_class.short_description_html|safe }}
+{{ character_class.short_description_html|safe_catalog_html }}
 </div>
 
 {% if selected_variant %}

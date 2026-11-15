@@ -4,3 +4,5 @@ textile>=4,<5
 mysqlclient>=2.3,<3
 gunicorn>=23,<25
 django-axes==9.0.0
+django-csp>=4.0,<5
+nh3>=0.3.7,<0.4

@@ -1,3 +1,4 @@
+{% load catalog_html %}
 <div class="nice-textile">
     {% if character_class_variant.requirements_html or character_class_variant.required_bab or required_skills or required_feats %}
         <h4>Requirements</h4>
@@ -48,7 +49,7 @@
                     {% endfor %}
                 </p>
             {% endif %}
-            {{ character_class_variant.requirements_html|safe }}
+            {{ character_class_variant.requirements_html|safe_catalog_html }}
             <br/>
         </div>
 
@@ -99,14 +100,14 @@
 
     <h4>Class Features</h4>
     {% if character_class_variant.class_features_html %}
-        {{ character_class_variant.class_features_html|safe }}
+        {{ character_class_variant.class_features_html|safe_catalog_html }}
     {% else %}
         <p>{{ character_class_variant.class_features|linebreaksbr }}</p>
     {% endif %}
 
     <h3>Advancement</h3>
 
-    {{ character_class_variant.advancement_html|safe }}
+    {{ character_class_variant.advancement_html|safe_catalog_html }}
     </div>
 
     <h3>Class skills</h3>

@@ -1,4 +1,5 @@
 {% extends "dnd/index_layout.html" %}
+{% load catalog_html %}
 {% block title %}Explore the library{% endblock %}
 {% block content %}
 <section class="home-hero">
@@ -34,7 +35,7 @@
   <p>These announcements are preserved from the original project. Their team and project status information may be outdated.</p>
   {% for news_entry in news_entries %}
     <article class="news-entry"><h3>{{ news_entry.title }}</h3><p class="eyebrow">{{ news_entry.published }}</p>
-      <div class="nice-textile">{{ news_entry.body_html|safe }}</div></article>
+      <div class="nice-textile">{{ news_entry.body_html|safe_catalog_html }}</div></article>
   {% endfor %}
 </details>{% endif %}
 

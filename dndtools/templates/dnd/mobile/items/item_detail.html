@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/items/item_layout.html" %}
+{% load catalog_html %}
 {% load custom_filters %}
 
 {% block title %}{{ item.name }} &ndash; Item{% endblock %}
@@ -41,7 +42,7 @@
 
     <div class="nice-textile">
         {% if item.description_html %}
-            {{ item.description_html|safe }}
+            {{ item.description_html|safe_catalog_html }}
         {% else %}
             <p>{{ item.description|linebreaksbr }}</p>
         {% endif %}

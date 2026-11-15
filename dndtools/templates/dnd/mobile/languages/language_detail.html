@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/languages/language_layout.html" %}
+{% load catalog_html %}
 
 {% load custom_filters %}
 
@@ -10,7 +11,7 @@
 
 
 <div class="nice-textile">
-    {{ language.description_html|safe }}
+    {{ language.description_html|safe_catalog_html }}
 </div>
 
 <h3>Races with this language</h3>

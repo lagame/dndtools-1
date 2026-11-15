@@ -15,8 +15,22 @@ services:
       timeout: 3s
       retries: 30
 
+  volume_permissions:
+    image: dndtools-app
+    user: "0:0"
+    entrypoint: ["sh", "-c", "chown -R 10001:10001 /var/www/static /var/www/media"]
+    volumes:
+      - static_data:/var/www/static
+      - media_data:/var/www/media
+
   app:
     build: .
+    image: dndtools-app
+    user: "10001:10001"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     env_file: .env
     environment:
       DND_DB_HOST: db
@@ -26,6 +40,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      volume_permissions:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:8765:8765"
     volumes:

@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/monsters/monster_layout.html" %}
+{% load catalog_html %}
 
 {% load custom_filters %}
 
@@ -132,11 +133,11 @@
 
     <div class="nice-textile">
 
-        {{ monster.description_html|safe }}
+        {{ monster.description_html|safe_catalog_html }}
 
         <h3>Combat</h3>
 
-        {{ monster.combat_html|safe }}
+        {{ monster.combat_html|safe_catalog_html }}
     </div>
 
 {% endblock %}

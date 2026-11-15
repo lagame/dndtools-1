@@ -1,4 +1,5 @@
 {% extends "dnd/layout.html" %}
+{% load catalog_html %}
 
 {% block title %}Android{% endblock %}
 
@@ -6,7 +7,7 @@
 
     <div class="nice-textile">
         {% if page_body %}
-            {{ page_body.body_html|safe }}
+            {{ page_body.body_html|safe_catalog_html }}
         {% else %}
             <p>The original Android page is not available in this catalog snapshot. Check the <a href="https://github.com/lagame/dndtools-1/issues">project issues</a> for updates.</p>
         {% endif %}

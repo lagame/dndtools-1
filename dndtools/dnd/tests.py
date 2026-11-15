@@ -4,6 +4,7 @@ from hashlib import sha256
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from types import SimpleNamespace
 
 from PIL import Image
 from axes.models import AccessAttempt
@@ -12,7 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -22,10 +23,52 @@ from dnd.models import (
     TextFeatPrerequisite,
 )
 from dnd.templatetags.versioned_static import versioned_static
+from dnd.security import _tunnel_peers, axes_client_ip, axes_lockout_parameters
+from dnd.templatetags.catalog_html import safe_catalog_html
 from dndproject import settings as project_settings
 
 
 class AdminSecurityTests(TestCase):
+    def test_custom_route_and_report_only_csp(self):
+        login = reverse('admin:login')
+        self.assertEqual(login, '/' + settings.ADMIN_URL + 'login/')
+        response = self.client.get(login)
+        self.assertEqual(response['Cache-Control'], 'no-store')
+        self.assertIn('Content-Security-Policy-Report-Only', response)
+        self.assertNotIn('Content-Security-Policy', response)
+
+    def test_cf_ip_requires_trusted_peer_and_valid_address(self):
+        _tunnel_peers.cache_clear()
+        factory = RequestFactory()
+        request = factory.post('/' + settings.ADMIN_URL + 'login/',
+                               REMOTE_ADDR='198.51.100.8', HTTP_CF_CONNECTING_IP='203.0.113.10')
+        with patch('dnd.security.socket.getaddrinfo', return_value=[(2, 1, 6, '', ('172.20.0.2', 0))]):
+            self.assertIsNone(axes_client_ip(request))
+            self.assertEqual(axes_lockout_parameters(request, {}), ['username'])
+            request.META['REMOTE_ADDR'] = '172.20.0.2'
+            self.assertEqual(axes_client_ip(request), '203.0.113.10')
+            self.assertEqual(axes_lockout_parameters(request, {}), ['username', 'ip_address'])
+            request.META['HTTP_CF_CONNECTING_IP'] = '203.0.113.10, 198.51.100.8'
+            self.assertIsNone(axes_client_ip(request))
+        self.assertEqual(axes_lockout_parameters(SimpleNamespace(ip_address='203.0.113.10'), {}),
+                         ['username', 'ip_address'])
+
+    def test_cf_ip_limits_multiple_usernames_without_blocking_another_ip(self):
+        _tunnel_peers.cache_clear()
+        login = reverse('admin:login')
+        with patch('dnd.security.socket.getaddrinfo', return_value=[(2, 1, 6, '', ('172.20.0.2', 0))]):
+            for index in range(4):
+                response = Client().post(login, {'username': 'invalid-%d' % index, 'password': 'wrong'},
+                                         REMOTE_ADDR='172.20.0.2', HTTP_CF_CONNECTING_IP='203.0.113.10')
+                self.assertEqual(response.status_code, 200)
+            blocked = Client().post(login, {'username': 'invalid-4', 'password': 'wrong'},
+                                    REMOTE_ADDR='172.20.0.2', HTTP_CF_CONNECTING_IP='203.0.113.10')
+            self.assertEqual(blocked.status_code, 429)
+            self.assertTrue(AccessAttempt.objects.filter(ip_address='203.0.113.10').exists())
+            other = Client().post(login, {'username': 'invalid-other', 'password': 'wrong'},
+                                  REMOTE_ADDR='172.20.0.2', HTTP_CF_CONNECTING_IP='203.0.113.11')
+            self.assertEqual(other.status_code, 200)
+
     def test_login_is_branded_uncached_and_requires_csrf(self):
         login = reverse('admin:login')
         client = Client(enforce_csrf_checks=True)
@@ -89,6 +132,29 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(search, self.spell.get_absolute_url())
         self.assertContains(search, 'Arcane Ember')
         self.assertContains(self.client.get(reverse('search'), {'q': 'no match'}), 'No matches')
+
+    def test_legacy_html_is_sanitized_at_render_time(self):
+        fragment = ('<table><tr><td style="text-align:center; background-image:url(javascript:alert(5))"><strong>Arcane</strong> '
+                    '<a href="/feats/test/">feat</a></td></tr></table>'
+                    '<img src=x onerror=alert(1)><script>alert(2)</script>'
+                    '<a href="javascript:alert(3)">bad</a>'
+                    '<span class="errata-new" onclick="alert(4)">new</span>'
+                    '<span class="caps">ABC</span>')
+        Spell.objects.filter(pk=self.spell.pk).update(description_html=fragment)
+        response = self.client.get(self.spell.get_absolute_url())
+        self.assertContains(response, '<table>')
+        self.assertContains(response, '<strong>Arcane</strong>')
+        self.assertContains(response, 'href="/feats/test/"')
+        self.assertContains(response, 'class="errata-new"')
+        self.assertContains(response, 'class="caps"')
+        self.assertContains(response, 'text-align:center')
+        cleaned = str(safe_catalog_html(fragment))
+        self.assertContains(response, cleaned, html=True)
+        for dangerous in ('<img', '<script', 'alert(', 'javascript:', 'onclick=', 'onerror='):
+            self.assertNotIn(dangerous, cleaned)
+        self.assertNotIn('javascript:', safe_catalog_html('<a href="javascript:alert(1)">bad</a>'))
+        self.assertNotIn('href=', safe_catalog_html('<a href="//evil.example">bad</a>'))
+        self.assertNotIn('href=', safe_catalog_html('<a href="https://evil.example">bad</a>'))
 
     def test_html_revalidates_and_asset_urls_change_with_content(self):
         response = self.client.get('/')
@@ -178,7 +244,7 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(page, 'href="%s"' % reverse('admin:index'))
         self.assertContains(page, 'class="lore-mark"')
         self.assertContains(page, 'rel="nofollow noopener"')
-        self.assertContains(page, 'aria-label="Editorial tools"')
+        self.assertContains(page, 'aria-label="Oghma"')
         self.assertNotContains(page, 'Admin login')
         self.assertEqual(self.client.get(reverse('admin:index')).status_code, 302)
         self.assertContains(page, reverse('feat_category_list'))

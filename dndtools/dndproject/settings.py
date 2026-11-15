@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 from datetime import timedelta
+from csp.constants import NONE, SELF
 from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = os.environ.get('DND_DEBUG') == '1'
@@ -29,6 +31,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
+    'csp.middleware.CSPMiddleware',
 )
 
 ROOT_URLCONF = 'dndproject.urls'
@@ -42,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'axes',
+    'csp',
     'dnd',
     'django.contrib.sitemaps',
 )
@@ -58,14 +62,10 @@ AUTH_PASSWORD_VALIDATORS = (
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 )
 
-# Shared MySQL-backed lockout across Gunicorn workers. A proxy IP can be shared
-# by all visitors, so never lock the whole catalog by REMOTE_ADDR.
+# Only an explicitly trusted reverse proxy may supply the visitor IP.
 AXES_ONLY_ADMIN_SITE = True
-AXES_LOCKOUT_PARAMETERS = ['username']
-AXES_CLIENT_IP_CALLABLE = lambda request: None
-# Axes warns about username-only limits. Here they avoid locking every visitor
-# behind the same tunnel IP; cross-client and rotating-agent lockout is tested.
-SILENCED_SYSTEM_CHECKS = ['axes.W006']
+AXES_LOCKOUT_PARAMETERS = 'dnd.security.axes_lockout_parameters'
+AXES_CLIENT_IP_CALLABLE = 'dnd.security.axes_client_ip'
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(minutes=15)
 AXES_USE_ATTEMPT_EXPIRATION = True
@@ -138,6 +138,23 @@ PUBLIC_HOST = os.environ.get('DND_PUBLIC_HOST', 'localhost')
 FORCE_HTTPS = not DEBUG and os.environ.get('DND_FORCE_HTTPS', '1') == '1'
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured('DND_ALLOWED_HOSTS is required in production.')
+
+ADMIN_URL = os.environ.get('DJANGO_ADMIN_URL', '').strip()
+if not ADMIN_URL and DEBUG:
+    ADMIN_URL = 'admin'
+if not ADMIN_URL or (not DEBUG and not re.fullmatch(r'[a-zA-Z0-9_-]{16,64}', ADMIN_URL)):
+    raise ImproperlyConfigured('Set DJANGO_ADMIN_URL to a private 16-64 character path in production.')
+if not re.fullmatch(r'[a-zA-Z0-9_-]+', ADMIN_URL):
+    raise ImproperlyConfigured('DJANGO_ADMIN_URL must be one path segment.')
+ADMIN_URL += '/'
+CONTENT_SECURITY_POLICY_REPORT_ONLY = {
+    'DIRECTIVES': {
+        'default-src': [SELF], 'script-src': [SELF], 'style-src': [SELF],
+        'img-src': [SELF, 'data:'], 'font-src': [SELF], 'connect-src': [SELF],
+        'object-src': [NONE], 'base-uri': [SELF], 'form-action': [SELF],
+        'frame-ancestors': [NONE],
+    },
+}
 
 if not DEBUG:
     SESSION_COOKIE_SECURE = FORCE_HTTPS

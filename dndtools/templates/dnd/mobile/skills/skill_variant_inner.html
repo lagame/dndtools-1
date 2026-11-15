@@ -1,41 +1,42 @@
+{% load catalog_html %}
 <div class="nice-textile">
     {% if skill_variant.description_html %}
         <h4>Description </h4>
-        {{ skill_variant.description_html|safe }}
+        {{ skill_variant.description_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.check_html %}
         <h4>Check </h4>
-        {{ skill_variant.check_html|safe }}
+        {{ skill_variant.check_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.action_html %}
         <h4>Action </h4>
-        {{ skill_variant.action_html|safe }}
+        {{ skill_variant.action_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.try_again_html %}
         <h4>Try again </h4>
-        {{ skill_variant.try_again_html|safe }}
+        {{ skill_variant.try_again_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.special_html %}
         <h4>Special </h4>
-        {{ skill_variant.special_html|safe }}
+        {{ skill_variant.special_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.synergy_html %}
         <h4>Synergy </h4>
-        {{ skill_variant.synergy_html|safe }}
+        {{ skill_variant.synergy_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.restriction_html %}
         <h4>Restriction </h4>
-        {{ skill_variant.restriction_html|safe }}
+        {{ skill_variant.restriction_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.untrained_html %}
         <h4>Untrained </h4>
-        {{ skill_variant.untrained_html|safe }}
+        {{ skill_variant.untrained_html|safe_catalog_html }}
     {% endif %}
 </div>

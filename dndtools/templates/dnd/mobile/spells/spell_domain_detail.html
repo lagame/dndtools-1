@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/spells/spell_layout.html" %}
+{% load catalog_html %}
 
 {% block title %}{{ spell_domain.name }}{% endblock %}
 
@@ -38,7 +39,7 @@
     {% if selected_variant.granted_power_html %}
         <h4>Granted power{% if selected_variant.granted_power_type %} ({{ selected_variant.granted_power_type }}){% endif %}</h4>
         <div class="nice-textile">
-            {{ selected_variant.granted_power_html|safe }}
+            {{ selected_variant.granted_power_html|safe_catalog_html }}
         </div>
     {% endif %}
 {% endif %}

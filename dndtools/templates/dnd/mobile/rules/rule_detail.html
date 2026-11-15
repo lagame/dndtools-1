@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/rules/rule_layout.html" %}
+{% load catalog_html %}
 
 {% block title %}{{ rule.name }} &ndash; rules{% endblock %}
 
@@ -7,7 +8,7 @@
     <h2>{{ rule.name }}</h2>
     (<a href="{{ rulebook.get_absolute_url_mobile }}">{{ rulebook.name }}</a>{% if rule.page_from %},  p. {{ rule.page_from }}{% if rule.page_to %}&mdash;{{ rule.page_to }}{% endif %}{% endif %})
 
-    {{ rule.body_html|safe }}
+    {{ rule.body_html|safe_catalog_html }}
 
 
 {% endblock %}
