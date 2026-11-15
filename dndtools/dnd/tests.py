@@ -1,8 +1,11 @@
 from io import BytesIO
 from datetime import date
+from hashlib import sha256
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from PIL import Image
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
@@ -42,6 +45,14 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(search, self.spell.get_absolute_url())
         self.assertContains(search, 'Arcane Ember')
         self.assertContains(self.client.get(reverse('search'), {'q': 'no match'}), 'No matches')
+
+    def test_html_revalidates_and_asset_urls_change_with_content(self):
+        response = self.client.get('/')
+        self.assertEqual(response['Cache-Control'], 'no-cache, max-age=0, must-revalidate')
+        for path in ('css/modern.css', 'css/identity.css', 'css/privacy.css',
+                     'js/navigation.js', 'js/search_suggest.js', 'js/privacy_notice.js'):
+            digest = sha256((Path(settings.STATIC_DIR) / path).read_bytes()).hexdigest()[:12]
+            self.assertContains(response, '/static/%s?v=%s' % (path, digest))
 
     def test_old_mobile_detail_redirects_to_same_content(self):
         response = self.client.get('/m' + self.spell.get_absolute_url(), {'page': '2'})

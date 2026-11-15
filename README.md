@@ -65,6 +65,14 @@ Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos
 
 A fonte Inter é servida pelo próprio projeto e sua licença OFL está em `dndtools/static/fonts/LICENSE-Inter.txt`. Após publicar esta branch, a página `/privacy/?lang=pt` informará os dados técnicos tratados, o contato do responsável e a duração do armazenamento no navegador.
 
+### Cache e atualização do visual
+
+O HTML do catálogo pede revalidação a cada visita. Os CSS e JavaScript usados pelo layout recebem automaticamente `?v=` com um resumo do conteúdo do arquivo. Quando um deles muda, a URL muda; o navegador e a Cloudflare buscam a versão nova sem depender de um *refresh* forçado ou de limpar todo o cache. Os arquivos antigos podem permanecer no cache até expirar sem afetar o HTML novo.
+
+O cache público da Cloudflare foi observado com `CF-Cache-Status: DYNAMIC` no HTML e `HIT` no CSS; uma URL de CSS com nova versão retornou `MISS` e depois `HIT`. Essa verificação vale para a configuração atual. Se for criada uma regra de "Cache Everything" para HTML ou de ignorar parâmetros da URL, será preciso revisá-la. Arquivos privados de mídia enviados depois não recebem esse versionamento automático: para substituí-los, use um nome novo ou remova a URL antiga do cache.
+
+Após uma atualização, confira os dois domínios, a página inicial, o `Cache-Control` do HTML e as URLs `?v=` dos CSS/JS no código da página. O fluxo de deploy já faz backup do MySQL e verifica a origem; ele não deve ser executado até a revisão visual e de privacidade ficar concluída.
+
 Para conferir o código após alterações:
 
 ```powershell

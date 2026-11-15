@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static versioned_static %}<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,9 +6,9 @@
   <meta name="description" content="Browse D&amp;D spells, feats, classes, creatures, items and rulebooks.">
   <title>{% block title %}Home{% endblock %} | D&amp;D Tools</title>
   <link rel="icon" href="{% static 'favicon.ico' %}">
-  <link rel="stylesheet" href="{% static 'css/modern.css' %}">
-  <link rel="stylesheet" href="{% static 'css/identity.css' %}">
-  <link rel="stylesheet" href="{% static 'css/privacy.css' %}">
+  <link rel="stylesheet" href="{% versioned_static 'css/modern.css' %}">
+  <link rel="stylesheet" href="{% versioned_static 'css/identity.css' %}">
+  <link rel="stylesheet" href="{% versioned_static 'css/privacy.css' %}">
   {% block extra_meta %}{% endblock %}
   {% block extra_link %}{% endblock %}
 </head>
@@ -77,8 +77,8 @@
       <button class="privacy-notice-dismiss" id="privacy-notice-dismiss" type="button">{% if privacy_language == 'pt' %}Entendi{% else %}Got it{% endif %}</button>
     </div>
   </section>
-  <script defer src="{% static 'js/navigation.js' %}"></script>
-  <script defer src="{% static 'js/search_suggest.js' %}"></script>
-  <script defer src="{% static 'js/privacy_notice.js' %}"></script>
+  <script defer src="{% versioned_static 'js/navigation.js' %}"></script>
+  <script defer src="{% versioned_static 'js/search_suggest.js' %}"></script>
+  <script defer src="{% versioned_static 'js/privacy_notice.js' %}"></script>
 </body>
 </html>

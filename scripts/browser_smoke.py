@@ -40,6 +40,7 @@ def main():
                 assert visit(page, '/').status == 200
                 notice = page.locator('#privacy-notice')
                 expect(notice).to_be_visible()
+                assert all('?v=' in url for url in page.locator('link[rel="stylesheet"]').evaluate_all('(links) => links.map(link => link.href)'))
                 assert page.evaluate("localStorage.getItem('dnd_privacy_notice_v1')") is None
                 if width in (390, 1440):
                     screenshot(page, f'privacy-notice-{width}.png')
