@@ -19,6 +19,6 @@
 
 ## Release notes
 
-- Dark was visually reviewed locally in the spell catalog at desktop and mobile widths. Publish it through the guarded VPS deployment workflow after the source changes are merged to `master`.
+- Dark was deployed from `master` at `e579472` through the guarded VPS workflow after its MySQL backup/restore check passed. Both public hostnames returned HTTP 200 and served the versioned Dark stylesheet. Production browser checks at 390 and 1440 px confirmed no horizontal overflow and a 10.21:1 contrast ratio for the gold home action.
 - Do not add a Cloudflare rule that caches HTML or ignores query strings without revisiting this policy. Media uploads do not receive content digests and should use new filenames when replaced.
 - The legal controller identity and Cloudflare account-specific log retention still need confirmation before the privacy review is complete.
