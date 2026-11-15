@@ -1,5 +1,7 @@
 {% extends "admin/base.html" %}
-{% load i18n %}
+{% load i18n versioned_static %}
+
+{% block responsive %}{{ block.super }}<link rel="stylesheet" href="{% versioned_static 'css/admin-workspace.css' %}">{% endblock %}
 
 {% block title %}{{ title }} | D&amp;D Tools Administration{% endblock %}
 
