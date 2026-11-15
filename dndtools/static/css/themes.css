@@ -9,6 +9,8 @@
   white-space: nowrap;
 }
 .theme-picker[hidden] { display: none; }
+.site-header .brand { order: 0; }
+.site-header .navigation-toggle { order: 1; }
 .theme-picker select {
   min-height: 40px;
   padding: .35rem .65rem;

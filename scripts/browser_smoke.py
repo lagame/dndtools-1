@@ -104,6 +104,10 @@ def main():
                 for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'), ('standard', 'Inter')):
                     picker.select_option(theme)
                     assert page.evaluate('document.documentElement.dataset.theme') == theme
+                    brand_x = page.locator('.site-header .brand').bounding_box()['x']
+                    menu_x = page.locator('#navigation-toggle').bounding_box()['x']
+                    theme_x = picker.bounding_box()['x']
+                    assert brand_x < menu_x < theme_x
                     assert page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")') == (theme == 'standard')
                     assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
                     assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
