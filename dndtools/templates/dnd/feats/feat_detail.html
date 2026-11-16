@@ -1,26 +1,27 @@
 {% extends "dnd/feats/feat_layout.html" %}
-{% load catalog_html %}
+{% load catalog_i18n %}
+{% load catalog_html i18n %}
 
-{% block title %}{{ feat.name }} &ndash; Feat{% endblock %}
+{% block title %}{% localized feat 'name' %} &ndash; {% translate 'Feat' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'feat_index' %}">Feats</a>
-    &raquo; <a href="{% url 'feats_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{{ rulebook.name }}</a> (<a href="{{ rulebook.get_absolute_url }}">book</a>)
-    &raquo; <a href="{{ feat.get_absolute_url }}">{{ feat.name }}</a>
+    &raquo; <a href="{% url 'feat_index' %}">{% translate 'Feats' %}</a>
+    &raquo; <a href="{% url 'feats_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (<a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
+    &raquo; <a href="{{ feat.get_absolute_url }}">{% localized feat 'name' %}</a>
 {% endblock %}
 
-{% block admin_edit %}<a href="{% url 'admin:dnd_feat_change' feat.id %}">EDIT</a>{% endblock %}
+{% block admin_edit %}<a href="{% url 'admin:dnd_feat_change' feat.id %}">{% translate 'EDIT' %}</a>{% endblock %}
 
 {% block content %}
 
-<h2>{{ feat.name }}</h2>
+<h2>{% localized feat 'name' %}</h2>{% if feat.original_english_name %}<p class="original-name">{% translate 'Original EN' %}: {{ feat.original_english_name }}</p>{% endif %}
 (
-<a href="{{ rulebook.get_absolute_url }}">{{ rulebook.name }}</a>{% if feat.page != None %},  p. {{ feat.page }}{% endif %})
+<a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a>{% if feat.page != None %},  p. {{ feat.page }}{% endif %})
 <br/>
 <br/>
 
 {% if feat_category_list.count > 0 %}
-    [{% for feat_category in feat_category_list %}{% if not forloop.first %}, {% endif %}<a href="{{ feat_category.get_absolute_url }}">{{ feat_category.name }}</a>{% endfor %}]
+    [{% for feat_category in feat_category_list %}{% if not forloop.first %}, {% endif %}<a href="{{ feat_category.get_absolute_url }}">{% localized feat_category 'name' %}</a>{% endfor %}]
 {% endif %}
 <br/>
 <br/>
@@ -32,17 +33,17 @@
     <p>{{ feat.description|linebreaksbr }}</p>
 {% endif %}
 
-<h4>Prerequisite</h4>
+<h4>{% translate 'Prerequisite' %}</h4>
     <p>
 
     {% for req_feat in required_feats %}
-        <a href="{{ req_feat.required_feat.get_absolute_url }}">{{ req_feat.required_feat.name }}</a> (<abbr title="{{ req_feat.required_feat.rulebook.name }}">{{ req_feat.required_feat.rulebook.abbr }}</abbr>)
+        <a href="{{ req_feat.required_feat.get_absolute_url }}">{% localized req_feat.required_feat 'name' %}</a> (<abbr title="{% localized req_feat.required_feat.rulebook 'name' %}">{{ req_feat.required_feat.rulebook.abbr }}</abbr>)
         {% if req_feat.additional_text %}
             ({{ req_feat.additional_text }})
         {% endif %},
     {% endfor %}
     {% for req_skill in required_skills %}
-        <a href="{{ req_skill.skill.get_absolute_url }}">{{ req_skill.skill.name }}</a> {% if req_skill.extra %}({{ req_skill.extra }}){% endif %} {{ req_skill.min_rank }} ranks,
+        <a href="{{ req_skill.skill.get_absolute_url }}">{% localized req_skill.skill 'name' %}</a> {% if req_skill.extra %}({{ req_skill.extra }}){% endif %} {{ req_skill.min_rank }} ranks,
     {% endfor %}
     {% for req_special in special_prerequisities %}
         {{ req_special.format_value }},
@@ -53,10 +54,10 @@
 </p>
 {% if required_by_feats %}
 
-<h4>Required for</h4>
+<h4>{% translate 'Required for' %}</h4>
     <p>
     {% for req_by_feat in required_by_feats %}
-        <a href="{{ req_by_feat.source_feat.get_absolute_url }}">{{ req_by_feat.source_feat.name }}</a> (<abbr title="{{ req_by_feat.source_feat.rulebook.name }}">{{ req_by_feat.source_feat.rulebook.abbr }}</abbr>)
+        <a href="{{ req_by_feat.source_feat.get_absolute_url }}">{% localized req_by_feat.source_feat 'name' %}</a> (<abbr title="{% localized req_by_feat.source_feat.rulebook 'name' %}">{{ req_by_feat.source_feat.rulebook.abbr }}</abbr>)
         ,
     {% endfor %}
 </p>
@@ -64,7 +65,7 @@
 
 <div class="nice-textile">
     {% if feat.benefit_html or feat.benefit %}
-        <h4>Benefit </h4>
+        <h4>{% translate 'Benefit' %} </h4>
         {% if feat.benefit_html %}
         {{ feat.benefit_html|safe_catalog_html }}
         {% else %}
@@ -73,7 +74,7 @@
     {% endif %}
 
     {% if feat.special_html or feat.special %}
-        <h4>Special </h4>
+        <h4>{% translate 'Special' %} </h4>
         {% if feat.special_html %}
             {{ feat.special_html|safe_catalog_html }}
         {% else %}
@@ -82,7 +83,7 @@
     {% endif %}
 
     {% if feat.normal_html or feat.normal %}
-        <h4>Normal </h4>
+        <h4>{% translate 'Normal' %} </h4>
         {% if feat.normal_html %}
             {{ feat.normal_html|safe_catalog_html }}
         {% else %}
@@ -92,10 +93,10 @@
 </div>
 
 {% if related_feats %}
-    <h3>Also appears in</h3>
+    <h3>{% translate 'Also appears in' %}</h3>
     <ol>
         {% for related_feat in related_feats %}
-            <li><a href="{{ related_feat.get_absolute_url }}">{{ related_feat.rulebook.name }}</a></li>
+            <li><a href="{{ related_feat.get_absolute_url }}">{% localized related_feat.rulebook 'name' %}</a></li>
         {% endfor %}
     </ol>
 {% endif %}

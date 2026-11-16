@@ -1,0 +1,55 @@
+"""Bind Django admin sessions to a verified Cloudflare Access identity."""
+
+from functools import lru_cache
+from urllib.parse import urlsplit
+
+import jwt
+from django.conf import settings
+from django.contrib.auth import logout
+from django.http import HttpResponseForbidden
+
+
+@lru_cache(maxsize=4)
+def _jwk_client(team_domain):
+    parsed = urlsplit(team_domain)
+    if (parsed.scheme != 'https' or parsed.path or parsed.query or parsed.fragment
+            or not parsed.hostname or not parsed.hostname.endswith('.cloudflareaccess.com')):
+        raise ValueError('Invalid Access team domain configuration.')
+    return jwt.PyJWKClient(team_domain + '/cdn-cgi/access/certs', cache_jwk_set=True,
+                           lifespan=300, timeout=3)
+
+
+def verified_email(token):
+    if not token or len(token) > 12000:
+        return None
+    try:
+        key = _jwk_client(settings.ACCESS_TEAM_DOMAIN).get_signing_key_from_jwt(token)
+        payload = jwt.decode(token, key.key, algorithms=['RS256'],
+                             audience=settings.ACCESS_AUD,
+                             issuer=settings.ACCESS_TEAM_DOMAIN,
+                             options={'require': ['exp', 'iss', 'aud', 'email']})
+        email = payload.get('email', '')
+        return email.casefold() if isinstance(email, str) and '@' in email else None
+    except (jwt.PyJWTError, ValueError, OSError):
+        return None
+
+
+class AccessIdentityMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not settings.ACCESS_REQUIRED or not request.path_info.startswith('/' + settings.ADMIN_URL):
+            return self.get_response(request)
+        email = verified_email(request.META.get('HTTP_CF_ACCESS_JWT_ASSERTION'))
+        if not email:
+            return HttpResponseForbidden('Access authentication required.')
+        request.access_email = email
+        if request.user.is_authenticated and request.user.email.casefold() != email:
+            logout(request)
+            return HttpResponseForbidden('Access account does not match this session.')
+        response = self.get_response(request)
+        if request.user.is_authenticated and request.user.email.casefold() != email:
+            logout(request)
+            return HttpResponseForbidden('Access account does not match this session.')
+        return response

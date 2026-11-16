@@ -1,10 +1,11 @@
 {% extends "dnd/mobile/spells/spell_layout.html" %}
+{% load i18n %}
 
 {% block title %}Spells{% endblock %}
 
 {% block content %}
 
-<h2>Spells</h2>
+<h2>{% translate 'Spells' %}</h2>
 
 {% include "dnd/mobile/filter_form.html" %}
 

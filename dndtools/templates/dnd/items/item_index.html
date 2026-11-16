@@ -1,16 +1,17 @@
 {% extends "dnd/items/item_layout.html" %}
+{% load i18n %}
 
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 
 {% block title %}Items{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'item_index' %}">Items</a>
+    &raquo; <a href="{% url 'item_index' %}">{% translate 'Items' %}</a>
 {% endblock %}
 
 {% block content %}
 
-    <h2>Items</h2>
+    <h2>{% translate 'Items' %}</h2>
 
     {% include "dnd/filter_form.html" %}
 

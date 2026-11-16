@@ -1,0 +1,15 @@
+[Unit]
+Description=Synchronize D&D Tools editorial group with Cloudflare Access
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/dndtools
+EnvironmentFile=/etc/dndtools/access-sync.env
+ExecStart=/usr/bin/python3 /opt/dndtools/scripts/sync_access_group.py --apply
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/dndtools

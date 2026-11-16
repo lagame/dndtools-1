@@ -28,7 +28,7 @@ jobs:
       - name: Migration drift
         run: docker compose run --rm app python manage.py makemigrations --check --dry-run
       - name: Deployment checks
-        run: docker compose run --rm -e DND_DEBUG=0 -e DJANGO_ADMIN_URL=ci_private_path_1234 app python manage.py check --deploy --fail-level WARNING
+        run: docker compose run --rm -e DND_DEBUG=0 -e DJANGO_ADMIN_URL=ci_private_path_1234 -e DND_ACCESS_TEAM_DOMAIN=https://ci.cloudflareaccess.com -e DND_ACCESS_AUD=ci-audience -e DND_EDITORIAL_NOTIFY_EMAIL=owner@example.test -e DND_EMAIL_HOST=smtp.example.test -e DND_EMAIL_FROM=alerts@example.test app python manage.py check --deploy --fail-level WARNING
       - name: Install browser test tools
         run: |
           python -m pip install -r requirements-test.txt

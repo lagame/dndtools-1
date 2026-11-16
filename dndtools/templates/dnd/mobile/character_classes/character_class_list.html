@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/character_classes/character_class_layout.html" %}
+{% load i18n %}
 
 {% load custom_filters %}
 
@@ -6,7 +7,7 @@
 
 {% block content %}
 
-<h2>Classes</h2>
+<h2>{% translate 'Classes' %}</h2>
 
 {% include "dnd/mobile/filter_form.html" %}
 
@@ -15,9 +16,9 @@
 
 <table class="list">
 <tr>
-  <th>Class name</th>
-  <th>Prestige</th>
-  <th>Rulebook</th>
+  <th>{% translate 'Class name' %}</th>
+  <th>{% translate 'Prestige' %}</th>
+  <th>{% translate 'Rulebook' %}</th>
 </tr>
     {% for character_class_variant in character_class_list %}
         <tr>

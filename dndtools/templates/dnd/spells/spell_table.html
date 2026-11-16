@@ -1,27 +1,29 @@
+{% load catalog_i18n %}
+{% load i18n %}
 {% load custom_filters %}
 
 {{ paginator.print_navigation }}
 
-<p class="table-scroll-hint" id="spell-table-hint">Scroll the table sideways to see all spell details.</p>
-<table class="common spell-catalog-table" aria-label="Spells" aria-describedby="spell-table-hint" tabindex="0">
+<p class="table-scroll-hint" id="spell-table-hint">{% translate 'Scroll the table sideways to see all spell details.' %}</p>
+<table class="common spell-catalog-table" aria-label="{% translate 'Spells' %}" aria-describedby="spell-table-hint" tabindex="0">
 <tr>
-  <th>Spell name</th>
-  <th>Spell School</th>
-  <th>Rulebook</th>
-  <th>Effect</th>
-  <th>Duration</th>
-  <th>Range</th>
-  <th>Components</th>
-  <th>Casting Time</th>  
+  <th>{% translate 'Spell name' %}</th>
+  <th>{% translate 'Spell School' %}</th>
+  <th>{% translate 'Rulebook' %}</th>
+  <th>{% translate 'Effect' %}</th>
+  <th>{% translate 'Duration' %}</th>
+  <th>{% translate 'Range' %}</th>
+  <th>{% translate 'Components' %}</th>
+  <th>{% translate 'Casting Time' %}</th>
 </tr>
 {% for spell in spell_list %}
 <tr>
-    <td><a href="{{ spell.get_absolute_url }}">{{ spell.name }}</a></td>
-    <td><a href="{{ spell.school.get_absolute_url }}">{{ spell.school.name }}</a></td>
+    <td><a href="{{ spell.get_absolute_url }}">{% localized spell 'name' %}</a></td>
+    <td><a href="{{ spell.school.get_absolute_url }}">{% localized spell.school 'name' %}</a></td>
 	<td><a href="{{ spell.rulebook.get_absolute_url }}">{{ spell.rulebook.abbr }}</a></td>
-    <td> </td>
-	<td>{{ spell.duration }}</td>
-	<td>{{ spell.range }}</td>
+    <td>{% localized spell 'effect' %}</td>
+	<td>{% localized spell 'duration' %}</td>
+	<td>{% localized spell 'range' %}</td>
 	<td>
 		{% if spell.verbal_component %}<abbr title="Verbal">V</abbr>, {% endif %}
 		{% if spell.somatic_component %}<abbr title="Somatic">S</abbr>, {% endif %}
@@ -35,7 +37,7 @@
 		{% if spell.extra_components %}{{ spell.extra_components }}{% endif %}
 	</td>
 	
-	<td>{{ spell.casting_time }}</td>
+	<td>{% localized spell 'casting_time' %}</td>
 </tr>
 {% endfor %}
 </table>

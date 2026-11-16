@@ -1,16 +1,17 @@
 {% extends "dnd/languages/language_layout.html" %}
+{% load i18n %}
 
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 
 {% block title %}Languages{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'language_index' %}">Languages</a>
+    &raquo; <a href="{% url 'language_index' %}">{% translate 'Languages' %}</a>
 {% endblock %}
 
 {% block content %}
 
-    <h2>Languages</h2>
+    <h2>{% translate 'Languages' %}</h2>
 
     {% include "dnd/filter_form.html" %}
 

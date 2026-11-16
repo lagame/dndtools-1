@@ -1,12 +1,14 @@
+{% load catalog_i18n %}
+{% load i18n %}
 {{ paginator.print_navigation }}
 
 <table class="common">
     <tr>
-        <th>Rule name</th>
+        <th>{% translate 'Rule name' %}</th>
     </tr>
     {% for rule in rule_list %}
         <tr>
-            <td><a href="{{ rule.get_absolute_url }}">{{ rule.name }}</a></td>
+            <td><a href="{{ rule.get_absolute_url }}">{% localized rule 'name' %}</a></td>
         </tr>
     {% endfor %}
 </table>

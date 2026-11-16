@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/items/item_layout.html" %}
+{% load i18n %}
 {% load catalog_html %}
 {% load custom_filters %}
 
@@ -13,13 +14,13 @@
     <br/>
 
     {% if item.price_gp %}
-            <strong>Price:</strong> {% if item.type == ItemType.ENHANCEMENT %}+{% endif %}{{ item.price_gp|thousands_separator }} gp<br/>
+            <strong>{% translate 'Price:' %}</strong> {% if item.type == ItemType.ENHANCEMENT %}+{% endif %}{{ item.price_gp|thousands_separator }} gp<br/>
     {% endif %}
     {% if item.price_bonus %}
-            <strong>Price:</strong> +{{ item.price_bonus }} bonus<br/>
+            <strong>{% translate 'Price:' %}</strong> +{{ item.price_bonus }} bonus<br/>
     {% endif %}
     {% if item.item_level %}
-        <strong>Item Level:</strong> {{ item.item_level|ordinal_number }}<br/>
+        <strong>{% translate 'Item Level:' %}</strong> {{ item.item_level|ordinal_number }}<br/>
     {% endif %}
 
     {% if item.type == ItemType.MUNDANE %}
@@ -50,7 +51,7 @@
 
     {% if required_spells or required_feats or item.required_extra %}
     <p>
-    <i>Prerequisites:</i>
+    <i>{% translate 'Prerequisites:' %}</i>
     {% for required_feat in required_feats %}
 
         <a href="{{ required_feat.get_absolute_url_mobile }}">{{ required_feat }}</a>{% if not forloop.last %}, {% endif %}
@@ -67,7 +68,7 @@
 
     {% if cost_to_create and cost_to_create != '-' %}
         <p>
-            <i>Cost to Create:</i> {{ cost_to_create }}.
+            <i>{% translate 'Cost to Create:' %}</i> {{ cost_to_create }}.
         </p>
     {% endif %}
 

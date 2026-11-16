@@ -1,19 +1,21 @@
+{% load catalog_i18n %}
+{% load i18n %}
 {% load custom_filters %}
 
 {{ paginator.print_navigation }}
 
 <table class="common">
     <tr>
-        <th>Race type name</th>
-        <th>Hit Die</th>
-        <th>Attack Bonus</th>
-        <th>Good Fort Save</th>
-        <th>Good Reflex Save</th>
-        <th>Good Will Save</th>
+        <th>{% translate 'Race type name' %}</th>
+        <th>{% translate 'Hit Die' %}</th>
+        <th>{% translate 'Attack Bonus' %}</th>
+        <th>{% translate 'Good Fort Save' %}</th>
+        <th>{% translate 'Good Reflex Save' %}</th>
+        <th>{% translate 'Good Will Save' %}</th>
     </tr>
     {% for race_type in race_type_list %}
         <tr>
-            <td><a href="{{ race_type.get_absolute_url }}">{{ race_type.name }}</a></td>
+            <td><a href="{{ race_type.get_absolute_url }}">{% localized race_type 'name' %}</a></td>
             <td>d{{ race_type.hit_die_size }}</td>
             <td>{% if race_type.base_attack_type == BaseAttackType.FIGHTER %}
                 Fighter (as HD)

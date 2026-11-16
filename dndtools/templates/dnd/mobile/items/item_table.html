@@ -1,13 +1,14 @@
+{% load i18n %}
 {% load custom_filters %}
 
 {{ paginator.print_navigation }}
 
 <table class="list">
     <tr>
-        <th>Name</th>
+        <th>{% translate 'Name' %}</th>
         <th class="align-right">Cost</th>
         <th>Slot/Property</th>
-        <th>Rulebook name</th>
+        <th>{% translate 'Rulebook name' %}</th>
     </tr>
     {% for item in item_list %}
         <tr>

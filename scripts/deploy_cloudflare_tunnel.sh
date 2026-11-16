@@ -12,6 +12,8 @@ fi
 command -v python3 >/dev/null || { echo 'Python 3 is required.' >&2; exit 1; }
 command -v docker >/dev/null || { echo 'Docker Compose is required.' >&2; exit 1; }
 command -v curl >/dev/null || { echo 'curl is required.' >&2; exit 1; }
+[[ -n "${DND_ACCESS_TEAM_DOMAIN:-}" && -n "${DND_ACCESS_AUD:-}" ]] || { echo 'Set DND_ACCESS_TEAM_DOMAIN and DND_ACCESS_AUD in the private shell before provisioning.' >&2; exit 1; }
+[[ -n "${DND_EDITORIAL_NOTIFY_EMAIL:-}" && -n "${DND_EMAIL_HOST:-}" && -n "${DND_EMAIL_FROM:-}" ]] || { echo 'Set private editorial notification destination, SMTP host and sender before provisioning.' >&2; exit 1; }
 docker compose version >/dev/null
 
 compose=(docker compose -f compose.yaml -f compose.tunnel.yaml)
@@ -29,6 +31,7 @@ fi
 python3 scripts/setup_local.py
 python3 - <<'PY'
 import secrets
+import os
 from pathlib import Path
 
 env = Path('.env')
@@ -39,7 +42,15 @@ values = {
     'DND_CSRF_TRUSTED_ORIGINS': 'https://dndtools.quest,https://www.dndtools.quest',
     'DND_PUBLIC_HOST': 'dndtools.quest',
     'DJANGO_ADMIN_URL': 'archive-' + secrets.token_urlsafe(24).replace('-', '_'),
+    'DND_ACCESS_TEAM_DOMAIN': os.environ['DND_ACCESS_TEAM_DOMAIN'],
+    'DND_ACCESS_AUD': os.environ['DND_ACCESS_AUD'],
+    'DND_EDITORIAL_NOTIFY_EMAIL': os.environ['DND_EDITORIAL_NOTIFY_EMAIL'],
+    'DND_EMAIL_HOST': os.environ['DND_EMAIL_HOST'],
+    'DND_EMAIL_FROM': os.environ['DND_EMAIL_FROM'],
 }
+for name in ('DND_EMAIL_PORT', 'DND_EMAIL_USER', 'DND_EMAIL_PASSWORD', 'DND_EMAIL_USE_TLS'):
+    if name in os.environ:
+        values[name] = os.environ[name]
 lines = env.read_text(encoding='utf-8').splitlines()
 present = set()
 for index, line in enumerate(lines):

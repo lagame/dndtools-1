@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 
 from dnd.models import (FeatCategory, Skill, SpecialFeatPrerequisite, TextFeatPrerequisite,
                         FeatSpecialFeatPrerequisite, FeatRequiresFeat, Feat, FeatRequiresSkill,
@@ -13,14 +14,68 @@ from dnd.models import (FeatCategory, Skill, SpecialFeatPrerequisite, TextFeatPr
                         ItemSlot, ItemAuraType, ItemActivationType, ItemProperty, Language, RaceType, Deity,
                         DndEdition, Rulebook, CharacterClass, SpellDescriptor,
                         SpellSchool, SpellSubSchool, Spell, SpellClassLevel,
-                        Domain, SpellDomainLevel, DomainVariant, RuleCondition)
+                        Domain, SpellDomainLevel, DomainVariant, RuleCondition,
+                        EditorialGrant, CreatureTemplate, SupplementalEntry)
+from dnd.editorial import GRANT_CHOICES, owner
 
 
-class ModifiedUserAdmin(UserAdmin):
+class OwnerOnlyAdminMixin:
+    def has_module_permission(self, request):
+        return owner(request.user) or super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        return owner(request.user) or super().has_view_permission(request, obj)
+
+    def has_add_permission(self, request):
+        return owner(request.user)
+
+    def has_change_permission(self, request, obj=None):
+        return owner(request.user)
+
+    def has_delete_permission(self, request, obj=None):
+        return owner(request.user)
+
+
+class CatalogModelAdmin(OwnerOnlyAdminMixin, admin.ModelAdmin):
+    pass
+
+
+class ModifiedUserAdmin(OwnerOnlyAdminMixin, UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'last_login')
 
 
-class DndEditionAdmin(admin.ModelAdmin):
+class OwnerOnlyGroupAdmin(OwnerOnlyAdminMixin, GroupAdmin):
+    pass
+
+
+class EditorialGrantAdmin(admin.ModelAdmin):
+    list_display = ('user', 'resource', 'can_create', 'can_correct', 'can_translate')
+    list_filter = ('resource',)
+    search_fields = ('user__username', 'user__email')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['resource'].widget = forms.Select(
+            choices=GRANT_CHOICES)
+        return form
+
+    def has_module_permission(self, request):
+        return owner(request.user)
+
+    def has_view_permission(self, request, obj=None):
+        return owner(request.user)
+
+    def has_add_permission(self, request):
+        return owner(request.user)
+
+    def has_change_permission(self, request, obj=None):
+        return owner(request.user)
+
+    def has_delete_permission(self, request, obj=None):
+        return owner(request.user)
+
+
+class DndEditionAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', 'system', )
     list_display_links = ('name', )
@@ -28,7 +83,7 @@ class DndEditionAdmin(admin.ModelAdmin):
     search_fields = ('name', )
 
 
-class RulebookAdmin(admin.ModelAdmin):
+class RulebookAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', 'dnd_edition', )
     list_display_links = ('name', )
@@ -36,7 +91,7 @@ class RulebookAdmin(admin.ModelAdmin):
     search_fields = ('name', )
 
 
-class CharacterClassAdmin(admin.ModelAdmin):
+class CharacterClassAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', 'prestige')
     list_display_links = ('name', )
@@ -59,7 +114,7 @@ class CharacterClassVariantRequiresSkillInline(admin.TabularInline):
     extra = 3
 
 
-class CharacterClassVariantAdmin(admin.ModelAdmin):
+class CharacterClassVariantAdmin(CatalogModelAdmin):
     list_display = ('id', 'character_class', 'rulebook', )
     list_filter = ('character_class', 'rulebook', )
     search_fields = ('character_class__name', )
@@ -70,7 +125,7 @@ class CharacterClassVariantAdmin(admin.ModelAdmin):
     )
 
 
-class ItemAdmin(admin.ModelAdmin):
+class ItemAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', 'price_gp', 'price_bonus')
     list_display_links = ('name', )
@@ -78,42 +133,42 @@ class ItemAdmin(admin.ModelAdmin):
     filter_horizontal = ('required_spells', 'aura_schools', 'required_feats', )
 
 
-class ItemSlotAdmin(admin.ModelAdmin):
+class ItemSlotAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name')
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class ItemAuraTypeAdmin(admin.ModelAdmin):
+class ItemAuraTypeAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name')
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class ItemPropertyAdmin(admin.ModelAdmin):
+class ItemPropertyAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name')
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class ItemActivationTypeAdmin(admin.ModelAdmin):
+class ItemActivationTypeAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name')
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class DomainAdmin(admin.ModelAdmin):
+class DomainAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name',)
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class DomainVariantAdmin(admin.ModelAdmin):
+class DomainVariantAdmin(CatalogModelAdmin):
     list_display = ('id', 'domain', 'rulebook', )
     list_display_links = ('domain', )
     list_filter = ('domain', 'rulebook', )
@@ -121,21 +176,21 @@ class DomainVariantAdmin(admin.ModelAdmin):
     filter_horizontal = ('deities', 'other_deities', )
 
 
-class SpellDescriptorAdmin(admin.ModelAdmin):
+class SpellDescriptorAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', )
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class SpellSchoolAdmin(admin.ModelAdmin):
+class SpellSchoolAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', )
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class SpellSubSchoolAdmin(admin.ModelAdmin):
+class SpellSubSchoolAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', )
     list_display_links = ('name', )
@@ -152,7 +207,7 @@ class SpellDomainLevelInline(admin.TabularInline):
     extra = 3
 
 
-class SpellAdmin(admin.ModelAdmin):
+class SpellAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         'id', 'name', 'verified', 'verified_author', 'verified_time',
@@ -167,14 +222,14 @@ class SpellAdmin(admin.ModelAdmin):
     filter_horizontal = ('descriptors', )
 
 
-class FeatCategoryAdmin(admin.ModelAdmin):
+class FeatCategoryAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', )
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class SkillAdmin(admin.ModelAdmin):
+class SkillAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         'id', 'name', 'base_skill', 'trained_only', 'armor_check_penalty',
@@ -184,12 +239,12 @@ class SkillAdmin(admin.ModelAdmin):
     list_filter = ('base_skill', 'trained_only', 'armor_check_penalty',)
 
 
-class SkillVariantAdmin(admin.ModelAdmin):
+class SkillVariantAdmin(CatalogModelAdmin):
     list_display = ('id', 'skill', 'rulebook', )
     list_filter = ('skill', 'rulebook', )
 
 
-class SpecialFeatPrerequisiteAdmin(admin.ModelAdmin):
+class SpecialFeatPrerequisiteAdmin(CatalogModelAdmin):
     list_display = (
         'name', 'print_format',
     )
@@ -218,7 +273,7 @@ class FeatRequiresSkillInline(admin.TabularInline):
     extra = 3
 
 
-class FeatAdmin(admin.ModelAdmin):
+class FeatAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         'id', 'name', 'rulebook',
@@ -235,14 +290,14 @@ class FeatAdmin(admin.ModelAdmin):
     )
 
 
-class MonsterTypeAdmin(admin.ModelAdmin):
+class MonsterTypeAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', )
     list_display_links = ('name', )
     search_fields = ('name', )
 
 
-class MonsterSubtypeAdmin(admin.ModelAdmin):
+class MonsterSubtypeAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', )
     list_display_links = ('name', )
@@ -277,7 +332,7 @@ class MonsterForm(forms.ModelForm):
         fields = '__all__'
 
 
-class MonsterAdmin(admin.ModelAdmin):
+class MonsterAdmin(CatalogModelAdmin):
     form = MonsterForm
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('id', 'name', 'rulebook', )
@@ -299,7 +354,7 @@ class RaceSpeedInline(admin.TabularInline):
     extra = 1
 
 
-class RaceAdmin(admin.ModelAdmin):
+class RaceAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         'id', 'name', 'rulebook', 'str', 'dex', 'con', 'int', 'wis', 'cha', 'level_adjustment',
@@ -315,34 +370,34 @@ class RaceAdmin(admin.ModelAdmin):
     filter_horizontal = ('automatic_languages', 'bonus_languages', )
 
 
-class RaceSizeAdmin(admin.ModelAdmin):
+class RaceSizeAdmin(CatalogModelAdmin):
     list_display = (
         'name',
     )
     list_display_links = ('name', )
 
 
-class RaceSpeedTypeAdmin(admin.ModelAdmin):
+class RaceSpeedTypeAdmin(CatalogModelAdmin):
     list_display = (
         'name', 'extra'
     )
     list_display_links = ('name', )
 
 
-class NewsEntryAdmin(admin.ModelAdmin):
+class NewsEntryAdmin(CatalogModelAdmin):
     list_display = (
         'title', 'published', 'enabled',
     )
     date_hierarchy = 'published'
 
 
-class StaticPageAdmin(admin.ModelAdmin):
+class StaticPageAdmin(CatalogModelAdmin):
     list_display = (
         'name',
     )
 
 
-class RuleAdmin(admin.ModelAdmin):
+class RuleAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ('name', )
     list_display = (
@@ -350,16 +405,7 @@ class RuleAdmin(admin.ModelAdmin):
     )
 
 
-class LanguageAdmin(admin.ModelAdmin):
-    prepopulated_fields = {"slug": ("name",)}
-    list_display = (
-        'name',
-    )
-    list_display_links = ('name', )
-    search_fields = ('name', )
-
-
-class RaceTypeAdmin(admin.ModelAdmin):
+class LanguageAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         'name',
@@ -368,7 +414,16 @@ class RaceTypeAdmin(admin.ModelAdmin):
     search_fields = ('name', )
 
 
-class DeityAdmin(admin.ModelAdmin):
+class RaceTypeAdmin(CatalogModelAdmin):
+    prepopulated_fields = {"slug": ("name",)}
+    list_display = (
+        'name',
+    )
+    list_display_links = ('name', )
+    search_fields = ('name', )
+
+
+class DeityAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         'name',
@@ -402,7 +457,7 @@ admin.site.register(RaceType, RaceTypeAdmin)
 admin.site.register(NewsEntry, NewsEntryAdmin)
 admin.site.register(StaticPage, StaticPageAdmin)
 admin.site.register(Rule, RuleAdmin)
-admin.site.register(RuleCondition)
+admin.site.register(RuleCondition, CatalogModelAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(ItemSlot, ItemSlotAdmin)
 admin.site.register(ItemProperty, ItemPropertyAdmin)
@@ -410,5 +465,10 @@ admin.site.register(ItemAuraType, ItemAuraTypeAdmin)
 admin.site.register(ItemActivationType, ItemActivationTypeAdmin)
 admin.site.register(Deity, DeityAdmin)
 admin.site.register(DomainVariant, DomainVariantAdmin)
+admin.site.register(EditorialGrant, EditorialGrantAdmin)
+admin.site.register(CreatureTemplate, CatalogModelAdmin)
+admin.site.register(SupplementalEntry, CatalogModelAdmin)
 admin.site.unregister(User)
 admin.site.register(User, ModifiedUserAdmin)
+admin.site.unregister(Group)
+admin.site.register(Group, OwnerOnlyGroupAdmin)

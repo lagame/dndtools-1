@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/deities/deity_layout.html" %}
+{% load i18n %}
 {% load catalog_html %}
 
 {% block title %}{{ deity.name }} &ndash; Deities{% endblock %}
@@ -14,12 +15,12 @@
 {% endif %}
 
 {% if deity.alignment %}
-<h4>Alignment</h4>
+<h4>{% translate 'Alignment' %}</h4>
 <p>{{ deity.alignment }}</p>
 {% endif %}
 
 {% if deity.favored_weapon %}
-<h4>Favored Weapon</h4>
+<h4>{% translate 'Favored Weapon' %}</h4>
 <p><a href="{{ deity.favored_weapon.get_absolute_url_mobile }}">{{ deity.favored_weapon.name }}</a></p>
 {% endif %}
 

@@ -1,6 +1,7 @@
 {% extends "dnd/mobile/layout.html" %}
+{% load i18n %}
 
 {% block submenu %}
-    <li{% if request.submenu_item == "items" %} class="selected"{% endif %}><a href="{% url 'item_index_mobile' %}">Items</a></li>
-    <li{% if request.submenu_item == "by_rulebooks" %} class="selected"{% endif %}><a href="{% url 'item_list_by_rulebook_mobile' %}">By Rulebooks</a></li>
+    <li{% if request.submenu_item == "items" %} class="selected"{% endif %}><a href="{% url 'item_index_mobile' %}">{% translate 'Items' %}</a></li>
+    <li{% if request.submenu_item == "by_rulebooks" %} class="selected"{% endif %}><a href="{% url 'item_list_by_rulebook_mobile' %}">{% translate 'By Rulebooks' %}</a></li>
 {% endblock %}

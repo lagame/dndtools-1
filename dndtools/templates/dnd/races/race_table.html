@@ -1,16 +1,18 @@
+{% load catalog_i18n %}
+{% load i18n %}
 {{ paginator.print_navigation }}
 
 <table class="common">
     <tr>
-        <th>Race name</th>
-        <th>Rulebook name</th>
-        <th>Edition</th>
+        <th>{% translate 'Race name' %}</th>
+        <th>{% translate 'Rulebook name' %}</th>
+        <th>{% translate 'Edition' %}</th>
     </tr>
     {% for race in race_list %}
         <tr>
-            <td><a href="{{ race.get_absolute_url }}">{{ race.name }}</a></td>
-            <td><a href="{{ race.rulebook.get_absolute_url }}">{{ race.rulebook.name }}</a></td>
-            <td><a href="{{ race.rulebook.dnd_edition.get_absolute_url }}">{{ race.rulebook.dnd_edition.name }}</a></td>
+            <td><a href="{{ race.get_absolute_url }}">{% localized race 'name' %}</a></td>
+            <td><a href="{{ race.rulebook.get_absolute_url }}">{% localized race.rulebook 'name' %}</a></td>
+            <td><a href="{{ race.rulebook.dnd_edition.get_absolute_url }}">{% localized race.rulebook.dnd_edition 'name' %}</a></td>
         </tr>
     {% endfor %}
 </table>

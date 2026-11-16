@@ -1,17 +1,19 @@
 {% extends "dnd/character_classes/character_class_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 
-{% block title %}{{ character_class_variant.character_class.name }} &ndash; {{ character_class_variant.rulebook.name }} variant  &ndash; Class{% endblock %}
+{% block title %}{% localized character_class_variant.character_class 'name' %} &ndash; {% localized character_class_variant.rulebook 'name' %} variant  &ndash; Class{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'character_class_list'  %}">Classes</a>
-    &raquo; <a href="{{ character_class_variant.character_class.get_absolute_url }}">{{ character_class_variant.character_class.name }}</a>
-    &raquo; <a href="{{ character_class_variant.rulebook.get_absolute_url }}">{{ character_class_variant.rulebook.name }}</a>
+    &raquo; <a href="{% url 'character_class_list'  %}">{% translate 'Classes' %}</a>
+    &raquo; <a href="{{ character_class_variant.character_class.get_absolute_url }}">{% localized character_class_variant.character_class 'name' %}</a>
+    &raquo; <a href="{{ character_class_variant.rulebook.get_absolute_url }}">{% localized character_class_variant.rulebook 'name' %}</a>
 {% endblock %}
 
 
 {% block content %}
 
-<h2>{{ character_class_variant.character_class.name }} &ndash; {{ character_class_variant.rulebook.name }}</h2>
+<h2>{% localized character_class_variant.character_class 'name' %} &ndash; {% localized character_class_variant.rulebook 'name' %}</h2>
 
 {% include "dnd/character_classes/character_class_variant_inner.html" %}
 

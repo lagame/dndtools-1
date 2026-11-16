@@ -1,0 +1,15 @@
+{% extends 'dnd/layout.html' %}
+{% load catalog_i18n %}
+{% load i18n catalog_html %}
+{% block title %}{% localized entry 'name' %}{% endblock %}
+{% block breadcrumbs %} » <a href="{% url 'creature_template_index' %}">{% translate 'Creature templates' %}</a> » {% localized entry 'name' %}{% endblock %}
+{% block content %}
+<h1>{% localized entry 'name' %}</h1>{% if entry.original_english_name %}<p class="original-name">{% translate 'Original EN' %}: {{ entry.original_english_name }}</p>{% endif %}
+<p><a href="{{ entry.rulebook.get_absolute_url }}">{% localized entry.rulebook 'name' %}</a>{% if entry.page %}, p. {{ entry.page }}{% endif %}</p>
+<dl><dt>{% translate 'Type' %}</dt><dd>{{ entry.get_kind_display }}</dd>
+<dt>{% translate 'Applicable creatures' %}</dt><dd>{{ entry.applicable_creatures }}</dd>
+{% if entry.challenge_rating_adjustment %}<dt>{% translate 'Challenge Rating adjustment' %}</dt><dd>{{ entry.challenge_rating_adjustment }}</dd>{% endif %}
+{% if entry.level_adjustment %}<dt>{% translate 'Level Adjustment' %}</dt><dd>{{ entry.level_adjustment }}</dd>{% endif %}</dl>
+<h2>{% translate 'Mechanical changes' %}</h2><div class="nice-textile">{{ entry.mechanical_changes_html|safe_catalog_html }}</div>
+{% if entry.description %}<h2>{% translate 'Description' %}</h2><div class="nice-textile">{{ entry.description_html|safe_catalog_html }}</div>{% endif %}
+{% endblock %}

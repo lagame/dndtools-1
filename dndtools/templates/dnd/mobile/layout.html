@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load custom_tags %}<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,14 +40,14 @@
         <nav class="vertical menu" id="menu">
             <ul>
                 <li{% if request.menu_item == "home" %} class="selected"{% endif %}><a href="{% url 'index_mobile' %}">Home</a></li>
-                <li{% if request.menu_item == "rulebooks" %} class="selected"{% endif %}><a href="{% url 'rulebook_list_mobile' %}">Rulebooks</a></li>
-                <li{% if request.menu_item == "feats" %} class="selected"{% endif %}><a href="{% url 'feat_index_mobile' %}">Feats</a></li>
-                <li{% if request.menu_item == "spells" %} class="selected"{% endif %}><a href="{% url 'spell_index_mobile' %}">Spells</a></li>
-                <li{% if request.menu_item == "classes" %} class="selected"{% endif %}><a href="{% url 'character_class_list_mobile' %}">Classes</a></li>
-                <li{% if request.menu_item == "skills" %} class="selected"{% endif %}><a href="{% url 'skill_list_mobile' %}">Skills</a></li>
-                <li{% if request.menu_item == "items" %} class="selected"{% endif %}><a href="{% url 'item_index_mobile' %}">Items</a></li>
+                <li{% if request.menu_item == "rulebooks" %} class="selected"{% endif %}><a href="{% url 'rulebook_list_mobile' %}">{% translate 'Rulebooks' %}</a></li>
+                <li{% if request.menu_item == "feats" %} class="selected"{% endif %}><a href="{% url 'feat_index_mobile' %}">{% translate 'Feats' %}</a></li>
+                <li{% if request.menu_item == "spells" %} class="selected"{% endif %}><a href="{% url 'spell_index_mobile' %}">{% translate 'Spells' %}</a></li>
+                <li{% if request.menu_item == "classes" %} class="selected"{% endif %}><a href="{% url 'character_class_list_mobile' %}">{% translate 'Classes' %}</a></li>
+                <li{% if request.menu_item == "skills" %} class="selected"{% endif %}><a href="{% url 'skill_list_mobile' %}">{% translate 'Skills' %}</a></li>
+                <li{% if request.menu_item == "items" %} class="selected"{% endif %}><a href="{% url 'item_index_mobile' %}">{% translate 'Items' %}</a></li>
                 <li{% if request.menu_item == "races_monsters" %} class="selected"{% endif %}><a href="{% url 'monster_index_mobile' %}">Races &amp; Monsters</a></li>
-                <li{% if request.menu_item == "deities" %} class="selected"{% endif %}><a href="{% url 'deity_list_mobile' %}">Deities</a></li>
+                <li{% if request.menu_item == "deities" %} class="selected"{% endif %}><a href="{% url 'deity_list_mobile' %}">{% translate 'Deities' %}</a></li>
             </ul>
         </nav>
 

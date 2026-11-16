@@ -2328,3 +2328,140 @@ class RuleCondition(models.Model):
 
     def get_absolute_url(self):
         return reverse('rule_condition_detail', kwargs={'condition_id': self.pk})
+
+
+class CreatureTemplate(models.Model):
+    """A published D&D creature template, not a Django presentation template."""
+
+    rulebook = models.ForeignKey(Rulebook, on_delete=models.PROTECT)
+    page = models.PositiveSmallIntegerField(null=True, blank=True)
+    name = models.CharField(max_length=128)
+    slug = models.SlugField(max_length=128)
+    kind = models.CharField(max_length=16, choices=(('inherited', 'Inherited'), ('acquired', 'Acquired')))
+    applicable_creatures = models.TextField()
+    challenge_rating_adjustment = models.CharField(max_length=64, blank=True)
+    level_adjustment = models.CharField(max_length=64, blank=True)
+    mechanical_changes = models.TextField()
+    description = models.TextField(blank=True)
+    mechanical_changes_html = models.TextField(editable=False, blank=True)
+    description_html = models.TextField(editable=False, blank=True)
+
+    class Meta:
+        ordering = ('name',)
+        constraints = [models.UniqueConstraint(fields=('name', 'rulebook'), name='unique_creature_template_book')]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        update_html_cache_attributes(self, 'mechanical_changes', 'description')
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('creature_template_detail', kwargs={'template_id': self.pk, 'slug': self.slug})
+
+
+class SupplementalEntry(models.Model):
+    """Source-backed D&D 3.5 mechanics not represented by the recovered schema."""
+
+    KINDS = (
+        ('mysteries', 'Shadow casting mysteries'),
+        ('invocations', 'Invocations'),
+        ('psionics', 'Psionic powers'),
+        ('auras', 'Auras'),
+        ('maneuvers', 'Martial maneuvers'),
+        ('monstrous-traits', 'Monstrous traits'),
+    )
+    kind = models.CharField(max_length=24, choices=KINDS)
+    rulebook = models.ForeignKey(Rulebook, on_delete=models.PROTECT)
+    page = models.PositiveSmallIntegerField(null=True, blank=True)
+    name = models.CharField(max_length=128)
+    slug = models.SlugField(max_length=128)
+    category = models.CharField(max_length=128, blank=True,
+                                help_text='School, discipline, path or other printed category.')
+    level = models.CharField(max_length=64, blank=True)
+    prerequisites = models.TextField(blank=True)
+    mechanics = models.TextField()
+    description = models.TextField(blank=True)
+    mechanics_html = models.TextField(blank=True, editable=False)
+    description_html = models.TextField(blank=True, editable=False)
+
+    class Meta:
+        ordering = ('name',)
+        constraints = [models.UniqueConstraint(fields=('kind', 'rulebook', 'name'),
+                                               name='unique_supplemental_entry_source')]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        update_html_cache_attributes(self, 'mechanics', 'description')
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('supplemental_detail', kwargs={'kind': self.kind,
+                                                      'slug': self.slug, 'entry_id': self.pk})
+
+
+class EditorialGrant(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='editorial_grants')
+    resource = models.CharField(max_length=64)
+    can_create = models.BooleanField(default=False)
+    can_correct = models.BooleanField(default=False)
+    can_translate = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('user', 'resource'), name='unique_editorial_grant')]
+
+    def __str__(self):
+        return '%s: %s' % (self.user.username, self.resource)
+
+
+class EditorialProposal(models.Model):
+    ACTIONS = (('create', 'Create'), ('correct', 'Correct'), ('translate', 'Translate'))
+    STATES = (('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'))
+
+    resource = models.CharField(max_length=64)
+    action = models.CharField(max_length=16, choices=ACTIONS)
+    target_pk = models.PositiveIntegerField(null=True, blank=True)
+    locale = models.CharField(max_length=8, blank=True)
+    payload = models.JSONField()
+    source_reference = models.TextField()
+    source_digest = models.CharField(max_length=64, blank=True)
+    status = models.CharField(max_length=16, choices=STATES, default='pending')
+    author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='editorial_proposals')
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True,
+                                 related_name='reviewed_editorial_proposals')
+    review_note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return '%s %s #%s' % (self.get_action_display(), self.resource, self.pk)
+
+
+class PublishedTranslation(models.Model):
+    resource = models.CharField(max_length=64)
+    target_pk = models.PositiveIntegerField()
+    locale = models.CharField(max_length=8, default='pt-br')
+    payload = models.JSONField()
+    source_digest = models.CharField(max_length=64)
+    author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='authored_translations')
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT, related_name='approved_translations')
+    approved_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('resource', 'target_pk', 'locale'),
+                                               name='unique_published_translation')]
+
+
+class CollaboratorInvite(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='editorial_invite')
+    token_hash = models.CharField(max_length=64, blank=True)
+    expires_at = models.DateTimeField()
+    activated_at = models.DateTimeField(null=True, blank=True)
+    access_state = models.CharField(max_length=16, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)

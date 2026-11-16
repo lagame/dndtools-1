@@ -1,42 +1,43 @@
 {% load catalog_html %}
+{% load i18n %}
 <div class="nice-textile">
     {% if skill_variant.description_html %}
-        <h4>Description </h4>
+        <h4>{% translate 'Description' %} </h4>
         {{ skill_variant.description_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.check_html %}
-        <h4>Check </h4>
+        <h4>{% translate 'Check' %} </h4>
         {{ skill_variant.check_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.action_html %}
-        <h4>Action </h4>
+        <h4>{% translate 'Action' %} </h4>
         {{ skill_variant.action_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.try_again_html %}
-        <h4>Try again </h4>
+        <h4>{% translate 'Try again' %} </h4>
         {{ skill_variant.try_again_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.special_html %}
-        <h4>Special </h4>
+        <h4>{% translate 'Special' %} </h4>
         {{ skill_variant.special_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.synergy_html %}
-        <h4>Synergy </h4>
+        <h4>{% translate 'Synergy' %} </h4>
         {{ skill_variant.synergy_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.restriction_html %}
-        <h4>Restriction </h4>
+        <h4>{% translate 'Restriction' %} </h4>
         {{ skill_variant.restriction_html|safe_catalog_html }}
     {% endif %}
 
     {% if skill_variant.untrained_html %}
-        <h4>Untrained </h4>
+        <h4>{% translate 'Untrained' %} </h4>
         {{ skill_variant.untrained_html|safe_catalog_html }}
     {% endif %}
 </div>

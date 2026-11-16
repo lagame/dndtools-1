@@ -1,9 +1,10 @@
 {% extends "dnd/contacts/contact_layout.html" %}
-{% block title %}Contact{% endblock %}
+{% load i18n %}
+{% block title %}{% translate 'Contact' %}{% endblock %}
 {% block content %}
-<header class="page-heading"><span class="eyebrow">Community</span><h1>Contact the project</h1>
-<p>Questions, corrections and contributions are welcome.</p></header>
-<p>Open an issue in the project repository to report a problem or ask for access to the private database. We will agree on a private channel for the file; please do not attach it to the issue.</p>
-<p><a class="text-link" href="https://github.com/lagame/dndtools-1/issues/new">Open a project issue →</a></p>
-<p>The <a href="https://github.com/lagame/dndtools-1#readme">README</a> explains how to run and host your own copy.</p>
+<header class="page-heading"><span class="eyebrow">{% translate 'Community' %}</span><h1>{% translate 'Contact the project' %}</h1>
+<p>{% translate 'Questions, corrections and contributions are welcome.' %}</p></header>
+<p>{% translate 'Open an issue in the project repository to report a problem or ask for access to the private database. We will agree on a private channel for the file; please do not attach it to the issue.' %}</p>
+<p><a class="text-link" href="https://github.com/lagame/dndtools-1/issues/new">{% translate 'Open a project issue' %} →</a></p>
+<p>{% translate 'The' %} <a href="https://github.com/lagame/dndtools-1#readme">README</a> {% translate 'explains how to run and host your own copy.' %}</p>
 {% endblock %}

@@ -9,4 +9,4 @@
     <h1 id="site-name"><a href="{% url 'admin:index' %}">D&amp;D Tools <span>Administration</span></a></h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
+{% block nav-global %}{% if user.is_staff %}<a href="{% url 'editorial_dashboard' %}" class="editorial-nav">Editorial queue{% if editorial_queue_count %} <strong>{{ editorial_queue_count }}</strong>{% endif %}</a>{% endif %}{% endblock %}

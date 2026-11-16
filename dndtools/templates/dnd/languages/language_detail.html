@@ -1,27 +1,29 @@
 {% extends "dnd/languages/language_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 {% load catalog_html %}
 
 {% load custom_filters %}
 
-{% block title %}{{ language.name }} &ndash; Language{% endblock %}
+{% block title %}{% localized language 'name' %} &ndash; Language{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'language_index' %}">Languages</a>
-    &raquo; <a href="{{ language.get_absolute_url }}">{{ language.name }}</a>
+    &raquo; <a href="{% url 'language_index' %}">{% translate 'Languages' %}</a>
+    &raquo; <a href="{{ language.get_absolute_url }}">{% localized language 'name' %}</a>
 {% endblock %}
 
-{% block admin_edit %}<a href="{% url 'admin:dnd_language_change' language.id %}">EDIT</a>{% endblock %}
+{% block admin_edit %}<a href="{% url 'admin:dnd_language_change' language.id %}">{% translate 'EDIT' %}</a>{% endblock %}
 
 {% block content %}
 
-<h2>{{ language.name }}</h2>
+<h2>{% localized language 'name' %}</h2>
 
 
 <div class="nice-textile">
     {{ language.description_html|safe_catalog_html }}
 </div>
 
-<h3>Races speaking this language</h3>
+<h3>{% translate 'Races speaking this language' %}</h3>
 
 {% include "dnd/races/race_table.html" %}
 

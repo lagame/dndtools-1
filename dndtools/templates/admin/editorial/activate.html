@@ -1,0 +1,6 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1>Activate editorial access</h1>
+<p>Cloudflare Access identity: {{ email }}. Enter the private code supplied by the project owner and choose a unique password of at least 14 characters.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button default">Activate account</button></form>
+{% endblock %}

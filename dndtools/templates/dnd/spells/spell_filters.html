@@ -1,9 +1,9 @@
-{% load catalog_ui %}
+{% load catalog_ui i18n %}
 {% filter_chips as active_filters %}
 <details class="filter-panel spell-filter-panel" id="filters"{% if active_filters or filter_error %} open{% endif %}>
-  <summary>Filters{% if active_filters %} <span class="filter-count">{{ active_filters|length }} active</span>{% endif %}</summary>
+  <summary>{% translate 'Filters' %}{% if active_filters %} <span class="filter-count">{% blocktranslate count count=active_filters|length %}{{ count }} active{% plural %}{{ count }} active{% endblocktranslate %}</span>{% endif %}</summary>
   <form action="{{ request.path }}" method="get">
-    {% if filter_error %}<p class="query-error" role="alert">These filters could not be applied. Correct the highlighted fields; the list below is unfiltered.</p>{% endif %}
+    {% if filter_error %}<p class="query-error" role="alert">{% translate 'These filters could not be applied. Correct the highlighted fields; the list below is unfiltered.' %}</p>{% endif %}
     <div class="spell-filter-grid">
       {% include 'dnd/filter_field.html' with field=spell_filter_form.name %}
       {% include 'dnd/filter_field.html' with field=spell_filter_form.class_levels__slug %}
@@ -12,7 +12,7 @@
       {% include 'dnd/filter_field.html' with field=spell_filter_form.casting_time %}
       {% include 'dnd/filter_field.html' with field=spell_filter_form.rulebook__slug %}
     </div>
-    <details class="advanced-filters"><summary>More spell filters</summary>
+    <details class="advanced-filters"><summary>{% translate 'More spell filters' %}</summary>
       <div class="spell-filter-grid">
         {% include 'dnd/filter_field.html' with field=spell_filter_form.rulebook__dnd_edition__slug %}
         {% include 'dnd/filter_field.html' with field=spell_filter_form.edition_system %}
@@ -35,10 +35,10 @@
         {% include 'dnd/filter_field.html' with field=spell_filter_form.sort %}
       </div>
     </details>
-    <div class="filter-actions"><button type="submit" name="_filter" value="1">Apply filters</button><a href="{{ request.path }}">Clear all</a></div>
+    <div class="filter-actions"><button type="submit" name="_filter" value="1">{% translate 'Apply filters' %}</button><a href="{{ request.path }}">{% translate 'Clear all' %}</a></div>
   </form>
 </details>
-{% if active_filters %}<div class="active-filters" aria-label="Active filters">
-  {% for chip in active_filters %}<a href="{{ chip.url }}" aria-label="Remove {{ chip.label }}">{{ chip.label }} <span aria-hidden="true">×</span></a>{% endfor %}
+{% if active_filters %}<div class="active-filters" aria-label="{% translate 'Active filters' %}">
+  {% for chip in active_filters %}<a href="{{ chip.url }}" aria-label="{% blocktranslate with label=chip.label %}Remove {{ label }}{% endblocktranslate %}">{{ chip.label }} <span aria-hidden="true">×</span></a>{% endfor %}
 </div>{% endif %}
-<p class="result-count" role="status">{{ paginator.count }} spell{{ paginator.count|pluralize }} found.</p>
+<p class="result-count" role="status">{% blocktranslate count count=paginator.count %}{{ count }} spell found.{% plural %}{{ count }} spells found.{% endblocktranslate %}</p>

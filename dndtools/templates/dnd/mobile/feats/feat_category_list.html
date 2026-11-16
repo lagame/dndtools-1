@@ -1,15 +1,16 @@
 {% extends "dnd/mobile/feats/feat_layout.html" %}
+{% load i18n %}
 
 {% block title %}Feat Categories{% endblock %}
 
 {% block content %}
 
-<h2>Feat Categories</h2>
+<h2>{% translate 'Feat Categories' %}</h2>
 
 {{ paginator.print_navigation }}
 
 <table class="list">
-  <tr><th>Category name</th></tr>
+  <tr><th>{% translate 'Category name' %}</th></tr>
     {% for feat_category in feat_category_list %}
         <tr><td><a href="{{ feat_category.get_absolute_url_mobile }}">{{ feat_category.name }}</a></td></tr>
     {% endfor %}

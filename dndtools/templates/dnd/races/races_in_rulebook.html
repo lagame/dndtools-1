@@ -1,17 +1,19 @@
 {% extends "dnd/races/race_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 
 {#{% block extra_link %}<link rel="canonical" href="{% url 'races_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}" />{% endblock %}#}
 
-{% block title %}Races in {{ rulebook.name }}{% endblock %}
+{% block title %}Races in {% localized rulebook 'name' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'race_index' %}">Races</a>
-    &raquo; <a href="{% url 'races_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{{ rulebook.name }}</a> (<a href="{{ rulebook.get_absolute_url }}">book</a>)
+    &raquo; <a href="{% url 'race_index' %}">{% translate 'Races' %}</a>
+    &raquo; <a href="{% url 'races_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (<a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
 {% endblock %}
 
 {% block content %}
 
-    <h2>Races in {{ rulebook.name }}</h2>
+    <h2>{% translate 'Races in' %} {% localized rulebook 'name' %}</h2>
 
     {% include "dnd/races/race_table.html" %}
 

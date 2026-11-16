@@ -1,0 +1,12 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<p><a href="{% url 'editorial_catalog' resource %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">← {{ resource }}</a></p>
+<h1>{{ title }}</h1>
+{% if target %}<p>Original: {{ target }} (ID {{ target.pk }})</p>{% endif %}
+<p>Changes will appear in the public catalog only after Ronassic approves them.</p>
+<form method="post">{% csrf_token %}
+{{ form.as_p }}
+{{ source_form.as_p }}
+<button type="submit" class="button default">Submit for review</button>
+</form>
+{% endblock %}

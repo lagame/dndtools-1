@@ -1,0 +1,14 @@
+{% extends 'dnd/layout.html' %}
+{% load catalog_i18n %}
+{% load i18n catalog_html %}
+{% block title %}{% localized entry 'name' %}{% endblock %}
+{% block breadcrumbs %} » <a href="{% url 'supplemental_index' entry.kind %}">{{ label }}</a> » {% localized entry 'name' %}{% endblock %}
+{% block content %}
+<h1>{% localized entry 'name' %}</h1>{% if entry.original_english_name %}<p class="original-name">{% translate 'Original EN' %}: {{ entry.original_english_name }}</p>{% endif %}
+<p><a href="{{ entry.rulebook.get_absolute_url }}">{% localized entry.rulebook 'name' %}</a>{% if entry.page %}, p. {{ entry.page }}{% endif %}</p>
+{% if entry.category %}<p><strong>{% translate 'Category' %}:</strong> {{ entry.category }}</p>{% endif %}
+{% if entry.level %}<p><strong>{% translate 'Level' %}:</strong> {{ entry.level }}</p>{% endif %}
+{% if entry.prerequisites %}<h2>{% translate 'Prerequisites' %}</h2><p>{{ entry.prerequisites|linebreaksbr }}</p>{% endif %}
+<h2>{% translate 'Mechanics' %}</h2><div class="nice-textile">{{ entry.mechanics_html|safe_catalog_html }}</div>
+{% if entry.description %}<h2>{% translate 'Description' %}</h2><div class="nice-textile">{{ entry.description_html|safe_catalog_html }}</div>{% endif %}
+{% endblock %}

@@ -1,9 +1,10 @@
+{% load i18n %}
 {{ paginator.print_navigation }}
 
 <table class="common">
     <tr>
         <th>Race name</th>
-        <th>Rulebook name</th>
+        <th>{% translate 'Rulebook name' %}</th>
     </tr>
     {% for race in race_list %}
         <tr>

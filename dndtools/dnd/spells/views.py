@@ -131,6 +131,7 @@ def spell_detail(request, rulebook_slug, rulebook_id, spell_slug, spell_id):
     else:
         corrupt_rule = None
 
+
     return render_to_response('dnd/spells/spell_detail.html',
                               {
                                   'spell': spell,

@@ -44,6 +44,10 @@ urlpatterns = patterns(
     # Monsters
     (r'^monsters/', include('dnd.monsters.urls')),
 
+    # Creature templates
+    (r'^templates/', include('dnd.creature_templates.urls')),
+    (r'^reference/', include('dnd.supplemental.urls')),
+
     # Items
     (r'^items/', include('dnd.items.urls')),
 

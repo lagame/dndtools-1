@@ -1,9 +1,11 @@
 {% extends "dnd/rules/rule_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 {% block title %}Conditions{% endblock %}
-{% block breadcrumbs %} &raquo; <a href="{% url 'rule_list' %}">Rules</a> &raquo; Conditions{% endblock %}
+{% block breadcrumbs %} &raquo; <a href="{% url 'rule_list' %}">{% translate 'Rules' %}</a> &raquo; Conditions{% endblock %}
 {% block content %}
-<header class="page-heading"><span class="eyebrow">Rules reference</span><h1>Conditions</h1></header>
+<header class="page-heading"><span class="eyebrow">{% translate 'Rules reference' %}</span><h1>{% translate 'Conditions' %}</h1></header>
 <ul class="result-list">{% for condition in conditions %}
-  <li><a href="{{ condition.get_absolute_url }}">{{ condition.name }}</a></li>
+  <li><a href="{{ condition.get_absolute_url }}">{% localized condition 'name' %}</a></li>
 {% empty %}<li>No conditions available.</li>{% endfor %}</ul>
 {% endblock %}

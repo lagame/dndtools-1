@@ -1,0 +1,8 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1>Invitation created</h1>
+<p>For {{ email }}. Add this exact email to the dedicated D&amp;D Tools Cloudflare Access group, then privately share this one-time code and the activation page. The code is shown only now and expires in seven days.</p>
+<p><strong>Activation page:</strong> <code>{{ request.scheme }}://{{ request.get_host }}{% url 'editorial_activate' %}</code></p>
+<p><strong>One-time code:</strong> <code>{{ code }}</code></p>
+<p><a href="{% url 'editorial_dashboard' %}">Return to editorial workspace</a></p>
+{% endblock %}

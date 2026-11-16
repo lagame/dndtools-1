@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load custom_filters %}
 
 {{ paginator.print_navigation }}
@@ -6,7 +7,7 @@
 <tr>
   <th>Spell name</th>
   <th>Spell School</th>
-  <th>Rulebook name</th>
+  <th>{% translate 'Rulebook name' %}</th>
 </tr>
 {% for spell in spell_list %}
 <tr>

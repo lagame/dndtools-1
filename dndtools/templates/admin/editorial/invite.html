@@ -1,0 +1,7 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<p><a href="{% url 'editorial_dashboard' %}">← Editorial workspace</a></p>
+<h1>Invite collaborator</h1>
+<p>Choose exactly which catalog resources and proposal actions this person may use. They cannot publish directly.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button default">Create invitation</button></form>
+{% endblock %}

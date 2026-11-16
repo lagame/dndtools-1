@@ -8,6 +8,10 @@
   font-weight: 700;
   white-space: nowrap;
 }
+.language-picker { order: 2; display: inline-flex; align-items: center; gap: .15rem; margin: 0; white-space: nowrap; }
+.language-picker a { display: inline-flex; align-items: center; min-height: 40px; padding: .35rem .55rem; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--ink); font-size: .78rem; font-weight: 700; text-decoration: none; }
+.language-picker a[aria-current="page"] { border-color: var(--gold); color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.language-picker a:hover { border-color: var(--gold); }
 .theme-picker[hidden] { display: none; }
 .navigation-toggle .navigation-toggle-label { font-size: .82rem; font-weight: 700; }
 .site-header .brand { order: 0; }
@@ -21,7 +25,8 @@
   color: #53389e;
   font-weight: 650;
 }
-.header-search { order: 3; }
+.site-header .theme-picker { order: 3; }
+.site-header .header-search { order: 4; }
 .theme-image-placeholder, img[data-theme-src]:not([src]) { display: none; }
 html[data-theme="simple"] img[data-theme-src] { display: none; }
 html[data-theme="simple"] .theme-image-placeholder { display: inline-block; }
@@ -374,8 +379,9 @@ html[data-theme="oled"] .privacy-policy td::before { color: #b3b3b3; }
   .site-header .header-inner { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .6rem; }
   .site-header .brand { order: 0; }
   .site-header .navigation-toggle { order: 1; margin-left: auto; }
-  .site-header .theme-picker { order: 2; }
-  .site-header .header-search { order: 3; flex-basis: 100%; width: 100%; }
+  .site-header .language-picker { order: 2; }
+  .site-header .theme-picker { order: 3; }
+  .site-header .header-search { order: 4; flex-basis: 100%; width: 100%; }
 }
 @media (max-width: 600px) {
   .site-header .header-inner { gap: .4rem; padding: .6rem; }
@@ -385,3 +391,10 @@ html[data-theme="oled"] .privacy-policy td::before { color: #b3b3b3; }
   .theme-picker select { width: 88px; min-height: 40px; padding: .3rem .25rem; font-size: .8rem; }
   html[data-theme="simple"] .brand strong { font-size: 1.05rem; }
 }
+.translation-fallback {
+  border-inline-start: 3px solid #c89438;
+  padding: .65rem .9rem;
+  margin: 0 0 1rem;
+  background: rgba(200, 148, 56, .1);
+}
+.original-name { font-size: .88rem; opacity: .8; margin-top: -.35rem; }
