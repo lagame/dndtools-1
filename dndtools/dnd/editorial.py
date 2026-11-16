@@ -9,6 +9,7 @@ from django import forms
 from django.apps import apps
 from django.conf import settings
 from django.db import models, transaction
+from django.db.models.deletion import Collector, ProtectedError, RestrictedError
 from django.db.models import F
 from django.db.models.functions import Collate
 from django.forms import modelform_factory
@@ -62,7 +63,7 @@ def can_propose(user, resource, action, *, kind=None):
     if owner(user):
         return True
     field = {'create': 'can_create', 'correct': 'can_correct',
-             'translate': 'can_translate'}.get(action)
+             'translate': 'can_translate', 'delete': 'can_delete'}.get(action)
     if not field:
         return False
     choices = [resource]
@@ -171,6 +172,22 @@ def detect_duplicate(resource, form):
         raise forms.ValidationError('A catalog record with this original name already exists.')
 
 
+def delete_without_cascading_catalog(target):
+    """Remove a reviewed leaf record without silently removing linked content."""
+    collector = Collector(using=target._state.db)
+    try:
+        collector.collect([target])
+    except (ProtectedError, RestrictedError) as error:
+        raise forms.ValidationError('Remove dependent records or links before approving removal.') from error
+    for model, entries in collector.data.items():
+        if not model._meta.auto_created and (model != type(target) or len(entries) != 1):
+            raise forms.ValidationError('Remove dependent records or links before approving removal.')
+    for queryset in collector.fast_deletes:
+        if not queryset.model._meta.auto_created and queryset.exists():
+            raise forms.ValidationError('Remove dependent records or links before approving removal.')
+    collector.delete()
+
+
 @transaction.atomic
 def approve(proposal, reviewer):
     if not owner(reviewer):
@@ -184,7 +201,11 @@ def approve(proposal, reviewer):
         target = model.objects.select_for_update().get(pk=proposal.target_pk)
         if source_digest(target, translation=proposal.action == 'translate') != proposal.source_digest:
             raise forms.ValidationError('The original changed after submission. Request a new proposal.')
-    if proposal.action == 'translate':
+    if proposal.action == 'delete':
+        target_pk = target.pk
+        delete_without_cascading_catalog(target)
+        PublishedTranslation.objects.filter(resource=proposal.resource, target_pk=target_pk).delete()
+    elif proposal.action == 'translate':
         form = translation_form(target)(proposal.payload)
         if not form.is_valid():
             raise forms.ValidationError('Translation is incomplete or invalid.')

@@ -15,7 +15,7 @@ from django.urls import reverse
 from dnd.editorial import RESOURCES, approve
 from dnd.access import verified_email
 from dnd.models import (CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
-                        EditorialProposal, Feat, FeatCategory, Monster, MonsterType, PublishedTranslation,
+                        EditorialProposal, Feat, FeatCategory, FeatRequiresFeat, Monster, MonsterType, PublishedTranslation,
                         RaceSize, Rulebook, Spell, SpellSchool, SupplementalEntry)
 
 
@@ -274,6 +274,78 @@ class EditorialFlowTests(TestCase):
         entry.refresh_from_db()
         self.assertEqual(stale.status, 'pending')
         self.assertEqual(entry.mechanics, 'Newer correction')
+
+    def test_removal_requires_grant_and_owner_review(self):
+        entry = SupplementalEntry.objects.create(kind='auras', rulebook=self.book,
+                                                 name='Incorrect Aura', slug='incorrect-aura',
+                                                 mechanics='Incorrect effect')
+        url = reverse('editorial_delete', args=('SupplementalEntry', entry.pk)) + '?kind=auras'
+        self.client.force_login(self.editor)
+        self.assertEqual(self.client.get(url).status_code, 403)
+        grant = EditorialGrant.objects.get(user=self.editor, resource='SupplementalEntry')
+        grant.can_delete = True
+        grant.save(update_fields=('can_delete',))
+        self.assertContains(self.client.get(url), 'The record will stay public')
+        self.assertEqual(self.client.post(url, {'source_reference': 'Test Source p. 1, erratum'}).status_code, 302)
+        proposal = EditorialProposal.objects.get(action='delete')
+        from dnd.editorial import source_digest
+        PublishedTranslation.objects.create(
+            resource='SupplementalEntry', target_pk=entry.pk, locale='pt-br',
+            payload={'name': 'Aura Incorreta'}, source_digest=source_digest(entry, translation=True),
+            author=self.editor, reviewer=self.owner)
+        self.assertEqual(proposal.payload, {})
+        self.assertTrue(SupplementalEntry.objects.filter(pk=entry.pk).exists())
+        self.assertEqual(self.client.post(reverse('editorial_decide', args=(proposal.pk,)),
+                                          {'decision': 'approve'}).status_code, 403)
+        self.client.force_login(self.owner)
+        self.assertContains(self.client.get(reverse('editorial_review', args=(proposal.pk,))),
+                            'Approve and remove')
+        self.assertEqual(self.client.post(reverse('editorial_decide', args=(proposal.pk,)),
+                                          {'decision': 'approve'}).status_code, 302)
+        proposal.refresh_from_db()
+        self.assertEqual(proposal.status, 'approved')
+        self.assertFalse(SupplementalEntry.objects.filter(pk=entry.pk).exists())
+        self.assertFalse(PublishedTranslation.objects.filter(
+            resource='SupplementalEntry', target_pk=entry.pk).exists())
+
+    def test_removal_blocks_cascading_prerequisite_links(self):
+        required = Feat.objects.create(rulebook=self.book, name='Required Feat',
+                                       slug='required-feat', description='Rule', benefit='Benefit')
+        dependent = Feat.objects.create(rulebook=self.book, name='Dependent Feat',
+                                        slug='dependent-feat', description='Rule', benefit='Benefit')
+        link = FeatRequiresFeat.objects.create(source_feat=dependent, required_feat=required)
+        self.client.force_login(self.owner)
+        self.client.post(reverse('editorial_delete', args=('Feat', required.pk)),
+                         {'source_reference': 'Test Source p. 3, erratum'})
+        proposal = EditorialProposal.objects.get(action='delete')
+        self.client.post(reverse('editorial_decide', args=(proposal.pk,)), {'decision': 'approve'})
+        proposal.refresh_from_db()
+        self.assertEqual(proposal.status, 'pending')
+        self.assertTrue(Feat.objects.filter(pk=required.pk).exists())
+        self.assertTrue(FeatRequiresFeat.objects.filter(pk=link.pk).exists())
+
+    def test_removal_rejects_stale_and_linked_records(self):
+        entry = SupplementalEntry.objects.create(kind='auras', rulebook=self.book,
+                                                 name='Linked Aura', slug='linked-aura',
+                                                 mechanics='Original effect')
+        self.client.force_login(self.owner)
+        url = reverse('editorial_delete', args=('SupplementalEntry', entry.pk))
+        self.client.post(url, {'source_reference': 'Test Source p. 2, erratum'})
+        proposal = EditorialProposal.objects.get(action='delete')
+        entry.mechanics = 'Corrected after proposal'
+        entry.save()
+        self.client.post(reverse('editorial_decide', args=(proposal.pk,)), {'decision': 'approve'})
+        proposal.refresh_from_db()
+        self.assertEqual(proposal.status, 'pending')
+        self.assertTrue(SupplementalEntry.objects.filter(pk=entry.pk).exists())
+
+        book_url = reverse('editorial_delete', args=('Rulebook', self.book.pk))
+        self.client.post(book_url, {'source_reference': 'Test Source p. 2, erratum'})
+        book_proposal = EditorialProposal.objects.get(action='delete', resource='Rulebook')
+        self.client.post(reverse('editorial_decide', args=(book_proposal.pk,)), {'decision': 'approve'})
+        book_proposal.refresh_from_db()
+        self.assertEqual(book_proposal.status, 'pending')
+        self.assertTrue(Rulebook.objects.filter(pk=self.book.pk).exists())
 
     def test_additional_mechanic_grant_is_limited_to_selected_kind(self):
         limited = User.objects.create_user('aura-editor', 'aura@example.test',

@@ -2409,6 +2409,7 @@ class EditorialGrant(models.Model):
     can_create = models.BooleanField(default=False)
     can_correct = models.BooleanField(default=False)
     can_translate = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('user', 'resource'), name='unique_editorial_grant')]
@@ -2418,7 +2419,8 @@ class EditorialGrant(models.Model):
 
 
 class EditorialProposal(models.Model):
-    ACTIONS = (('create', 'Create'), ('correct', 'Correct'), ('translate', 'Translate'))
+    ACTIONS = (('create', 'Create'), ('correct', 'Correct'), ('translate', 'Translate'),
+               ('delete', 'Remove'))
     STATES = (('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'))
 
     resource = models.CharField(max_length=64)

@@ -1,7 +1,7 @@
 {% extends 'admin/base_site.html' %}
 {% block content %}
 <h1>Editorial workspace</h1>
-<p>Submit catalog additions, corrections and complete PT-BR translations. All submissions wait for Ronassic's review.</p>
+<p>Submit catalog additions, corrections, removals and complete PT-BR translations. All submissions wait for Ronassic's review.</p>
 {% if is_owner %}<h2>Pending collaborations: {{ pending_count }}</h2>{% endif %}
 {% if is_owner %}<h2>Collaborators</h2><p><a class="button" href="{% url 'editorial_invite' %}">Invite collaborator</a> · <a href="{% url 'admin:dnd_editorialgrant_changelist' %}">Manage resource grants</a></p>
 <table><thead><tr><th>Email</th><th>Access state</th><th>Action</th></tr></thead><tbody>
@@ -12,6 +12,6 @@
 {% empty %}<tr><td colspan="5">No proposals yet.</td></tr>{% endfor %}
 </tbody></table>
 <h2>Catalog resources</h2>
-{% for group, resources in groups %}{% if resources %}<h3>{{ group }}</h3><ul>{% for name, label, create, correct, translate in resources %}{% if create or correct or translate %}<li><a href="{% url 'editorial_catalog' name %}">{{ label }}</a></li>{% endif %}{% endfor %}</ul>{% endif %}{% endfor %}
+{% for group, resources in groups %}{% if resources %}<h3>{{ group }}</h3><ul>{% for name, label, create, correct, translate, delete in resources %}{% if create or correct or translate or delete %}<li><a href="{% url 'editorial_catalog' name %}">{{ label }}</a></li>{% endif %}{% endfor %}</ul>{% endif %}{% endfor %}
 {% if supplemental_kinds %}<h2>Additional D&amp;D 3.5 mechanics</h2><ul>{% for kind, label in supplemental_kinds %}<li><a href="{% url 'editorial_catalog' 'SupplementalEntry' %}?kind={{ kind|urlencode }}">{{ label }}</a></li>{% endfor %}</ul>{% endif %}
 {% endblock %}

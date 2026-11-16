@@ -12,6 +12,8 @@ urlpatterns = [
          {'action': 'correct'}, name='editorial_correct'),
     path('catalog/<str:resource>/<int:target_pk>/translate/', views.propose,
          {'action': 'translate'}, name='editorial_translate'),
+    path('catalog/<str:resource>/<int:target_pk>/remove/', views.propose,
+         {'action': 'delete'}, name='editorial_delete'),
     path('review/<int:proposal_id>/', views.review, name='editorial_review'),
     path('review/<int:proposal_id>/decide/', views.decide, name='editorial_decide'),
 ]

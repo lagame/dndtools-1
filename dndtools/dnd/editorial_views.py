@@ -44,7 +44,7 @@ class InviteForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 12}))
     permissions = forms.MultipleChoiceField(
         choices=(('create', 'Add records'), ('correct', 'Correct records'),
-                 ('translate', 'Translate records')),
+                 ('translate', 'Translate records'), ('delete', 'Propose removals')),
         widget=forms.CheckboxSelectMultiple)
 
     def clean_email(self):
@@ -71,7 +71,8 @@ def dashboard(request):
     groups = [(label, [(name, model_for(name)._meta.verbose_name_plural.title(),
                         can_propose(request.user, name, 'create'),
                         can_propose(request.user, name, 'correct'),
-                        can_propose(request.user, name, 'translate'))
+                        can_propose(request.user, name, 'translate'),
+                        can_propose(request.user, name, 'delete'))
                        for name in names if name != 'SupplementalEntry'])
               for label, names in RESOURCE_GROUPS.items()]
     proposals = (EditorialProposal.objects.all() if owner(request.user) else
@@ -83,7 +84,7 @@ def dashboard(request):
                           if owner(request.user) else ()),
         'supplemental_kinds': [(kind, label) for kind, label in SupplementalEntry.KINDS
                                if any(can_propose(request.user, 'SupplementalEntry', action, kind=kind)
-                                      for action in ('create', 'correct', 'translate'))],
+                                      for action in ('create', 'correct', 'translate', 'delete'))],
         'is_owner': owner(request.user), 'title': 'Editorial workspace',
     })
 
@@ -106,7 +107,8 @@ def invite(request):
                     user=user, resource=resource,
                     can_create='create' in form.cleaned_data['permissions'],
                     can_correct='correct' in form.cleaned_data['permissions'],
-                    can_translate='translate' in form.cleaned_data['permissions'])
+                    can_translate='translate' in form.cleaned_data['permissions'],
+                    can_delete='delete' in form.cleaned_data['permissions'])
             CollaboratorInvite.objects.create(
                 user=user, token_hash=hashlib.sha256(code.encode()).hexdigest(),
                 expires_at=timezone.now() + timedelta(days=7))
@@ -192,7 +194,7 @@ def catalog(request, resource):
     if resource == 'SupplementalEntry' and not kind and not owner(request.user):
         return HttpResponseForbidden('Select a catalog type from the editorial workspace.')
     if not any(can_propose(request.user, resource, action, kind=kind or None)
-               for action in ('create', 'correct', 'translate')):
+               for action in ('create', 'correct', 'translate', 'delete')):
         return HttpResponseForbidden()
     entries = model.objects.all().order_by('pk')
     if kind:
@@ -215,12 +217,13 @@ def catalog(request, resource):
         'can_create': can_propose(request.user, resource, 'create', kind=kind or None),
         'can_correct': can_propose(request.user, resource, 'correct', kind=kind or None),
         'can_translate': can_propose(request.user, resource, 'translate', kind=kind or None),
+        'can_delete': can_propose(request.user, resource, 'delete', kind=kind or None),
     })
 
 
 @staff_member_required
 def propose(request, resource, action, target_pk=None):
-    if action not in ('create', 'correct', 'translate'):
+    if action not in ('create', 'correct', 'translate', 'delete'):
         return HttpResponseForbidden()
     try:
         model = model_for(resource)
@@ -239,13 +242,15 @@ def propose(request, resource, action, target_pk=None):
         return HttpResponseForbidden('Select a catalog type from the editorial workspace.')
     original_digest = (source_digest(target, translation=action == 'translate')
                        if target and request.method == 'POST' else '')
-    Form = translation_form(target) if action == 'translate' else editable_form(resource)
-    form = Form(request.POST or None, instance=target) if action != 'translate' else Form(request.POST or None)
+    Form = (translation_form(target) if action == 'translate' else
+            editable_form(resource) if action != 'delete' else None)
+    form = (Form(request.POST or None, instance=target) if action not in ('translate', 'delete') else
+            Form(request.POST or None) if action == 'translate' else None)
     if action == 'create' and kind:
         form.fields['kind'].initial = kind
         form.fields['kind'].widget = forms.HiddenInput()
     source_form = SourceForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid() and source_form.is_valid():
+    if request.method == 'POST' and (form is None or form.is_valid()) and source_form.is_valid():
         if action == 'create':
             try:
                 if kind and form.cleaned_data.get('kind') != kind:
@@ -254,11 +259,11 @@ def propose(request, resource, action, target_pk=None):
                 detect_duplicate(resource, form)
             except forms.ValidationError as error:
                 form.add_error(None, error)
-        if not form.errors:
+        if form is None or not form.errors:
             proposal = EditorialProposal.objects.create(
                 resource=resource, action=action, target_pk=target_pk,
                 locale='pt-br' if action == 'translate' else '',
-                payload=serialize_form(form),
+                payload=serialize_form(form) if form is not None else {},
                 source_reference=source_form.cleaned_data['source_reference'],
                 source_digest=original_digest,
                 author=request.user,
