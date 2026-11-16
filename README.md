@@ -69,6 +69,17 @@ docker compose up -d app
 
 Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido. Se o banco já contém registros, o importador recusa uma segunda carga.
 
+As capas dos livros e as ilustrações das raças também não são distribuídas pelo GitHub. Numa instalação nova, depois de importar o banco, restaure as 81 imagens encontradas nos arquivos públicos antigos e copie-as para o volume privado do Docker:
+
+```powershell
+py -3 scripts\restore_catalog_media.py --sqlite $privateDb
+docker compose cp dndtools/static/media/rulebook app:/var/www/media/rulebook
+docker compose cp dndtools/static/media/race app:/var/www/media/race
+docker compose run --rm volume_permissions
+```
+
+O script valida os formatos e gera um manifesto SHA-256 local. Confira o [relatório da recuperação](docs/media-restoration-2026-11-16.md) para as fontes e os nomes que precisaram de ajuste.
+
 Para entrar na administração, crie sua própria conta local após iniciar o aplicativo:
 
 ```powershell
@@ -163,7 +174,7 @@ On Linux use `python3` and a private backup directory such as `/var/backups/dndt
 
 See [modernization status](docs/modernization-status.md) for the verified baseline and remaining activation gates.
 
-The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) identify catalog images still missing from the private media volume. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the latest local checks and remaining limits.
+The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) record the 81 catalog images that were missing on 2026-11-15; the [restoration report](docs/media-restoration-2026-11-16.md) records their recovery. The binaries are not in Git. After obtaining the private SQLite snapshot, run `py -3 scripts/restore_catalog_media.py --sqlite dnd.sqlite` (or `python3` on Linux) to restore them locally. Transfer `dndtools/static/media/rulebook/` and `dndtools/static/media/race/` to the deployment's media volume separately. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the earlier local checks and limits.
 
 The [identity and privacy QA report](docs/identity-privacy-qa-2026-11-15.md) records the visual checks, browser storage behavior and legal details still to confirm before publishing that branch.
 
