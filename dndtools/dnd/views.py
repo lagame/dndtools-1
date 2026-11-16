@@ -57,7 +57,8 @@ def is_admin(request):
 @menu_item(MenuItem.CONTACTS)
 @submenu_item(MenuItem.Contacts.NEWS)
 def index(request):
-    news_entries = NewsEntry.objects.filter(enabled=True).order_by('-published')[:15]
+    news_entries = NewsEntry.objects.filter(enabled=True).exclude(
+        body__icontains='dndtools.eu').order_by('-published')[:15]
 
     response = render_to_response('dnd/index.html',
                                   {

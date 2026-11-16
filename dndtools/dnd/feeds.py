@@ -5,7 +5,7 @@ from django.contrib.syndication.views import Feed
 
 
 class AdminLogFeed(Feed):
-    title = "DnDTools.eu changes"
+    title = "D&D Tools changes"
     link = ''
     description = "What our great admins are working on right now."
 
