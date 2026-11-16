@@ -22,9 +22,10 @@
 - On 2026-11-16, anonymous requests to the old and replacement admin base/login paths on both public hosts redirected to the same Cloudflare Access application. Both public home pages returned HTTP 200. This confirms edge interception, not the current Allow/MFA policy contents.
 - The VPS private `.env` was backed up before adding the Access team/audience and Gmail SMTP settings; it remains root-owned with mode `0600`. The VPS reached `smtp.gmail.com:587`, completed STARTTLS and authenticated with the saved app password. The owner received the test message. No application restart or deploy occurred.
 - The owner created the dedicated `DND Tools Collaborators` Access rule group and a separate `DND Tools - Collaborators` Allow policy using that group. Screenshots showed the application with both the existing owner policy and the new collaborator policy, configured for authenticator-app MFA with a 24-hour authentication duration. The owner confirmed saving the application. Group membership after removing extra addresses is owner-reported; no Cloudflare API read or real collaborator sign-in has been performed.
+- The Cloudflare policy tester approved the active owner identity (`ronassic@gmail.com`). Testing `geeksublime@gmail.com` returned `access.api.error.invalid_user_id`, zero evaluated policies and no user details; the tester explicitly requires a prior login attempt. Its displayed denial is therefore not evidence that the collaborator policy rejected this address.
+- The new schema migrations contain no data insertion or sourcebook prose. Publication rights still need review before accepting future translated prose or new excerpts.
 
 ## Release gates still open
 
-- Run the Cloudflare policy tester for the owner, invited collaborator and an unauthorized address. A real invited collaborator sign-in has not yet been verified.
-- Review source rights before publishing translated catalog prose or new source excerpts. The interface and workflow are ready; existing catalog prose stays in English until approved translation proposals exist.
+- Have the invited collaborator attempt Cloudflare Access login with MFA, then repeat the tester and verify a real invitation and sign-in. The interface and workflow are ready; existing catalog prose stays in English until approved translation proposals exist.
 - The VPS and public domains have not been updated from this branch.
