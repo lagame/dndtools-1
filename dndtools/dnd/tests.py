@@ -130,6 +130,17 @@ class AdminSecurityTests(TestCase):
 
 
 class CatalogSmokeTests(TestCase):
+    def test_crawlers_can_discover_catalog_without_legacy_feed(self):
+        robots = self.client.get('/robots.txt')
+        self.assertEqual(robots.status_code, 200)
+        self.assertIn('text/plain', robots['Content-Type'])
+        self.assertContains(robots, 'Allow: /')
+        self.assertContains(robots, 'Sitemap: https://dndtools.quest/sitemap.xml')
+        self.assertEqual(self.client.get('/rss.xml').status_code, 404)
+        sitemap = self.client.get('/sitemap.xml')
+        self.assertEqual(sitemap.status_code, 200)
+        self.assertContains(sitemap, self.spell.get_absolute_url())
+
     @classmethod
     def setUpTestData(cls):
         edition = DndEdition.objects.create(
