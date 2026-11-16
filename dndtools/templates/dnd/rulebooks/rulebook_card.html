@@ -1,9 +1,11 @@
 {% load i18n catalog_i18n custom_tags %}
-<article class="rulebook-card">
+<article class="rulebook-card{% if rulebook.slug == 'web' %} rulebook-card--text-only{% endif %}">
+  {% if rulebook.slug != 'web' %}
   <div class="rulebook-card-cover" aria-hidden="true">
     {% available_catalog_image rulebook.image as cover_url %}
     {% if cover_url %}<img data-theme-src="{{ cover_url }}" loading="lazy" alt=""><noscript><img src="{{ cover_url }}" alt=""></noscript>{% else %}<span class="rulebook-cover-fallback">D&amp;D</span>{% endif %}
   </div>
+  {% endif %}
   <div class="rulebook-card-body">
     {% if rulebook.publication_type %}<span class="rulebook-type">{{ rulebook.get_publication_type_display }}</span>{% endif %}
     <h2><a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a></h2>

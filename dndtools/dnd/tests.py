@@ -443,6 +443,18 @@ class CatalogSmokeTests(TestCase):
         self.assertEqual(self.client.get('/spells/', {'page_size': '5001'}).context[
             'paginator'].page_size, 5000)
 
+    def test_web_catalog_source_does_not_show_a_book_cover_placeholder(self):
+        web = Rulebook.objects.create(
+            dnd_edition=self.spell.rulebook.dnd_edition, name='Web', abbr='Web',
+            slug='web', publication_type='periodical')
+        listing = self.client.get('/rulebooks/')
+        self.assertContains(listing, 'rulebook-card--text-only')
+        self.assertContains(listing, web.get_absolute_url())
+        detail = self.client.get(web.get_absolute_url())
+        self.assertContains(detail, 'rulebook-detail-grid--text-only')
+        self.assertNotContains(detail, 'Cover unavailable')
+        self.assertNotContains(detail, 'rulebook-detail-cover')
+
     def test_spell_class_and_level_use_the_same_link(self):
         wizard = CharacterClass.objects.create(name='Wizard', slug='wizard', prestige=False)
         cleric = CharacterClass.objects.create(name='Cleric', slug='cleric', prestige=False)

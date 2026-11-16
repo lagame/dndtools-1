@@ -38,7 +38,7 @@
     <h1>{% localized rulebook 'name' %}</h1>
     <p><a href="{{ dnd_edition.get_absolute_url }}">{% localized dnd_edition 'name' %}</a>{% if rulebook.publication_year %} · {{ rulebook.publication_year }}{% endif %}</p>
   </header>
-  <div class="rulebook-detail-grid">
+  <div class="rulebook-detail-grid{% if rulebook.slug == 'web' %} rulebook-detail-grid--text-only{% endif %}">
     <div class="rulebook-detail-copy">
       <h2>{% translate 'About this book' %}</h2>
       {% localized rulebook 'description' as description %}
@@ -60,11 +60,11 @@
       </section>
       {% endif %}
     </div>
-    <figure class="rulebook-detail-cover">
+    {% if rulebook.slug != 'web' %}<figure class="rulebook-detail-cover">
       {% available_catalog_image rulebook.image as cover_url %}
       {% if cover_url %}<img data-theme-src="{{ cover_url }}" loading="lazy" alt="{% blocktranslate with title=rulebook.name %}Cover of {{ title }}{% endblocktranslate %}"><noscript><img src="{{ cover_url }}" alt="{% blocktranslate with title=rulebook.name %}Cover of {{ title }}{% endblocktranslate %}"></noscript>
       {% else %}<div class="rulebook-cover-fallback" aria-hidden="true">D&amp;D</div><figcaption>{% translate 'Cover unavailable' %}</figcaption>{% endif %}
-    </figure>
+    </figure>{% endif %}
   </div>
 </article>
 
