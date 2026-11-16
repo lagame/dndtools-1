@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/races/race_layout.html" %}
+{% load i18n %}
 {% load catalog_html %}
 
 {% load custom_filters %}
@@ -56,7 +57,7 @@
             <td> {{ race.cha|plus_minus }}</td>
         </tr>
         <tr class="separator">
-            <th>Level adjustment:</th>
+            <th>{% translate 'Level adjustment:' %}</th>
             <td> {{ race.level_adjustment|plus_minus }}</td>
         </tr>
         <tr class="separator">
@@ -131,11 +132,11 @@
     </table>
 
     <div class="nice-textile">
-        <h3>Description</h3>
+        <h3>{% translate 'Description' %}</h3>
 
         {{ race.description_html|safe_catalog_html }}
 
-        <h3>Combat</h3>
+        <h3>{% translate 'Combat' %}</h3>
 
         {{ race.combat_html|safe_catalog_html }}
 
@@ -145,7 +146,7 @@
     </div>
 
     {% if related_races %}
-        <h3>Also appears in</h3>
+        <h3>{% translate 'Also appears in' %}</h3>
         <ol>
             {% for related_race in related_races %}
                 <li><a href="{{ related_race.get_absolute_url_mobile }}">{{ related_race.rulebook.name }}</a></li>

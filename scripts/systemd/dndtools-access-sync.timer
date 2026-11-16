@@ -1,0 +1,10 @@
+[Unit]
+Description=Check D&D Tools editorial Access membership every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+Unit=dndtools-access-sync.service
+
+[Install]
+WantedBy=timers.target

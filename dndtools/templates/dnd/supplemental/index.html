@@ -1,0 +1,17 @@
+{% extends 'dnd/layout.html' %}
+{% load catalog_i18n %}
+{% load i18n %}
+{% block title %}{{ label }}{% endblock %}
+{% block breadcrumbs %} » {{ label }}{% endblock %}
+{% block content %}
+<h1>{{ label }}</h1>
+<p>{% translate 'Entries are published after source and edition review.' %}</p>
+<form method="get"><label for="supplemental-query">{% translate 'Search names' %}</label> <input id="supplemental-query" type="search" name="q" value="{{ query }}"><button type="submit">{% translate 'Search' %}</button></form>
+<table><thead><tr><th>{% translate 'Name' %}</th><th>{% translate 'Category' %}</th><th>{% translate 'Rulebook' %}</th></tr></thead><tbody>
+{% for entry in entries %}<tr><td><a href="{{ entry.get_absolute_url }}">{% localized entry 'name' %}</a></td><td>{{ entry.category }}</td><td>{% localized entry.rulebook 'name' %}</td></tr>
+{% empty %}<tr><td colspan="3">{% translate 'No published entries yet.' %}</td></tr>{% endfor %}
+</tbody></table>
+{% if entries.has_previous %}<a href="?q={{ query|urlencode }}&page={{ entries.previous_page_number }}">{% translate 'Previous' %}</a>{% endif %}
+{{ entries.number }} / {{ entries.paginator.num_pages }}
+{% if entries.has_next %}<a href="?q={{ query|urlencode }}&page={{ entries.next_page_number }}">{% translate 'Next' %}</a>{% endif %}
+{% endblock %}

@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/feats/feat_layout.html" %}
+{% load i18n %}
 {% load catalog_html %}
 
 {% block title %}{{ feat.name }} &ndash; Feat{% endblock %}
@@ -24,7 +25,7 @@
     <p>{{ feat.description|linebreaksbr }}</p>
 {% endif %}
 
-<h4>Prerequisite</h4>
+<h4>{% translate 'Prerequisite' %}</h4>
     <p>
 
     {% for req_feat in required_feats %}
@@ -45,7 +46,7 @@
 </p>
 {% if required_by_feats %}
 
-<h4>Required for</h4>
+<h4>{% translate 'Required for' %}</h4>
     <p>
     {% for req_by_feat in required_by_feats %}
         <a href="{{ req_by_feat.source_feat.get_absolute_url_mobile }}">{{ req_by_feat.source_feat.name }}</a> (<abbr title="{{ req_by_feat.source_feat.rulebook.name }}">{{ req_by_feat.source_feat.rulebook.abbr }}</abbr>)
@@ -84,7 +85,7 @@
 </div>
 
 {% if related_feats %}
-    <h3>Also appears in</h3>
+    <h3>{% translate 'Also appears in' %}</h3>
     <ol>
         {% for related_feat in related_feats %}
             <li><a href="{{ related_feat.get_absolute_url_mobile }}">{{ related_feat.rulebook.name }}</a></li>

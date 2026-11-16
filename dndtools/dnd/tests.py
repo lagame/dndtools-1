@@ -167,7 +167,7 @@ class CatalogSmokeTests(TestCase):
         domain_variant = DomainVariant.objects.create(domain=domain, rulebook=self.spell.rulebook)
         self.assertEqual(str(variant), 'Wizard variant (Test Handbook)')
         self.assertEqual(str(domain_variant), 'Fire variant (Test Handbook)')
-        editor = User.objects.create_superuser('editor', 'editor@example.test', 'Long-test-password-123')
+        editor = User.objects.create_superuser('editor', settings.ADMINS[0][1], 'Long-test-password-123')
         self.client.force_login(editor)
         choices = (
             ('admin:dnd_monster_add', (self.spell.rulebook, size, monster_type, subtype)),
@@ -283,8 +283,11 @@ class CatalogSmokeTests(TestCase):
     def test_privacy_notice_and_legacy_news_cookie(self):
         NewsEntry.objects.create(published=date(2026, 11, 15), title='Catalog update', body='Updated catalog.')
         home = self.client.get('/', HTTP_ACCEPT_LANGUAGE='pt-BR,pt;q=0.9')
+        self.assertEqual(home.status_code, 302)
+        self.assertEqual(home['Location'], '/pt-br/')
+        home = self.client.get(home['Location'])
         self.assertContains(home, 'Sua privacidade')
-        self.assertContains(home, reverse('privacy'))
+        self.assertContains(home, '/pt-br/privacy/')
         self.assertNotIn('top_news', home.cookies)
         self.assertNotIn('sessionid', home.cookies)
 
@@ -301,6 +304,8 @@ class CatalogSmokeTests(TestCase):
         self.assertContains(policy, 'Privacy at D&amp;D Tools')
         self.assertNotContains(policy, 'Privacidade no D&amp;D Tools')
         portuguese_policy = self.client.get(reverse('privacy'), {'lang': 'pt'})
+        self.assertEqual(portuguese_policy.status_code, 302)
+        portuguese_policy = self.client.get(portuguese_policy['Location'])
         self.assertContains(portuguese_policy, 'Privacidade no D&amp;D Tools')
         self.assertNotContains(portuguese_policy, 'Privacy at D&amp;D Tools')
 

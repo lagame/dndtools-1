@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/character_classes/character_class_layout.html" %}
+{% load i18n %}
 
 {% load custom_filters %}
 
@@ -10,8 +11,8 @@
 
 <table class="list">
 <tr>
-  <th>Class name</th>
-  <th>Prestige</th>
+  <th>{% translate 'Class name' %}</th>
+  <th>{% translate 'Prestige' %}</th>
 </tr>
 
 {% for character_class in class_list %}

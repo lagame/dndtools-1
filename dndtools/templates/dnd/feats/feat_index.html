@@ -1,20 +1,21 @@
 {% extends "dnd/feats/feat_layout.html" %}
+{% load i18n %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 
-{% block title %}Feats{% endblock %}
+{% block title %}{% translate 'Feats' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'feat_index' %}">Feats</a>
+    &raquo; <a href="{% url 'feat_index' %}">{% translate 'Feats' %}</a>
 {% endblock %}
 
 {% block content %}
 
-<h2>Feats</h2>
+<h2>{% translate 'Feats' %}</h2>
 
 <span class="small-warning-bar">
-    Experimental filter form &mdash; <a href="{% url 'contact' %}">let us know</a> what you think about it!
+    {% blocktranslate %}Experimental filter form{% endblocktranslate %} &mdash; <a href="{% url 'contact' %}">{% translate 'let us know' %}</a> {% translate 'what you think about it!' %}
 </span>
 {% include "dnd/filter_form.html" %}
 

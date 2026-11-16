@@ -1,6 +1,7 @@
 # Create your views here.
 from django.shortcuts import get_object_or_404, render, render_to_response
 from django.template.context import RequestContext
+from django.utils.translation import gettext_lazy as _
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
 from dnd.filters import MonsterFilter
@@ -12,7 +13,7 @@ from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect
 @submenu_item(MenuItem.Bestiary.MONSTERS)
 def monster_type_list(request):
     return render(request, 'dnd/monsters/monster_kind_list.html', {
-        'kinds': MonsterType.objects.order_by('name'), 'kind_label': 'Types',
+        'kinds': MonsterType.objects.order_by('name'), 'kind_label': _('Types'),
     })
 
 
@@ -20,7 +21,7 @@ def monster_type_list(request):
 @submenu_item(MenuItem.Bestiary.MONSTERS)
 def monster_subtype_list(request):
     return render(request, 'dnd/monsters/monster_kind_list.html', {
-        'kinds': MonsterSubtype.objects.order_by('name'), 'kind_label': 'Subtypes',
+        'kinds': MonsterSubtype.objects.order_by('name'), 'kind_label': _('Subtypes'),
     })
 
 
@@ -30,7 +31,7 @@ def monster_type_detail(request, slug):
     kind = get_object_or_404(MonsterType, slug=slug)
     monsters = Monster.objects.filter(type=kind).select_related('rulebook').order_by('name')
     return render(request, 'dnd/monsters/monster_kind_detail.html', {
-        'kind': kind, 'kind_label': 'type', 'monsters': monsters,
+        'kind': kind, 'kind_label': _('type'), 'monsters': monsters,
     })
 
 
@@ -40,7 +41,7 @@ def monster_subtype_detail(request, slug):
     kind = get_object_or_404(MonsterSubtype, slug=slug)
     monsters = Monster.objects.filter(subtypes=kind).select_related('rulebook').order_by('name')
     return render(request, 'dnd/monsters/monster_kind_detail.html', {
-        'kind': kind, 'kind_label': 'subtype', 'monsters': monsters,
+        'kind': kind, 'kind_label': _('subtype'), 'monsters': monsters,
     })
 
 
@@ -122,6 +123,7 @@ def monster_detail(request, rulebook_slug, rulebook_id, monster_slug, monster_id
     monster_subtypes = monster.subtypes.all()
     monster_skills = monster.skills.select_related('skill').all()
     monster_feats = monster.feats.select_related('feat', 'feat__rulebook').all()
+
 
     return render_to_response('dnd/monsters/monster_detail.html',
                               {

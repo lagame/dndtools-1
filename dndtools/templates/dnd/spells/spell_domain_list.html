@@ -1,4 +1,6 @@
 {% extends "dnd/spells/spell_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
@@ -6,14 +8,14 @@
 {% block title %}Spell Domains{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'spell_index' %}">Spells</a>
+    &raquo; <a href="{% url 'spell_index' %}">{% translate 'Spells' %}</a>
     &raquo; <a href="{% url 'spell_domain_list'  %}">Domains</a>
 {% endblock %}
 
 
 {% block content %}
 
-<h2>Spell Domains</h2>
+<h2>{% translate 'Spell Domains' %}</h2>
 
 {% include "dnd/filter_form.html" %}
 
@@ -21,11 +23,11 @@
 
 <table class="common">
 <tr>
-  <th>Name</th>
+  <th>{% translate 'Name' %}</th>
 </tr>
 {% for spell_domain in spell_domain_list %}
     <tr>
-        <td><a href="{{ spell_domain.get_absolute_url }}">{{ spell_domain.name }}</a></td>
+        <td><a href="{{ spell_domain.get_absolute_url }}">{% localized spell_domain 'name' %}</a></td>
     </tr>
 {% endfor %}
 </table>

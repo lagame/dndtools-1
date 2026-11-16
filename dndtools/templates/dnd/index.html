@@ -1,45 +1,45 @@
 {% extends "dnd/index_layout.html" %}
-{% load catalog_html %}
-{% block title %}Explore the library{% endblock %}
+{% load catalog_html i18n %}
+{% block title %}{% translate 'Explore the library' %}{% endblock %}
 {% block content %}
 <section class="home-hero">
-  <div><span class="eyebrow">The D&amp;D reference library</span>
-    <h1>Every adventure starts with a discovery.</h1>
-    <p>Browse spells, feats, classes and sourcebooks in a searchable catalog built for tabletop explorers.</p>
-    <div class="hero-actions"><a href="{% url 'search' %}">Search the catalog</a><a href="{% url 'rulebook_list' %}">Explore rulebooks</a></div>
+  <div><span class="eyebrow">{% translate 'The D&D reference library' %}</span>
+    <h1>{% translate 'Every adventure starts with a discovery.' %}</h1>
+    <p>{% translate 'Browse spells, feats, classes and sourcebooks in a searchable catalog built for tabletop explorers.' %}</p>
+    <div class="hero-actions"><a href="{% url 'search' %}">{% translate 'Search the catalog' %}</a><a href="{% url 'rulebook_list' %}">{% translate 'Explore rulebooks' %}</a></div>
   </div>
   <div class="hero-mark" aria-hidden="true">D20</div>
 </section>
 
-<section aria-labelledby="browse-heading"><div class="section-heading"><h2 id="browse-heading">Browse by category</h2></div>
+<section aria-labelledby="browse-heading"><div class="section-heading"><h2 id="browse-heading">{% translate 'Browse by category' %}</h2></div>
   <div class="category-grid">
-    <a href="{% url 'spell_index' %}">Spells<small>Schools, levels and sources</small></a>
-    <a href="{% url 'feat_index' %}">Feats<small>Options for every build</small></a>
-    <a href="{% url 'character_class_list' %}">Classes<small>Base and prestige classes</small></a>
-    <a href="{% url 'race_index' %}">Races<small>Origins and traits</small></a>
-    <a href="{% url 'monster_index' %}">Monsters<small>Creatures of the realms</small></a>
-    <a href="{% url 'item_index' %}">Items<small>Equipment and treasures</small></a>
-    <a href="{% url 'skill_list' %}">Skills<small>Checks and training</small></a>
-    <a href="{% url 'rulebook_list' %}">Rulebooks<small>Browse by edition</small></a>
+    <a href="{% url 'spell_index' %}">{% translate 'Spells' %}<small>{% translate 'Schools, levels and sources' %}</small></a>
+    <a href="{% url 'feat_index' %}">{% translate 'Feats' %}<small>{% translate 'Options for every build' %}</small></a>
+    <a href="{% url 'character_class_list' %}">{% translate 'Classes' %}<small>{% translate 'Base and prestige classes' %}</small></a>
+    <a href="{% url 'race_index' %}">{% translate 'Races' %}<small>{% translate 'Origins and traits' %}</small></a>
+    <a href="{% url 'monster_index' %}">{% translate 'Monsters' %}<small>{% translate 'Creatures of the realms' %}</small></a>
+    <a href="{% url 'item_index' %}">{% translate 'Items' %}<small>{% translate 'Equipment and treasures' %}</small></a>
+    <a href="{% url 'skill_list' %}">{% translate 'Skills' %}<small>{% translate 'Checks and training' %}</small></a>
+    <a href="{% url 'rulebook_list' %}">{% translate 'Rulebooks' %}<small>{% translate 'Browse by edition' %}</small></a>
   </div>
 </section>
 
 <section class="project-update" aria-labelledby="update-heading">
-  <span class="eyebrow">Project update · November 15, 2026</span>
-  <h2 id="update-heading">The library is online again</h2>
-  <p>This community fork now runs on current Python, Django and MySQL. We can resume corrections and carefully reviewed D&amp;D 3.5 additions.</p>
-  <p>The <a href="https://github.com/lagame/dndtools-1#readme">README</a> explains how to run and host a copy with MySQL. To contribute or request the private database, <a href="https://github.com/lagame/dndtools-1/issues">open a project issue</a>; file transfer is arranged privately.</p>
+  <span class="eyebrow">{% translate 'Project update · November 15, 2026' %}</span>
+  <h2 id="update-heading">{% translate 'The library is online again' %}</h2>
+  <p>{% translate 'This community fork now runs on current Python, Django and MySQL. We can resume corrections and carefully reviewed D&D 3.5 additions.' %}</p>
+  <p>{% blocktranslate %}The <a href="https://github.com/lagame/dndtools-1#readme">README</a> explains how to run and host a copy with MySQL. To contribute or request the private database, <a href="https://github.com/lagame/dndtools-1/issues">open a project issue</a>; file transfer is arranged privately.{% endblocktranslate %}</p>
 </section>
 
-{% if news_entries %}<details class="news-archive"><summary>Original project archive</summary>
-  <p>These announcements are preserved from the original project. Their team and project status information may be outdated.</p>
+{% if news_entries %}<details class="news-archive"><summary>{% translate 'Original project archive' %}</summary>
+  <p>{% translate 'These announcements are preserved from the original project. Their team and project status information may be outdated.' %}</p>
   {% for news_entry in news_entries %}
     <article class="news-entry"><h3>{{ news_entry.title }}</h3><p class="eyebrow">{{ news_entry.published }}</p>
       <div class="nice-textile">{{ news_entry.body_html|safe_catalog_html }}</div></article>
   {% endfor %}
 </details>{% endif %}
 
-<section class="disclaimer"><h2>About the sources</h2>
-  <p>Pages identify their sourcebooks and editions. Consult the original books for authoritative rules and support their publishers.</p>
+<section class="disclaimer"><h2>{% translate 'About the sources' %}</h2>
+  <p>{% translate 'Pages identify their sourcebooks and editions. Consult the original books for authoritative rules and support their publishers.' %}</p>
 </section>
 {% endblock %}

@@ -1,17 +1,19 @@
 {% extends "dnd/spells/spell_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 
 {#{% block extra_link %}<link rel="canonical" href="{% url 'spells_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}" />{% endblock %}#}
 
-{% block title %}Spells in {{ rulebook.name }}{% endblock %}
+{% block title %}Spells in {% localized rulebook 'name' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'spell_index' %}">Spells</a>
-    &raquo; <a href="{% url 'spells_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{{ rulebook.name }}</a> (<a href="{{ rulebook.get_absolute_url }}">book</a>)
+    &raquo; <a href="{% url 'spell_index' %}">{% translate 'Spells' %}</a>
+    &raquo; <a href="{% url 'spells_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (<a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
 {% endblock %}
 
 {% block content %}
 
-<h2>Spells in {{ rulebook.name }}</h2>
+<h2>{% translate 'Spells in' %} {% localized rulebook 'name' %}</h2>
 
 {% include "dnd/spells/spell_table.html" %}
 

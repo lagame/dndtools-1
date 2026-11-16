@@ -1,9 +1,10 @@
+{% load i18n %}
 {{ paginator.print_navigation }}
 
 <table class="list">
 <tr>
-  <th>Feat name</th>
-  <th>Rulebook</th>
+  <th>{% translate 'Feat name' %}</th>
+  <th>{% translate 'Rulebook' %}</th>
 </tr>
 {% for feat in feat_list %}
     <tr>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import django_filters2
+from django.utils.translation import gettext_lazy as _
 from dnd.models import (
     Spell, DndEdition, SpellSchool, SpellSubSchool, SpellDescriptor, FeatCategory,
     CharacterClass, CharacterClassVariant, Rulebook, Domain, Feat, Skill, Item, Language, Race, Monster, RaceType, ItemSlot,
@@ -110,7 +111,7 @@ def feat_category_choices():
 
 class SpellFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Spell name'
+        lookup_type='icontains', label=_('Spell name')
     )
     # noinspection PyShadowingBuiltins
     range = CatalogCharFilter(
@@ -133,13 +134,13 @@ class SpellFilter(django_filters2.FilterSet):
     )
 
     school__slug = django_filters2.ChoiceFilter(
-        choices=school_choices, label='School'
+        choices=school_choices, label=_('School')
     )
     sub_school__slug = django_filters2.ChoiceFilter(
-        choices=sub_school_choices, label='Sub-school'
+        choices=sub_school_choices, label=_('Sub-school')
     )
     descriptors__slug = django_filters2.ChoiceFilter(
-        choices=descriptor_choices, label='Descriptor'
+        choices=descriptor_choices, label=_('Descriptor')
     )
     verbal_component = django_filters2.BooleanFilter()
     somatic_component = django_filters2.BooleanFilter()
@@ -150,10 +151,10 @@ class SpellFilter(django_filters2.FilterSet):
 
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: edition_choices(unknown_entry=False),
-        label='Edition',
+        label=_('Edition'),
     )
     rulebook__slug = django_filters2.ChoiceFilter(
-        label='Rulebook', choices=rulebook_choices
+        label=_('Rulebook'), choices=rulebook_choices
     )
     description = CatalogCharFilter(
         lookup_type='icontains',
@@ -161,23 +162,23 @@ class SpellFilter(django_filters2.FilterSet):
     class_levels__slug = django_filters2.ChoiceFilter(
         choices=character_class_casting_choices,
         help_text='Shows only classes with own spell lists',
-        label='Class',
+        label=_('Class'),
         grouped=True,
     )
     spellclasslevel__level = django_filters2.MultipleChoiceFilter(
         choices=spell_level_choices(),
-        label='Level for class',
+        label=_('Level for class'),
         help_text='Use ctrl to select more levels!',
         grouped=True,
     )
     domain_levels__slug = django_filters2.ChoiceFilter(
         choices=domain_choices,
-        label='Domain',
+        label=_('Domain'),
         grouped=True,
     )
     spelldomainlevel__level = django_filters2.MultipleChoiceFilter(
         choices=spell_level_choices(),
-        label='Level for domain',
+        label=_('Level for domain'),
         help_text='Use ctrl to select more levels!',
         grouped=True,
     )
@@ -208,29 +209,29 @@ class ItemFilter(django_filters2.FilterSet):
     type_choices.insert(0, ('', 'All'))
 
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Item name'
+        lookup_type='icontains', label=_('Item name')
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: edition_choices(unknown_entry=False),
-        label='Edition',
+        label=_('Edition'),
     )
     rulebook__slug = django_filters2.ChoiceFilter(
-        label='Rulebook', choices=rulebook_choices
+        label=_('Rulebook'), choices=rulebook_choices
     )
     type = django_filters2.ChoiceFilter(
-        label='Item Type', choices=type_choices
+        label=_('Item Type'), choices=type_choices
     )
     body_slot__slug = django_filters2.ChoiceFilter(
-        label='Body Slot', choices=item_slot_choices
+        label=_('Body Slot'), choices=item_slot_choices
     )
     price_bonus = django_filters2.NumberFilter(
-        label='Price bonus'
+        label=_('Price bonus')
     )
     price_gp = django_filters2.RangeFilter(
-        label='Price in GP (range)',
+        label=_('Price in GP (range)'),
     )
     property__slug = django_filters2.MultipleChoiceFilter(
-        label='Property', choices=property_choices
+        label=_('Property'), choices=property_choices
     )
 
     class Meta:
@@ -243,7 +244,7 @@ class ItemFilter(django_filters2.FilterSet):
 
 class LanguageFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Language name'
+        lookup_type='icontains', label=_('Language name')
     )
 
     class Meta:
@@ -253,40 +254,40 @@ class LanguageFilter(django_filters2.FilterSet):
 
 class CharacterClassFilter(django_filters2.FilterSet):
     character_class__name = CatalogCharFilter(
-        lookup_type='icontains', label='Class name'
+        lookup_type='icontains', label=_('Class name')
     )
     character_class__prestige = django_filters2.BooleanFilter()
     rulebook__slug = django_filters2.ChoiceFilter(
-        label='Rulebook', choices=rulebook_choices
+        label=_('Rulebook'), choices=rulebook_choices
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: edition_choices(unknown_entry=False),
-        label='Edition',
+        label=_('Edition'),
     )
     required_bab = django_filters2.RangeFilter(
-        label='Required Base Attack (range)',
+        label=_('Required Base Attack (range)'),
     )
     skill_points = django_filters2.RangeFilter(
-        label='Skill points/level (range)',
+        label=_('Skill points/level (range)'),
     )
     class_features = CatalogCharFilter(
-        label='Class feature',
+        label=_('Class feature'),
         lookup_type='icontains',
     )
     hit_die = django_filters2.RangeFilter(
-        label='Hit die (range)',
+        label=_('Hit die (range)'),
     )
     required_races__race = django_filters2.ChoiceFilter(
-        label='Race', choices=race_choices
+        label=_('Race'), choices=race_choices
     )
     required_skills__skill = django_filters2.MultipleChoiceFilter(
-        label='Skills', choices=skill_choices
+        label=_('Skills'), choices=skill_choices
     )
     required_feats__feat = django_filters2.MultipleChoiceFilter(
-        label='Feats', choices=feat_choices
+        label=_('Feats'), choices=feat_choices
     )
     requirements = CatalogCharFilter(
-        label='Requirement', lookup_type='icontains',
+        label=_('Requirement'), lookup_type='icontains',
     )
 
     class Meta:
@@ -302,7 +303,7 @@ class RulebookFilter(django_filters2.FilterSet):
         lookup_type='icontains'
     )
     dnd_edition__slug = django_filters2.ChoiceFilter(
-        label='Edition', choices=edition_choices
+        label=_('Edition'), choices=edition_choices
     )
 
     class Meta:
@@ -312,19 +313,19 @@ class RulebookFilter(django_filters2.FilterSet):
 
 class FeatFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Feat name'
+        lookup_type='icontains', label=_('Feat name')
     )
     feat_categories__slug = django_filters2.MultipleChoiceFilter(
         choices=feat_category_choices,
-        label='Feat category'
+        label=_('Feat category')
     )
     rulebook__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: rulebook_choices(unknown_entry=False),
-        label='Rulebook',
+        label=_('Rulebook'),
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: edition_choices(unknown_entry=False),
-        label='Edition',
+        label=_('Edition'),
     )
     description = CatalogCharFilter(
         lookup_type='icontains',
@@ -339,7 +340,7 @@ class FeatFilter(django_filters2.FilterSet):
         lookup_type='icontains',
     )
     prerequisite = FeatMultiPrerequisiteFieldFilter(
-        label='Prerequisites',
+        label=_('Prerequisites'),
     )
 
     class Meta:
@@ -351,7 +352,7 @@ class FeatFilter(django_filters2.FilterSet):
 
 class SpellDomainFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Domain name'
+        lookup_type='icontains', label=_('Domain name')
     )
 
     class Meta:
@@ -361,7 +362,7 @@ class SpellDomainFilter(django_filters2.FilterSet):
 
 class SpellDescriptorFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Descriptor name'
+        lookup_type='icontains', label=_('Descriptor name')
     )
 
     class Meta:
@@ -415,14 +416,14 @@ class DeityFilter(django_filters2.FilterSet):
 
 class MonsterFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Monster name'
+        lookup_type='icontains', label=_('Monster name')
     )
     rulebook__slug = django_filters2.ChoiceFilter(
-        label='Rulebook', choices=rulebook_choices
+        label=_('Rulebook'), choices=rulebook_choices
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: edition_choices(unknown_entry=False),
-        label='Edition',
+        label=_('Edition'),
     )
 
     class Meta:
@@ -433,14 +434,14 @@ class MonsterFilter(django_filters2.FilterSet):
 
 class RaceFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Race name'
+        lookup_type='icontains', label=_('Race name')
     )
     rulebook__slug = django_filters2.ChoiceFilter(
-        label='Rulebook', choices=rulebook_choices
+        label=_('Rulebook'), choices=rulebook_choices
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(
         choices=lambda: edition_choices(unknown_entry=False),
-        label='Edition',
+        label=_('Edition'),
     )
 
     class Meta:
@@ -457,23 +458,23 @@ class RaceTypeFilter(django_filters2.FilterSet):
     base_attack_type_choices.insert(0, ('', 'All'))
 
     name = CatalogCharFilter(
-        lookup_type='icontains', label='Race type name'
+        lookup_type='icontains', label=_('Race type name')
     )
     hit_die_size = django_filters2.RangeFilter(
-        label='Hit Die Size',
+        label=_('Hit Die Size'),
         help_text='(range from-to)',
     )
     base_attack_type = django_filters2.ChoiceFilter(
-        label='Base Attack Type', choices=base_attack_type_choices
+        label=_('Base Attack Type'), choices=base_attack_type_choices
     )
     base_fort_save_type = django_filters2.ChoiceFilter(
-        label='Fort Save Type', choices=save_type_choices
+        label=_('Fort Save Type'), choices=save_type_choices
     )
     base_reflex_save_type = django_filters2.ChoiceFilter(
-        label='Reflex Save Type', choices=save_type_choices
+        label=_('Reflex Save Type'), choices=save_type_choices
     )
     base_will_save_type = django_filters2.ChoiceFilter(
-        label='Will Save Type', choices=save_type_choices
+        label=_('Will Save Type'), choices=save_type_choices
     )
 
     class Meta:

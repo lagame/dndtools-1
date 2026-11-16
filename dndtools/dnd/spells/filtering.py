@@ -1,6 +1,7 @@
 """Spell filters whose class and level constraints share one catalog link."""
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 from django.db.models import Exists, F, OuterRef, Q, Subquery
 from django.db.models.functions import Collate, Coalesce
 
@@ -13,43 +14,43 @@ from dnd.search import COLLATION
 
 MISSING = '__missing__'
 LEVELS = [(str(level), str(level)) for level in range(10)]
-YES_NO = (('', 'All'), ('true', 'Yes'), ('false', 'No'))
+YES_NO = (('', _('All')), ('true', _('Yes')), ('false', _('No')))
 
 
 class SpellCatalogForm(forms.Form):
-    name = forms.CharField(label='Spell name', max_length=100, required=False)
-    class_levels__slug = forms.ChoiceField(label='Class', required=False)
+    name = forms.CharField(label=_('Spell name'), max_length=100, required=False)
+    class_levels__slug = forms.ChoiceField(label=_('Class'), required=False)
     spellclasslevel__level = forms.MultipleChoiceField(
-        label='Class level', required=False, choices=[(MISSING, 'Not specified')] + LEVELS,
+        label=_('Class level'), required=False, choices=[(MISSING, _('Not specified'))] + LEVELS,
         widget=forms.CheckboxSelectMultiple)
-    school__slug = forms.ChoiceField(label='School', required=False)
-    sub_school__slug = forms.ChoiceField(label='Sub-school', required=False)
+    school__slug = forms.ChoiceField(label=_('School'), required=False)
+    sub_school__slug = forms.ChoiceField(label=_('Sub-school'), required=False)
     descriptors__slug = forms.MultipleChoiceField(
-        label='Descriptors', required=False, widget=forms.CheckboxSelectMultiple)
-    casting_time = forms.CharField(label='Casting time contains', max_length=100, required=False)
-    casting_time_missing = forms.BooleanField(label='Casting time not specified', required=False)
-    rulebook__slug = forms.ChoiceField(label='Rulebook', required=False)
+        label=_('Descriptors'), required=False, widget=forms.CheckboxSelectMultiple)
+    casting_time = forms.CharField(label=_('Casting time contains'), max_length=100, required=False)
+    casting_time_missing = forms.BooleanField(label=_('Casting time not specified'), required=False)
+    rulebook__slug = forms.ChoiceField(label=_('Rulebook'), required=False)
     rulebook__dnd_edition__slug = forms.MultipleChoiceField(
-        label='Edition / setting', required=False, widget=forms.CheckboxSelectMultiple)
-    edition_system = forms.ChoiceField(label='Ruleset', required=False)
-    publication_type = forms.ChoiceField(label='Publication type', required=False,
-                                          choices=(('', 'All'), ('core', 'Core'), ('other', 'Other')))
-    domain_levels__slug = forms.ChoiceField(label='Domain', required=False)
+        label=_('Edition / setting'), required=False, widget=forms.CheckboxSelectMultiple)
+    edition_system = forms.ChoiceField(label=_('Ruleset'), required=False)
+    publication_type = forms.ChoiceField(label=_('Publication type'), required=False,
+                                          choices=(('', _('All')), ('core', _('Core')), ('other', _('Other'))))
+    domain_levels__slug = forms.ChoiceField(label=_('Domain'), required=False)
     spelldomainlevel__level = forms.MultipleChoiceField(
-        label='Domain level', required=False, choices=[(MISSING, 'Not specified')] + LEVELS,
+        label=_('Domain level'), required=False, choices=[(MISSING, _('Not specified'))] + LEVELS,
         widget=forms.CheckboxSelectMultiple)
-    range = forms.CharField(label='Range contains', max_length=100, required=False)
-    duration = forms.CharField(label='Duration contains', max_length=100, required=False)
-    description = forms.CharField(label='Description contains', max_length=100, required=False)
-    verbal_component = forms.ChoiceField(label='Verbal', required=False, choices=YES_NO)
-    somatic_component = forms.ChoiceField(label='Somatic', required=False, choices=YES_NO)
-    material_component = forms.ChoiceField(label='Material', required=False, choices=YES_NO)
-    arcane_focus_component = forms.ChoiceField(label='Arcane focus', required=False, choices=YES_NO)
-    divine_focus_component = forms.ChoiceField(label='Divine focus', required=False, choices=YES_NO)
-    xp_component = forms.ChoiceField(label='XP', required=False, choices=YES_NO)
-    sort = forms.ChoiceField(label='Sort by', required=False, choices=(
-        ('', 'Name A–Z'), ('-name', 'Name Z–A'), ('book', 'Rulebook'),
-        ('school', 'School'), ('level', 'Class level'),
+    range = forms.CharField(label=_('Range contains'), max_length=100, required=False)
+    duration = forms.CharField(label=_('Duration contains'), max_length=100, required=False)
+    description = forms.CharField(label=_('Description contains'), max_length=100, required=False)
+    verbal_component = forms.ChoiceField(label=_('Verbal'), required=False, choices=YES_NO)
+    somatic_component = forms.ChoiceField(label=_('Somatic'), required=False, choices=YES_NO)
+    material_component = forms.ChoiceField(label=_('Material'), required=False, choices=YES_NO)
+    arcane_focus_component = forms.ChoiceField(label=_('Arcane focus'), required=False, choices=YES_NO)
+    divine_focus_component = forms.ChoiceField(label=_('Divine focus'), required=False, choices=YES_NO)
+    xp_component = forms.ChoiceField(label=_('XP'), required=False, choices=YES_NO)
+    sort = forms.ChoiceField(label=_('Sort by'), required=False, choices=(
+        ('', _('Name A–Z')), ('-name', _('Name Z–A')), ('book', _('Rulebook')),
+        ('school', _('School')), ('level', _('Class level')),
     ))
 
     def __init__(self, *args, is_staff=False, **kwargs):
@@ -63,33 +64,33 @@ class SpellCatalogForm(forms.Form):
                     data[field] = value.lower()
             args = (data, *args[1:])
         super().__init__(*args, **kwargs)
-        self.fields['class_levels__slug'].choices = [('', 'All'), (MISSING, 'Not specified')] + [
+        self.fields['class_levels__slug'].choices = [('', _('All')), (MISSING, _('Not specified'))] + [
             (item.slug, item.name) for item in CharacterClass.objects.order_by('name')
         ]
-        self.fields['school__slug'].choices = [('', 'All')] + [
+        self.fields['school__slug'].choices = [('', _('All'))] + [
             (item.slug, item.name) for item in SpellSchool.objects.order_by('name')
         ]
-        self.fields['sub_school__slug'].choices = [('', 'All'), (MISSING, 'Not specified')] + [
+        self.fields['sub_school__slug'].choices = [('', _('All')), (MISSING, _('Not specified'))] + [
             (item.slug, item.name) for item in SpellSubSchool.objects.order_by('name')
         ]
-        self.fields['descriptors__slug'].choices = [(MISSING, 'Not specified')] + [
+        self.fields['descriptors__slug'].choices = [(MISSING, _('Not specified'))] + [
             (item.slug, item.name) for item in SpellDescriptor.objects.order_by('name')
         ]
-        self.fields['domain_levels__slug'].choices = [('', 'All'), (MISSING, 'Not specified')] + [
+        self.fields['domain_levels__slug'].choices = [('', _('All')), (MISSING, _('Not specified'))] + [
             (item.slug, item.name) for item in Domain.objects.order_by('name')
         ]
         editions = list(DndEdition.objects.order_by('name'))
         self.fields['rulebook__dnd_edition__slug'].choices = [
             (item.slug, item.name) for item in editions
         ]
-        self.fields['edition_system'].choices = [('', 'All')] + [
+        self.fields['edition_system'].choices = [('', _('All'))] + [
             (system, system.replace('DnD ', 'D&D ')) for system in sorted({item.system for item in editions})
         ]
-        self.fields['rulebook__slug'].choices = [('', 'All')] + [
+        self.fields['rulebook__slug'].choices = [('', _('All'))] + [
             (item.slug, item.name) for item in Rulebook.objects.order_by('name')
         ]
         if is_staff:
-            self.fields['verified'] = forms.ChoiceField(label='Verified', required=False, choices=YES_NO)
+            self.fields['verified'] = forms.ChoiceField(label=_('Verified'), required=False, choices=YES_NO)
 
     def clean(self):
         data = super().clean()

@@ -1,9 +1,10 @@
 {% extends "dnd/layout.html" %}
-{% block title %}Report an issue{% endblock %}
+{% load i18n %}
+{% block title %}{% translate 'Report an issue' %}{% endblock %}
 {% block content %}
-<header class="page-heading"><span class="eyebrow">Improve the catalog</span><h1>Report an issue</h1>
-<p>Thank you for helping us correct the project.</p></header>
-{% if reported_url %}<p>Page to mention in your report: <code>{{ reported_url }}</code></p>{% endif %}
-<p>Open a GitHub issue and describe what is wrong, the rulebook and page number if available, and your proposed correction. Do not upload the private database or copyrighted source scans.</p>
-<p><a class="text-link" href="https://github.com/lagame/dndtools-1/issues/new">Open a project issue →</a></p>
+<header class="page-heading"><span class="eyebrow">{% translate 'Improve the catalog' %}</span><h1>{% translate 'Report an issue' %}</h1>
+<p>{% translate 'Thank you for helping us correct the project.' %}</p></header>
+{% if reported_url %}<p>{% translate 'Page to mention in your report:' %} <code>{{ reported_url }}</code></p>{% endif %}
+<p>{% translate 'Open a GitHub issue and describe what is wrong, the rulebook and page number if available, and your proposed correction. Do not upload the private database or copyrighted source scans.' %}</p>
+<p><a class="text-link" href="https://github.com/lagame/dndtools-1/issues/new">{% translate 'Open a project issue' %} →</a></p>
 {% endblock %}

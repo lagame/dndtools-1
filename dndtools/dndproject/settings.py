@@ -16,17 +16,21 @@ TIME_ZONE = 'Europe/Prague'
 LANGUAGE_CODE = 'en-us'
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-USE_I18N = False
+USE_I18N = True
+LANGUAGES = (('en-us', 'English'), ('pt-br', 'Português (Brasil)'))
+LOCALE_PATHS = (os.path.join(BASE_DIR, 'locale'),)
 USE_L10N = False
 ADMIN_MEDIA_PREFIX = '/media/'
 
 MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'dnd.locale.PublicLocaleMiddleware',
     'dnd.privacy.LegacyCookieCleanupMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'dnd.access.AccessIdentityMiddleware',
     'dnd.cache.HtmlCachePolicyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -77,6 +81,19 @@ AXES_VERBOSE = False
 AXES_LOCKOUT_TEMPLATE = 'admin/locked_out.html'
 
 SERVER_EMAIL = 'ronassic@gmail.com'
+DEFAULT_FROM_EMAIL = os.environ.get('DND_EMAIL_FROM') or SERVER_EMAIL
+EMAIL_HOST = os.environ.get('DND_EMAIL_HOST') or 'localhost'
+EMAIL_PORT = int(os.environ.get('DND_EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.environ.get('DND_EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('DND_EMAIL_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('DND_EMAIL_USE_TLS', '1') == '1'
+EDITORIAL_NOTIFY_EMAIL = os.environ.get('DND_EDITORIAL_NOTIFY_EMAIL', '')
+if not DEBUG and (not EDITORIAL_NOTIFY_EMAIL or not os.environ.get('DND_EMAIL_HOST')
+                  or not os.environ.get('DND_EMAIL_FROM')):
+    raise ImproperlyConfigured('Configure DND_EDITORIAL_NOTIFY_EMAIL, DND_EMAIL_HOST and '
+                               'DND_EMAIL_FROM before enabling editorial access in production.')
+if not DEBUG and EMAIL_HOST == 'smtp.gmail.com' and (not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD):
+    raise ImproperlyConfigured('Configure Gmail SMTP user and app password before production.')
 USE_TZ = False
 
 # LOCAL PY
@@ -103,6 +120,7 @@ TEMPLATES = (
                 'dnd.context_processors.is_mobile',
                 'dnd.context_processors.is_admin',
                 'dnd.context_processors.menu_constants',
+                'dnd.context_processors.editorial_queue',
             ),
         },
     },
@@ -147,6 +165,12 @@ if not ADMIN_URL or (not DEBUG and not re.fullmatch(r'[a-zA-Z0-9_-]{16,64}', ADM
 if not re.fullmatch(r'[a-zA-Z0-9_-]+', ADMIN_URL):
     raise ImproperlyConfigured('DJANGO_ADMIN_URL must be one path segment.')
 ADMIN_URL += '/'
+ACCESS_TEAM_DOMAIN = os.environ.get('DND_ACCESS_TEAM_DOMAIN', '').strip().rstrip('/')
+ACCESS_AUD = [value.strip() for value in os.environ.get('DND_ACCESS_AUD', '').split(',')
+              if value.strip()]
+ACCESS_REQUIRED = not DEBUG
+if ACCESS_REQUIRED and (not ACCESS_TEAM_DOMAIN or not ACCESS_AUD):
+    raise ImproperlyConfigured('Set DND_ACCESS_TEAM_DOMAIN and DND_ACCESS_AUD for admin identity binding.')
 CONTENT_SECURITY_POLICY_REPORT_ONLY = {
     'DIRECTIVES': {
         'default-src': [SELF], 'script-src': [SELF], 'style-src': [SELF],

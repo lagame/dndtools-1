@@ -1,10 +1,11 @@
 {% extends "dnd/deities/deity_layout.html" %}
+{% load i18n %}
 
 {% block title %}Deities{% endblock %}
 
 {% block content %}
 
-<h2>Deities</h2>
+<h2>{% translate 'Deities' %}</h2>
 
 {% include "dnd/filter_form.html" %}
 

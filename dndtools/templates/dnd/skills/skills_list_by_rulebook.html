@@ -1,12 +1,14 @@
 {% extends "dnd/skills/skill_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 {% block title %}Skills by rulebook{% endblock %}
-{% block breadcrumbs %} &raquo; <a href="{% url 'skill_list' %}">Skills</a> &raquo; By rulebook{% endblock %}
+{% block breadcrumbs %} &raquo; <a href="{% url 'skill_list' %}">{% translate 'Skills' %}</a> &raquo; By rulebook{% endblock %}
 {% block content %}
-<h1>Skills by rulebook</h1>
+<h1>{% translate 'Skills by rulebook' %}</h1>
 {{ paginator.print_navigation }}
 <ul class="result-list">
   {% for rulebook in rulebook_list %}
-    <li><a href="{% url 'skills_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id %}">{{ rulebook.name }}</a><small>{{ rulebook.dnd_edition.name }}</small></li>
+    <li><a href="{% url 'skills_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id %}">{% localized rulebook 'name' %}</a><small>{% localized rulebook.dnd_edition 'name' %}</small></li>
   {% endfor %}
 </ul>
 {{ paginator.print_navigation }}

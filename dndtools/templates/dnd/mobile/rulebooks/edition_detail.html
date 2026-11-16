@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/rulebooks/rulebooks_layout.html" %}
+{% load i18n %}
 
 {% block title %}{{ dnd_edition.name }} &ndash; Editions{% endblock %}
 
@@ -10,8 +11,8 @@
 
 <table class="list">
 <tr>
-  <th>Rulebook name</th>
-  <th>Edition</th>
+  <th>{% translate 'Rulebook name' %}</th>
+  <th>{% translate 'Edition' %}</th>
 </tr>
     {% for rulebook in rulebook_list %}
         <tr>

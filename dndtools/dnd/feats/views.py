@@ -119,6 +119,7 @@ def feat_detail(request, rulebook_slug, rulebook_id, feat_slug, feat_id):
     related_feats = Feat.objects.filter(slug=feat.slug).exclude(rulebook__id=feat.rulebook.id).select_related(
         'rulebook', 'rulebook__dnd_edition').all()
 
+
     return render_to_response('dnd/feats/feat_detail.html',
                               {
                                   'feat': feat,

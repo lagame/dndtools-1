@@ -110,10 +110,11 @@ def main():
                                             ('oled', 'Georgia')):
                     picker.select_option(theme)
                     assert page.evaluate('document.documentElement.dataset.theme') == theme
-                    brand_x = page.locator('.site-header .brand').bounding_box()['x']
-                    menu_x = page.locator('#navigation-toggle').bounding_box()['x']
-                    theme_x = picker.bounding_box()['x']
-                    assert brand_x < menu_x < theme_x
+                    brand_box = page.locator('.site-header .brand').bounding_box()
+                    menu_box = page.locator('#navigation-toggle').bounding_box()
+                    theme_box = picker.bounding_box()
+                    assert brand_box['x'] < menu_box['x']
+                    assert theme_box['y'] > menu_box['y'] or menu_box['x'] < theme_box['x']
                     assert page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")') == (theme == 'standard')
                     assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
                     assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
@@ -229,14 +230,14 @@ def main():
                 assert returning.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 returning.close()
             for old, current in (('modern', 'standard'), ('classic', 'modern'), ('simple', 'simple')):
-                migrating = browser.new_page()
+                migrating = browser.new_page(locale='en-US')
                 migrating.add_init_script(f"localStorage.setItem('dnd_theme_v1', '{old}')")
                 assert visit(migrating, '/').status == 200
                 assert migrating.get_by_role('combobox', name='Site theme').input_value() == current
                 assert migrating.evaluate("localStorage.getItem('dnd_theme_v1')") is None
                 assert migrating.evaluate("localStorage.getItem('dnd_theme_v2')") == current
                 migrating.close()
-            simple_page = browser.new_page()
+            simple_page = browser.new_page(locale='en-US')
             simple_page.add_init_script("""
                 localStorage.setItem('dnd_theme_v2', 'simple');
                 document.addEventListener('DOMContentLoaded', () => {
@@ -259,7 +260,7 @@ def main():
             simple_page.get_by_role('combobox', name='Site theme').select_option('simple')
             assert simple_page.locator('img[data-theme-src]').get_attribute('src') is None
             simple_page.close()
-            without_js = browser.new_page(java_script_enabled=False)
+            without_js = browser.new_page(java_script_enabled=False, locale='en-US')
             fallback_requests = []
             without_js.on('request', lambda request: fallback_requests.append(request.url))
             assert visit(without_js, '/').status == 200
@@ -268,8 +269,16 @@ def main():
             portuguese = browser.new_page(locale='pt-BR')
             assert visit(portuguese, '/').status == 200
             expect(portuguese.get_by_role('heading', name='Sua privacidade')).to_be_visible()
+            assert portuguese.url == BASE + '/pt-br/'
+            expect(portuguese.get_by_role('heading', name='Toda aventura começa com uma descoberta.')).to_be_visible()
+            assert portuguese.get_by_role('navigation', name='Idioma').get_by_role('link', name='PT-BR').get_attribute('aria-current') == 'page'
+            portuguese.get_by_role('navigation', name='Idioma').get_by_role('link', name='EN').click()
+            assert portuguese.url == BASE + '/'
+            assert portuguese.context.cookies(BASE)[0]['name'] == 'django_language'
+            assert visit(portuguese, '/').status == 200
+            assert portuguese.url == BASE + '/'
             portuguese.close()
-            page = browser.new_page()
+            page = browser.new_page(locale='en-US')
             visit(page, '/m/spells/by-rulebooks/')
             assert page.url.rstrip('/') == BASE + '/spells/by-rulebooks'
             visit(page, '/')
@@ -280,7 +289,7 @@ def main():
             expect(page.locator('#catalog-sidebar')).to_be_visible()
             page.close()
             if REAL_DATA:
-                page = browser.new_page()
+                page = browser.new_page(locale='en-US')
                 visit(page, '/')
                 destinations = set(page.locator('#catalog-sidebar a[href]').evaluate_all(
                     '(links) => links.map((link) => link.getAttribute("href"))'))

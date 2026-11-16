@@ -1,0 +1,17 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1>Editorial workspace</h1>
+<p>Submit catalog additions, corrections, removals and complete PT-BR translations. All submissions wait for Ronassic's review.</p>
+{% if is_owner %}<h2>Pending collaborations: {{ pending_count }}</h2>{% endif %}
+{% if is_owner %}<h2>Collaborators</h2><p><a class="button" href="{% url 'editorial_invite' %}">Invite collaborator</a> · <a href="{% url 'admin:dnd_editorialgrant_changelist' %}">Manage resource grants</a></p>
+<table><thead><tr><th>Email</th><th>Access state</th><th>Action</th></tr></thead><tbody>
+{% for invite in collaborators %}<tr><td>{{ invite.user.email }}</td><td>{{ invite.access_state }}</td><td>{% if invite.access_state != 'revoked' %}<form method="post" action="{% url 'editorial_revoke' invite.pk %}">{% csrf_token %}<button type="submit">Revoke access</button></form>{% endif %}</td></tr>{% empty %}<tr><td colspan="3">No collaborators invited yet.</td></tr>{% endfor %}</tbody></table>{% endif %}
+<h2>Proposals</h2>
+<table><thead><tr><th>Submitted</th><th>Author</th><th>Action</th><th>Resource</th><th>Status</th></tr></thead><tbody>
+{% for proposal in proposals %}<tr><td>{{ proposal.created_at }}</td><td>{{ proposal.author.username }}</td><td>{% if is_owner %}<a href="{% url 'editorial_review' proposal.pk %}">{{ proposal.get_action_display }}</a>{% else %}{{ proposal.get_action_display }}{% endif %}</td><td>{{ proposal.resource }}</td><td>{{ proposal.get_status_display }}</td></tr>
+{% empty %}<tr><td colspan="5">No proposals yet.</td></tr>{% endfor %}
+</tbody></table>
+<h2>Catalog resources</h2>
+{% for group, resources in groups %}{% if resources %}<h3>{{ group }}</h3><ul>{% for name, label, create, correct, translate, delete in resources %}{% if create or correct or translate or delete %}<li><a href="{% url 'editorial_catalog' name %}">{{ label }}</a></li>{% endif %}{% endfor %}</ul>{% endif %}{% endfor %}
+{% if supplemental_kinds %}<h2>Additional D&amp;D 3.5 mechanics</h2><ul>{% for kind, label in supplemental_kinds %}<li><a href="{% url 'editorial_catalog' 'SupplementalEntry' %}?kind={{ kind|urlencode }}">{{ label }}</a></li>{% endfor %}</ul>{% endif %}
+{% endblock %}

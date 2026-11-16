@@ -1,9 +1,10 @@
 {% extends "dnd/contacts/contact_layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
-<h2>Email sent</h2>
+<h2>{% translate 'Email sent' %}</h2>
 
-<p>Thanks for your feedback!</p>
+<p>{% translate 'Thanks for your feedback!' %}</p>
 
 {% endblock %}

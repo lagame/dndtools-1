@@ -37,6 +37,18 @@ if not hasattr(shortcuts, 'render_to_response'):
     def render_to_response(template_name, context=None, context_instance=None,
                            content_type=None, status=None, using=None):
         request = getattr(context_instance, 'request', None)
+        if (request and getattr(request, 'LANGUAGE_CODE', 'en-us') == 'pt-br'
+                and template_name.startswith('dnd/') and isinstance(context, dict)):
+            from dnd.localization import localize_record
+            context = dict(context)
+            primary_fallback = None
+            for value in context.values():
+                if isinstance(value, django_models.Model):
+                    fallback = localize_record(request, value)
+                    if primary_fallback is None:
+                        primary_fallback = fallback
+            if template_name.endswith('_detail.html') and primary_fallback is not None:
+                context.setdefault('translation_fallback', primary_fallback)
         return render(
             request,
             template_name,

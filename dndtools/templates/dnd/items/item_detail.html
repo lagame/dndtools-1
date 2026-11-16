@@ -1,33 +1,35 @@
 {% extends "dnd/items/item_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 {% load catalog_html %}
 {% load custom_filters %}
 
-{% block title %}{{ item.name }} &ndash; Item{% endblock %}
+{% block title %}{% localized item 'name' %} &ndash; {% translate 'Item' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'item_index'  %}">Items</a>
-    &raquo; <a href="{% url 'items_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{{ rulebook.name }}</a> (<a href="{{ rulebook.get_absolute_url }}">book</a>)
-    &raquo; <a href="{{ item.get_absolute_url }}">{{ item.name }}</a>
+    &raquo; <a href="{% url 'item_index'  %}">{% translate 'Items' %}</a>
+    &raquo; <a href="{% url 'items_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (<a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
+    &raquo; <a href="{{ item.get_absolute_url }}">{% localized item 'name' %}</a>
 {% endblock %}
 
-{% block admin_edit %}<a href="{% url 'admin:dnd_item_change' item.id %}">EDIT</a>{% endblock %}
+{% block admin_edit %}<a href="{% url 'admin:dnd_item_change' item.id %}">{% translate 'EDIT' %}</a>{% endblock %}
 
 {% block content %}
 
-    <h2>{{ item.name }}</h2>
+    <h2>{% localized item 'name' %}</h2>
     <div class="item_{{ item.type }}">{{ item.get_type_display }}</div>
-    (<a href="{{ rulebook.get_absolute_url }}">{{ rulebook.name }}</a>{% if item.page %},  p. {{ item.page }}{% endif %})
+    (<a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a>{% if item.page %},  p. {{ item.page }}{% endif %})
     <br/>
     <br/>
 
     {% if item.price_gp %}
-            <strong>Price:</strong> {% if item.type == ItemType.ENHANCEMENT %}+{% endif %}{{ item.price_gp|thousands_separator }} gp<br/>
+            <strong>{% translate 'Price:' %}</strong> {% if item.type == ItemType.ENHANCEMENT %}+{% endif %}{{ item.price_gp|thousands_separator }} gp<br/>
     {% endif %}
     {% if item.price_bonus %}
-            <strong>Price:</strong> +{{ item.price_bonus }} bonus<br/>
+            <strong>{% translate 'Price:' %}</strong> +{{ item.price_bonus }} bonus<br/>
     {% endif %}
     {% if item.item_level %}
-        <strong>Item Level:</strong> {{ item.item_level|ordinal_number }}<br/>
+        <strong>{% translate 'Item Level:' %}</strong> {{ item.item_level|ordinal_number }}<br/>
     {% endif %}
 
     {% if item.type == ItemType.MUNDANE %}
@@ -58,7 +60,7 @@
 
     {% if required_spells or required_feats or item.required_extra %}
     <p>
-    <i>Prerequisites:</i>
+    <i>{% translate 'Prerequisites:' %}</i>
     {% for required_feat in required_feats %}
 
         <a href="{{ required_feat.get_absolute_url }}">{{ required_feat }}</a>{% if not forloop.last %}, {% endif %}
@@ -75,7 +77,7 @@
 
     {% if cost_to_create and cost_to_create != '-' %}
         <p>
-            <i>Cost to Create:</i> {{ cost_to_create }}.
+            <i>{% translate 'Cost to Create:' %}</i> {{ cost_to_create }}.
         </p>
     {% endif %}
 

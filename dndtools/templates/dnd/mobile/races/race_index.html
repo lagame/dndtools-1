@@ -1,10 +1,11 @@
 {% extends "dnd/mobile/races/race_layout.html" %}
+{% load i18n %}
 
 {% block title %}Races{% endblock %}
 
 {% block content %}
 
-    <h2>Races</h2>
+    <h2>{% translate 'Races' %}</h2>
 
     {% include "dnd/mobile/filter_form.html" %}
 

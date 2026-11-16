@@ -1,10 +1,11 @@
 {% extends "dnd/mobile/spells/spell_layout.html" %}
+{% load i18n %}
 
 {% block title %}Spell Descriptors{% endblock %}
 
 {% block content %}
 
-<h2>Spell Descriptors</h2>
+<h2>{% translate 'Spell Descriptors' %}</h2>
 
 {% include "dnd/mobile/filter_form.html" %}
 
@@ -12,7 +13,7 @@
 
 <table class="list">
 <tr>
-  <th>Name</th>
+  <th>{% translate 'Name' %}</th>
 </tr>
 {% for spell_descriptor in spell_descriptor_list %}
     <tr>

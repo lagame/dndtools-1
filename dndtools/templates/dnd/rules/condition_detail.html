@@ -1,7 +1,9 @@
 {% extends "dnd/rules/rule_layout.html" %}
-{% block title %}{{ condition.name }}{% endblock %}
-{% block breadcrumbs %} &raquo; <a href="{% url 'rule_list' %}">Rules</a> &raquo; <a href="{% url 'rule_condition_list' %}">Conditions</a> &raquo; {{ condition.name }}{% endblock %}
+{% load i18n %}
+{% load catalog_i18n %}
+{% block title %}{% localized condition 'name' %}{% endblock %}
+{% block breadcrumbs %} &raquo; <a href="{% url 'rule_list' %}">{% translate 'Rules' %}</a> &raquo; <a href="{% url 'rule_condition_list' %}">Conditions</a> &raquo; {% localized condition 'name' %}{% endblock %}
 {% block content %}
-<header class="page-heading"><span class="eyebrow">Condition</span><h1>{{ condition.name }}</h1></header>
+<header class="page-heading"><span class="eyebrow">Condition</span><h1>{% localized condition 'name' %}</h1></header>
 <div class="nice-textile">{{ condition.description|linebreaks }}</div>
 {% endblock %}

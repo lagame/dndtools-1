@@ -1,10 +1,11 @@
 {% extends "dnd/mobile/rulebooks/rulebooks_layout.html" %}
+{% load i18n %}
 
 {% block title %}Rulebooks{% endblock %}
 
 {% block content %}
 
-<h2>Rulebooks</h2>
+<h2>{% translate 'Rulebooks' %}</h2>
 
 {% include "dnd/mobile/filter_form.html" %}
 
@@ -12,8 +13,8 @@
 
 <table class="list">
 <tr>
-  <th>Rulebook name</th>
-  <th>Edition</th>
+  <th>{% translate 'Rulebook name' %}</th>
+  <th>{% translate 'Edition' %}</th>
 </tr>
     {% for rulebook in rulebook_list %}
         <tr>

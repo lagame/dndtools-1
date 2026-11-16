@@ -1,17 +1,18 @@
 {% extends "dnd/races/race_layout.html" %}
+{% load i18n %}
 
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 
 {% block title %}Race Types{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'race_index' %}">Races</a>
+    &raquo; <a href="{% url 'race_index' %}">{% translate 'Races' %}</a>
     &raquo; <a href="{% url 'race_type_index' %}">Types</a>
 {% endblock %}
 
 {% block content %}
 
-    <h2>Race Types</h2>
+    <h2>{% translate 'Race Types' %}</h2>
 
     {% include "dnd/filter_form.html" %}
 

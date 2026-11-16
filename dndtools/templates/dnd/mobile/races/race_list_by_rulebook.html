@@ -1,4 +1,5 @@
 {% extends "dnd/mobile/races/race_layout.html" %}
+{% load i18n %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block title %}Races{% endblock %}
@@ -11,8 +12,8 @@
 
     <table class="common">
         <tr>
-            <th>Rulebook name</th>
-            <th>Edition</th>
+            <th>{% translate 'Rulebook name' %}</th>
+            <th>{% translate 'Edition' %}</th>
         </tr>
         {% for rulebook in rulebook_list %}
             <tr>

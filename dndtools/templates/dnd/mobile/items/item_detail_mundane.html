@@ -1,6 +1,7 @@
+{% load i18n %}
 {% load custom_filters %}
 
-<strong>Body Slot:</strong> {{ item.body_slot|empty_as_dash }}<br/>
+<strong>{% translate 'Body Slot:' %}</strong> {{ item.body_slot|empty_as_dash }}<br/>
 
-<strong>Activation:</strong> {{ item.activation|empty_as_dash }}<br/>
-<strong>Weight:</strong> {{ item.weight|empty_as_dash }} lb.<br/>
+<strong>{% translate 'Activation:' %}</strong> {{ item.activation|empty_as_dash }}<br/>
+<strong>{% translate 'Weight:' %}</strong> {{ item.weight|empty_as_dash }} lb.<br/>

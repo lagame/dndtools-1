@@ -1,17 +1,19 @@
 {% extends "dnd/skills/skill_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 
 {% load custom_filters %}
 
-{% block title %}Skills in {{ rulebook.name }}{% endblock %}
+{% block title %}Skills in {% localized rulebook 'name' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'skill_list' %}">Skills</a>
-    &raquo; <a href="{% url 'skills_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{{ rulebook.name }}</a> (<a href="{{ rulebook.get_absolute_url }}">book</a>)
+    &raquo; <a href="{% url 'skill_list' %}">{% translate 'Skills' %}</a>
+    &raquo; <a href="{% url 'skills_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (<a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
 {% endblock %}
 
 {% block content %}
 
-    <h2>Skills in {{ rulebook.name }}</h2>
+    <h2>{% translate 'Skills in' %} {% localized rulebook 'name' %}</h2>
 
     {% include "dnd/skills/skill_table_inner.html" %}
 

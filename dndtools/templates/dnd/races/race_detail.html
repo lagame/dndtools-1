@@ -1,44 +1,46 @@
 {% extends "dnd/races/race_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 {% load catalog_html %}
 
 {% load custom_filters %}
 {% load custom_tags %}
 
-{% block title %}{{ race.name }} &ndash; Race{% endblock %}
+{% block title %}{% localized race 'name' %} &ndash; Race{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'race_index'  %}">Races</a>
+    &raquo; <a href="{% url 'race_index'  %}">{% translate 'Races' %}</a>
     &raquo; <a
-        href="{% url 'races_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{{ rulebook.name }}</a> (
-    <a href="{{ rulebook.get_absolute_url }}">book</a>)
-    &raquo; <a href="{{ race.get_absolute_url }}">{{ race.name }}</a>
+        href="{% url 'races_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (
+    <a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
+    &raquo; <a href="{{ race.get_absolute_url }}">{% localized race 'name' %}</a>
 {% endblock %}
 
-{% block admin_edit %}<a href="{% url 'admin:dnd_race_change' race.id %}">EDIT</a>{% endblock %}
+{% block admin_edit %}<a href="{% url 'admin:dnd_race_change' race.id %}">{% translate 'EDIT' %}</a>{% endblock %}
 
 {% block content %}
     {% if race.image %}
         {% available_catalog_image race.image as portrait_url %}
-        <span class="right" style="clear: right">{% if portrait_url %}<img data-theme-src="{{ portrait_url }}" loading="lazy" alt="{{ race.name }}" /><span class="image-placeholder theme-image-placeholder">Illustration hidden in Simple</span><noscript><img src="{{ portrait_url }}" alt="{{ race.name }}" /></noscript>{% else %}<span class="image-placeholder" role="img" aria-label="Illustration unavailable">Illustration unavailable</span>{% endif %}</span>
+        <span class="right" style="clear: right">{% if portrait_url %}<img data-theme-src="{{ portrait_url }}" loading="lazy" alt="{% localized race 'name' %}" /><span class="image-placeholder theme-image-placeholder">Illustration hidden in Simple</span><noscript><img src="{{ portrait_url }}" alt="{% localized race 'name' %}" /></noscript>{% else %}<span class="image-placeholder" role="img" aria-label="Illustration unavailable">Illustration unavailable</span>{% endif %}</span>
     {% endif %}
 
-    <h2>{{ race.name }}</h2>
+    <h2>{% localized race 'name' %}</h2>
     (
-    <a href="{{ rulebook.get_absolute_url }}">{{ rulebook.name }}</a>{% if race.page != None %},  p. {{ race.page }}{% endif %})
+    <a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a>{% if race.page != None %},  p. {{ race.page }}{% endif %})
     <br/>
     <br/>
 
-    <h3>Attributes</h3>
+    <h3>{% translate 'Attributes' %}</h3>
 
     <table class="race-attributes">
         <tr>
-            <th>Size:</th>
+            <th>{% translate 'Size:' %}</th>
             <td>
                 {{ race.size }}
             </td>
         </tr>
         <tr>
-            <th>Base speed:</th>
+            <th>{% translate 'Base speed:' %}</th>
             <td>
                 {% for speed in race_speeds %}
                     {% if not forloop.first %}, {% endif %}
@@ -47,42 +49,42 @@
             </td>
         </tr>
         <tr class="separator">
-            <th>Strength:</th>
+            <th>{% translate 'Strength:' %}</th>
             <td> {{ race.str|plus_minus }}</td>
         </tr>
         <tr>
-            <th>Intelligence:</th>
+            <th>{% translate 'Intelligence:' %}</th>
             <td> {{ race.int|plus_minus }}</td>
         </tr>
         <tr>
-            <th>Dexterity:</th>
+            <th>{% translate 'Dexterity:' %}</th>
             <td> {{ race.dex|plus_minus }}</td>
         </tr>
         <tr>
-            <th>Wisdom:</th>
+            <th>{% translate 'Wisdom:' %}</th>
             <td> {{ race.wis|plus_minus }}</td>
         </tr>
         <tr>
-            <th>Constitution:</th>
+            <th>{% translate 'Constitution:' %}</th>
             <td> {{ race.con|plus_minus }}</td>
         </tr>
         <tr>
-            <th>Charisma:</th>
+            <th>{% translate 'Charisma:' %}</th>
             <td> {{ race.cha|plus_minus }}</td>
         </tr>
         <tr class="separator">
-            <th>Level adjustment:</th>
+            <th>{% translate 'Level adjustment:' %}</th>
             <td> {{ race.level_adjustment|plus_minus }}</td>
         </tr>
         <tr class="separator">
-            <th>Space:</th>
+            <th>{% translate 'Space:' %}</th>
             <td>
                 {{ race.space }}
                 feet
             </td>
         </tr>
         <tr>
-            <th>Reach:</th>
+            <th>{% translate 'Reach:' %}</th>
             <td>
                 {{ race.space }}
                 feet
@@ -90,7 +92,7 @@
         </tr>
         {% if race.natural_armor %}
             <tr>
-                <th>Natural armor:</th>
+                <th>{% translate 'Natural armor:' %}</th>
                 <td>
                     {{ race.natural_armor|plus_minus }}
                 </td>
@@ -98,11 +100,11 @@
         {% endif %}
         {% if automatic_languages %}
         <tr class="separator">
-            <th>Automatic languages:</th>
+            <th>{% translate 'Automatic languages:' %}</th>
             <td>
                 {% for language in automatic_languages %}
                     {% if not forloop.first %}, {% endif %}
-                    <a href="{{ language.get_absolute_url }}">{{ language.name }}</a>
+                    <a href="{{ language.get_absolute_url }}">{% localized language 'name' %}</a>
                 {% endfor %}
             </td>
         </tr>
@@ -110,11 +112,11 @@
         
         {% if favored_classes %}
         <tr class="separator">
-            <th>Favored Classes:</th>
+            <th>{% translate 'Favored Classes:' %}</th>
             <td>
                 {% for racefavored in favored_classes %}
                     {% if not forloop.first %}, {% endif %}
-                    <a href="{{ racefavored.character_class.get_absolute_url }}">{{ racefavored.character_class.name }}</a>
+                    <a href="{{ racefavored.character_class.get_absolute_url }}">{% localized racefavored.character_class 'name' %}</a>
                 {% endfor %}
             </td>
         </tr>
@@ -122,11 +124,11 @@
 
         {% if bonus_languages %}
         <tr{% if not automatic_languages %} class="separator"{% endif %}>
-            <th>Bonus Languages:</th>
+            <th>{% translate 'Bonus Languages:' %}</th>
             <td>
                 {% for language in bonus_languages %}
                     {% if not forloop.first %}, {% endif %}
-                    <a href="{{ language.get_absolute_url }}">{{ language.name }}</a>
+                    <a href="{{ language.get_absolute_url }}">{% localized language 'name' %}</a>
                 {% endfor %}
             </td>
         </tr>
@@ -135,19 +137,19 @@
         {% if race.racial_hit_dice_count and race.race_type %}
 
         <tr class="separator">
-            <th>Racial Hit Dice:</th>
+            <th>{% translate 'Racial Hit Dice:' %}</th>
             <td>
-                {{ race.racial_hit_dice_count }}d{{ race.race_type.hit_die_size }} (<a href="{{ race.race_type.get_absolute_url }}">{{ race.race_type.name }}</a>)
+                {{ race.racial_hit_dice_count }}d{{ race.race_type.hit_die_size }} (<a href="{{ race.race_type.get_absolute_url }}">{% localized race.race_type 'name' %}</a>)
             </td>
         </tr>
         <tr>
-            <th>Racial Base Attack:</th>
+            <th>{% translate 'Racial Base Attack:' %}</th>
             <td>
                 +{{ race.racialBaseAttack }}
             </td>
         </tr>
         <tr>
-            <th>Racial Base Saves:</th>
+            <th>{% translate 'Racial Base Saves:' %}</th>
             <td>
                 Fort +{{ race.racialBaseFortSave }},
                 Reflex +{{ race.racialBaseReflexSave }},
@@ -159,24 +161,24 @@
     </table>
 
     <div class="nice-textile">
-        <h3>Description</h3>
+        <h3>{% translate 'Description' %}</h3>
 
         {{ race.description_html|safe_catalog_html }}
 
-        <h3>Combat</h3>
+        <h3>{% translate 'Combat' %}</h3>
 
         {{ race.combat_html|safe_catalog_html }}
 
-        <h3>Racial Traits</h3>
+        <h3>{% translate 'Racial Traits' %}</h3>
 
         {{ race.racial_traits_html|safe_catalog_html }}
     </div>
 
     {% if related_races %}
-        <h3>Also appears in</h3>
+        <h3>{% translate 'Also appears in' %}</h3>
         <ol>
             {% for related_race in related_races %}
-                <li><a href="{{ related_race.get_absolute_url }}">{{ related_race.rulebook.name }}</a></li>
+                <li><a href="{{ related_race.get_absolute_url }}">{% localized related_race.rulebook 'name' %}</a></li>
             {% endfor %}
         </ol>
     {% endif %}

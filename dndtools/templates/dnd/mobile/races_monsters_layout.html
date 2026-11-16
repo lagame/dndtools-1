@@ -1,8 +1,9 @@
 {% extends "dnd/mobile/layout.html" %}
+{% load i18n %}
 
 {% block submenu %}
     <li{% if request.submenu_item == "monsters" %} class="selected"{% endif %}>
-        <a href="{% url 'monster_index_mobile' %}">Monsters</a>
+        <a href="{% url 'monster_index_mobile' %}">{% translate 'Monsters' %}</a>
     </li>
 
     <li{% if request.submenu_item == "monsters_by_rulebooks" %} class="selected"{% endif %}>
@@ -10,7 +11,7 @@
     </li>
 
     <li{% if request.submenu_item == "races" %} class="selected"{% endif %}>
-        <a href="{% url 'race_index_mobile' %}">Races</a>
+        <a href="{% url 'race_index_mobile' %}">{% translate 'Races' %}</a>
     </li>
 
     <li{% if request.submenu_item == "races_by_rulebooks" %} class="selected"{% endif %}>
@@ -18,10 +19,10 @@
     </li>
 
     <li{% if request.submenu_item == "race_types" %} class="selected"{% endif %}>
-        <a href="{% url 'race_type_index' %}">Race Types</a>
+        <a href="{% url 'race_type_index' %}">{% translate 'Race Types' %}</a>
     </li>
 
     <li{% if request.submenu_item == "languages" %} class="selected"{% endif %}>
-        <a href="{% url 'language_index_mobile' %}">Languages</a>
+        <a href="{% url 'language_index_mobile' %}">{% translate 'Languages' %}</a>
     </li>
 {% endblock %}

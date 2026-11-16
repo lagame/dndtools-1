@@ -1,10 +1,12 @@
 {% extends "dnd/monsters/monster_layout.html" %}
-{% block title %}Monster {{ kind_label }}{% endblock %}
-{% block breadcrumbs %} &raquo; <a href="{% url 'monster_index' %}">Monsters</a> &raquo; {{ kind_label }}{% endblock %}
+{% load i18n %}
+{% load catalog_i18n %}
+{% block title %}{% translate 'Monster' %} {{ kind_label }}{% endblock %}
+{% block breadcrumbs %} &raquo; <a href="{% url 'monster_index' %}">{% translate 'Monsters' %}</a> &raquo; {{ kind_label }}{% endblock %}
 {% block content %}
-<h1>Monster {{ kind_label|lower }}</h1>
+<h1>{% translate 'Monster' %} {{ kind_label|lower }}</h1>
 <ul class="result-list">
-  {% for kind in kinds %}<li><a href="{{ kind.get_absolute_url }}">{{ kind.name }}</a></li>
-  {% empty %}<li>No {{ kind_label|lower }} available.</li>{% endfor %}
+  {% for kind in kinds %}<li><a href="{{ kind.get_absolute_url }}">{% localized kind 'name' %}</a></li>
+  {% empty %}<li>{% blocktranslate with label=kind_label|lower %}No {{ label }} available.{% endblocktranslate %}</li>{% endfor %}
 </ul>
 {% endblock %}

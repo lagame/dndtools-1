@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from dnd.menu import MenuItem
 from dnd.navigation import catalog_navigation
 
 
 def privacy_language(request):
-    if request.path == '/privacy/':
+    if request.path in ('/privacy/', '/pt-br/privacy/'):
         requested = request.GET.get('lang', '').lower()
         if requested in ('pt', 'en'):
             return {'privacy_language': requested}
-    preferred = request.META.get('HTTP_ACCEPT_LANGUAGE', '').split(',', 1)[0].lower()
-    return {'privacy_language': 'pt' if preferred.startswith('pt') else 'en'}
+    return {'privacy_language': 'pt' if request.LANGUAGE_CODE == 'pt-br' else 'en'}
 
 
 def is_mobile(request):
@@ -33,3 +33,14 @@ def menu_constants(request):
         'MenuItem': MenuItem,
         'catalog_navigation': catalog_navigation(request),
     }
+
+
+def editorial_queue(request):
+    """Show the owner a count of every submitted, unreviewed collaboration."""
+    if not request.path.startswith('/' + settings.ADMIN_URL):
+        return {}
+    from dnd.editorial import owner
+    from dnd.models import EditorialProposal
+    if not owner(request.user):
+        return {'editorial_queue_count': 0}
+    return {'editorial_queue_count': EditorialProposal.objects.filter(status='pending').count()}

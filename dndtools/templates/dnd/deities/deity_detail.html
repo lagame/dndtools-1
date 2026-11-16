@@ -1,21 +1,23 @@
 {% extends "dnd/deities/deity_layout.html" %}
+{% load i18n %}
+{% load catalog_i18n %}
 {% load catalog_html %}
 
-{% block title %}{{ deity.name }} &ndash; Deities{% endblock %}
+{% block title %}{% localized deity 'name' %} &ndash; Deities{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'deity_list' %}">Deities</a>
-    &raquo; <a href="{{ deity.get_absolute_url }}">{{ deity.name }}</a>
+    &raquo; <a href="{% url 'deity_list' %}">{% translate 'Deities' %}</a>
+    &raquo; <a href="{{ deity.get_absolute_url }}">{% localized deity 'name' %}</a>
 {% endblock %}
 
 
 {% block admin_edit %}
-    <a href="{% url 'admin:dnd_deity_change' deity.id %}">EDIT</a>
+    <a href="{% url 'admin:dnd_deity_change' deity.id %}">{% translate 'EDIT' %}</a>
 {% endblock %}
 
 {% block content %}
 
-<h2>{{ deity.name }}</h2>
+<h2>{% localized deity 'name' %}</h2>
 
 {% if deity.description_html %}
 <div class="nice-textile">
@@ -24,13 +26,13 @@
 {% endif %}
 
 {% if deity.alignment %}
-<h4>Alignment</h4>
+<h4>{% translate 'Alignment' %}</h4>
 <p>{{ deity.alignment }}</p>
 {% endif %}
 
 {% if deity.favored_weapon %}
-<h4>Favored Weapon</h4>
-<p><a href="{{ deity.favored_weapon.get_absolute_url }}">{{ deity.favored_weapon.name }}</a></p>
+<h4>{% translate 'Favored Weapon' %}</h4>
+<p><a href="{{ deity.favored_weapon.get_absolute_url }}">{% localized deity.favored_weapon 'name' %}</a></p>
 {% endif %}
 
 {% endblock %}

@@ -1,10 +1,11 @@
 {% extends "dnd/mobile/items/item_layout.html" %}
+{% load i18n %}
 
 {% block title %}Items{% endblock %}
 
 {% block content %}
 
-    <h2>Items</h2>
+    <h2>{% translate 'Items' %}</h2>
 
     {% include "dnd/mobile/filter_form.html" %}
 
