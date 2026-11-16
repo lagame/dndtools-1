@@ -1,5 +1,7 @@
 # Inventário de imagens pendentes
 
+**Historical snapshot (2026-11-15):** the 81 catalog images listed below were [restored on 2026-11-16](media-restoration-2026-11-16.md). This inventory records their former absence.
+
 Gerado em 2026-11-15 00:40 (São Paulo).
 
 - Fonte de dados: SQLite íntegro em modo somente leitura, 114 livros e 42 raças.
