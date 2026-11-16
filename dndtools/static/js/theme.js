@@ -1,6 +1,6 @@
 (() => {
   const key = 'dnd_theme_v2';
-  const valid = new Set(['standard', 'modern', 'simple', 'dark']);
+  const valid = new Set(['standard', 'modern', 'simple', 'dark', 'oled']);
   const identityStylesheet = document.getElementById('identity-stylesheet');
   const siteIcon = document.getElementById('site-icon');
   let theme = 'standard';

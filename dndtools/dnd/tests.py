@@ -230,10 +230,12 @@ class CatalogSmokeTests(TestCase):
     def test_html_revalidates_and_asset_urls_change_with_content(self):
         response = self.client.get('/')
         self.assertEqual(response['Cache-Control'], 'no-cache, max-age=0, must-revalidate')
-        self.assertContains(response, '<option value="dark">Dark</option>')
+        self.assertContains(response, '<option value="dark">Petroleo</option>')
+        self.assertContains(response, '<option value="oled">Dark</option>')
         theme_script = (Path(settings.STATIC_DIR) / 'js/theme.js').read_text(encoding='utf-8')
         theme_styles = (Path(settings.STATIC_DIR) / 'css/themes.css').read_text(encoding='utf-8')
         self.assertIn("'dark'", theme_script)
+        self.assertIn("'oled'", theme_script)
         for selector in ('--background: #101a23;', '--ink: #edf3f7;',
                          'a { color: #8edfff; }', 'color-scheme: dark;'):
             self.assertIn(selector, theme_styles)

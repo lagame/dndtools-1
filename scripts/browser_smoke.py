@@ -106,7 +106,8 @@ def main():
                 assert picker.input_value() == 'standard'
                 assert page.evaluate("localStorage.getItem('dnd_theme_v2')") is None
                 for theme, heading_font in (('simple', 'Arial'), ('modern', 'Georgia'),
-                                            ('standard', 'Inter'), ('dark', 'Georgia')):
+                                            ('standard', 'Inter'), ('dark', 'Georgia'),
+                                            ('oled', 'Georgia')):
                     picker.select_option(theme)
                     assert page.evaluate('document.documentElement.dataset.theme') == theme
                     brand_x = page.locator('.site-header .brand').bounding_box()['x']
@@ -116,7 +117,7 @@ def main():
                     assert page.locator('#identity-stylesheet').evaluate('(link) => link.hasAttribute("href")') == (theme == 'standard')
                     assert page.evaluate("localStorage.getItem('dnd_theme_v2')") == theme
                     assert page.locator('#content h1, #content h2').first.evaluate('(heading) => getComputedStyle(heading).fontFamily').startswith(heading_font)
-                    if theme == 'dark':
+                    if theme in ('dark', 'oled'):
                         contrast = page.evaluate("""() => {
                             const luminance = (color) => {
                                 const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(Number).map((v) => {
@@ -139,8 +140,34 @@ def main():
                         }""")
                         assert contrast['body'] >= 4.5, contrast
                         assert contrast['link'] >= 4.5, contrast
-                        assert contrast['background'] == 'rgb(16, 26, 35)', contrast
+                        expected_background = 'rgb(0, 0, 0)' if theme == 'oled' else 'rgb(16, 26, 35)'
+                        assert contrast['background'] == expected_background, contrast
                         assert visit(page, '/').status == 200
+                        if theme == 'oled':
+                            surfaces = page.evaluate("""() => {
+                                const style = selector => getComputedStyle(document.querySelector(selector));
+                                return {
+                                    html: style('html').backgroundColor,
+                                    header: style('.site-header').backgroundColor,
+                                    main: style('.main-content').backgroundColor,
+                                    sidebar: style('.catalog-sidebar').backgroundColor,
+                                    hero: style('.home-hero').backgroundColor,
+                                    hero_image: style('.home-hero').backgroundImage,
+                                    card: style('.category-grid a').backgroundColor,
+                                    input: style('.header-search input').backgroundColor,
+                                    notice: style('.privacy-notice').backgroundColor,
+                                    heading: style('.home-hero h1').color,
+                                    secondary: style('.home-hero p').color,
+                                };
+                            }""")
+                            assert surfaces == {
+                                'html': 'rgb(0, 0, 0)', 'header': 'rgb(10, 10, 10)',
+                                'main': 'rgb(10, 10, 10)', 'sidebar': 'rgb(10, 10, 10)',
+                                'hero': 'rgb(10, 10, 10)', 'hero_image': 'none',
+                                'card': 'rgb(17, 17, 17)', 'input': 'rgb(17, 17, 17)',
+                                'notice': 'rgb(10, 10, 10)', 'heading': 'rgb(255, 255, 255)',
+                                'secondary': 'rgb(179, 179, 179)',
+                            }, surfaces
                         action_contrast = page.locator('.hero-actions a').first.evaluate("""(link) => {
                             const luminance = (color) => {
                                 const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(Number).map((v) => {
@@ -160,7 +187,7 @@ def main():
                     assert visit(page, '/spells/').status == 200
                     assert picker.input_value() == theme
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-                    if theme in ('simple', 'modern') and width in (390, 1440):
+                    if theme in ('simple', 'modern', 'oled') and width in (390, 1440):
                         assert visit(page, '/').status == 200
                         if theme == 'simple':
                             assert page.locator('.home-hero p').evaluate('(text) => getComputedStyle(text).color') == 'rgb(51, 51, 51)'
@@ -188,7 +215,7 @@ def main():
                     assert visit(page, '/spells/?class_levels__slug=wizard&spellclasslevel__level=0&_filter=1').status == 200
                     screenshot(page, f'filters-{width}.png')
                 page.close()
-            for theme in ('simple', 'modern', 'dark'):
+            for theme in ('simple', 'modern', 'dark', 'oled'):
                 returning = browser.new_page(viewport={'width': 390, 'height': 750}, locale='en-US')
                 returning.add_init_script(f"localStorage.setItem('dnd_theme_v2', '{theme}')")
                 assert visit(returning, '/').status == 200
