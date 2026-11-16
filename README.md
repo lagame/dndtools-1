@@ -69,6 +69,17 @@ docker compose up -d app
 
 Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido. Se o banco já contém registros, o importador recusa uma segunda carga.
 
+As capas dos livros e as ilustrações das raças também não são distribuídas pelo GitHub. Numa instalação nova, depois de importar o banco, restaure as 81 imagens encontradas nos arquivos públicos antigos e copie-as para o volume privado do Docker:
+
+```powershell
+py -3 scripts\restore_catalog_media.py --sqlite $privateDb
+docker compose cp dndtools/static/media/rulebook app:/var/www/media/rulebook
+docker compose cp dndtools/static/media/race app:/var/www/media/race
+docker compose run --rm volume_permissions
+```
+
+O script valida os formatos e gera um manifesto SHA-256 local. Confira o [relatório da recuperação](docs/media-restoration-2026-11-16.md) para as fontes e os nomes que precisaram de ajuste.
+
 Para entrar na administração, crie sua própria conta local após iniciar o aplicativo:
 
 ```powershell
