@@ -660,7 +660,7 @@ msgstr "Original em inglês"
 
 #: dnd/templatetags/catalog_i18n.py:58 templates/dnd/layout.html:49
 msgid "This record is still available only in its original English version."
-msgstr "Este registro ainda está disponível apenas na versão original em inglês.Este registro ainda está disponível apenas na versão original em inglês.Este registro ainda está disponível apenas na versão original em inglês.Este registro ainda está disponível apenas na versão original em inglês."
+msgstr "Este registro ainda está disponível apenas na versão original em inglês."
 
 #: templates/admin/login.html:4
 msgid "Error:"
@@ -1121,7 +1121,7 @@ msgstr "Toda aventura começa com uma descoberta."
 
 #: templates/dnd/index.html:8
 msgid "Browse spells, feats, classes and sourcebooks in a searchable catalog built for tabletop explorers."
-msgstr "Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa.Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa.Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa.Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa."
+msgstr "Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa."
 
 #: templates/dnd/index.html:9 templates/dnd/layout.html:30
 #: templates/dnd/search.html:6
@@ -1178,11 +1178,11 @@ msgstr "A biblioteca está no ar novamente"
 
 #: templates/dnd/index.html:30
 msgid "This community fork now runs on current Python, Django and MySQL. We can resume corrections and carefully reviewed D&D 3.5 additions."
-msgstr "Esta versão da comunidade usa versões atuais de Python, Django e MySQL. Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão.Esta versão da comunidade usa versões atuais de Python, Django e MySQL. Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão.Esta versão da comunidade usa versões atuais de Python, Django e MySQL. Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão.Esta versão da comunidade usa versões atuais de Python, Django e MySQL. Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão."
+msgstr "Esta versão da comunidade usa versões atuais de Python, Django e MySQL. Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão."
 
 #: templates/dnd/index.html:31
 msgid "The <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explains how to run and host a copy with MySQL. To contribute or request the private database, <a href=\"https://github.com/lagame/dndtools-1/issues\">open a project issue</a>; file transfer is arranged privately."
-msgstr "O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra uma issue</a>; a transferência do arquivo é combinada em particular.O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra uma issue</a>; a transferência do arquivo é combinada em particular.O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra uma issue</a>; a transferência do arquivo é combinada em particular.O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra uma issue</a>; a transferência do arquivo é combinada em particular."
+msgstr "O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra uma issue</a>; a transferência do arquivo é combinada em particular."
 
 #: templates/dnd/index.html:34
 msgid "Original project archive"
@@ -1190,7 +1190,7 @@ msgstr "Arquivo do projeto original"
 
 #: templates/dnd/index.html:35
 msgid "These announcements are preserved from the original project. Their team and project status information may be outdated."
-msgstr "Estes avisos foram preservados do projeto original. As informações sobre a equipe e o estado do projeto podem estar desatualizadas.Estes avisos foram preservados do projeto original. As informações sobre a equipe e o estado do projeto podem estar desatualizadas.Estes avisos foram preservados do projeto original. As informações sobre a equipe e o estado do projeto podem estar desatualizadas.Estes avisos foram preservados do projeto original. As informações sobre a equipe e o estado do projeto podem estar desatualizadas."
+msgstr "Estes avisos foram preservados do projeto original. As informações sobre a equipe e o estado do projeto podem estar desatualizadas."
 
 #: templates/dnd/index.html:42
 msgid "About the sources"
@@ -1198,7 +1198,7 @@ msgstr "Sobre as fontes"
 
 #: templates/dnd/index.html:43
 msgid "Pages identify their sourcebooks and editions. Consult the original books for authoritative rules and support their publishers."
-msgstr "As páginas identificam seus livros e edições. Consulte os livros originais para conferir as regras oficiais e apoiar seus editores.As páginas identificam seus livros e edições. Consulte os livros originais para conferir as regras oficiais e apoiar seus editores.As páginas identificam seus livros e edições. Consulte os livros originais para conferir as regras oficiais e apoiar seus editores.As páginas identificam seus livros e edições. Consulte os livros originais para conferir as regras oficiais e apoiar seus editores."
+msgstr "As páginas identificam seus livros e edições. Consulte os livros originais para conferir as regras oficiais e apoiar seus editores."
 
 #: templates/dnd/items/item_detail.html:7
 msgid "Item"
@@ -1364,7 +1364,7 @@ msgstr "Explorar catálogo"
 
 #: templates/dnd/layout.html:45
 msgid "This page describes D&D 3.0 material. Check whether a 3.5 edition version exists."
-msgstr "Esta página descreve material de D&D 3.0. Verifique se existe uma versão da edição 3.5.Esta página descreve material de D&D 3.0. Verifique se existe uma versão da edição 3.5.Esta página descreve material de D&D 3.0. Verifique se existe uma versão da edição 3.5.Esta página descreve material de D&D 3.0. Verifique se existe uma versão da edição 3.5."
+msgstr "Esta página descreve material de D&D 3.0. Verifique se existe uma versão da edição 3.5."
 
 #: templates/dnd/layout.html:46
 msgid "Breadcrumbs"
@@ -1388,7 +1388,7 @@ msgstr "Ajude a melhorar o catálogo"
 
 #: templates/dnd/layout.html:58
 msgid "Found an error or want to contribute? Open an issue in the project repository."
-msgstr "Encontrou um erro ou quer colaborar? Abra uma issue no repositório do projeto.Encontrou um erro ou quer colaborar? Abra uma issue no repositório do projeto.Encontrou um erro ou quer colaborar? Abra uma issue no repositório do projeto.Encontrou um erro ou quer colaborar? Abra uma issue no repositório do projeto."
+msgstr "Encontrou um erro ou quer colaborar? Abra uma issue no repositório do projeto."
 
 #: templates/dnd/layout.html:59
 msgid "Visit project issues"
@@ -1396,7 +1396,7 @@ msgstr "Ver issues do projeto"
 
 #: templates/dnd/layout.html:67
 msgid "A community maintained reference for tabletop adventurers."
-msgstr "Uma referência mantida pela comunidade para aventureiros de RPG de mesa.Uma referência mantida pela comunidade para aventureiros de RPG de mesa.Uma referência mantida pela comunidade para aventureiros de RPG de mesa.Uma referência mantida pela comunidade para aventureiros de RPG de mesa."
+msgstr "Uma referência mantida pela comunidade para aventureiros de RPG de mesa."
 
 #: templates/dnd/layout.html:68
 msgid "Footer"
