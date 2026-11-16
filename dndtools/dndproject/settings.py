@@ -92,6 +92,8 @@ if not DEBUG and (not EDITORIAL_NOTIFY_EMAIL or not os.environ.get('DND_EMAIL_HO
                   or not os.environ.get('DND_EMAIL_FROM')):
     raise ImproperlyConfigured('Configure DND_EDITORIAL_NOTIFY_EMAIL, DND_EMAIL_HOST and '
                                'DND_EMAIL_FROM before enabling editorial access in production.')
+if not DEBUG and EMAIL_HOST == 'smtp.gmail.com' and (not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD):
+    raise ImproperlyConfigured('Configure Gmail SMTP user and app password before production.')
 USE_TZ = False
 
 # LOCAL PY

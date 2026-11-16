@@ -12,6 +12,10 @@ grep -Eq '^DND_ACCESS_AUD=[^[:space:]]+$' .env || { echo 'Set DND_ACCESS_AUD in 
 grep -Eq '^DND_EDITORIAL_NOTIFY_EMAIL=[^[:space:]]+@[^[:space:]]+$' .env || { echo 'Set editorial notification email in the private .env before updating.' >&2; exit 1; }
 grep -Eq '^DND_EMAIL_HOST=[^[:space:]]+$' .env || { echo 'Set the SMTP host in the private .env before updating.' >&2; exit 1; }
 grep -Eq '^DND_EMAIL_FROM=[^[:space:]]+@[^[:space:]]+$' .env || { echo 'Set the SMTP sender in the private .env before updating.' >&2; exit 1; }
+if grep -Eq '^DND_EMAIL_HOST=smtp\.gmail\.com$' .env; then
+  grep -Eq '^DND_EMAIL_USER=[^[:space:]]+@[^[:space:]]+$' .env || { echo 'Set the Gmail SMTP user in the private .env before updating.' >&2; exit 1; }
+  grep -Eq '^DND_EMAIL_PASSWORD=[^[:space:]]+$' .env || { echo 'Set the Gmail app password in the private .env before updating.' >&2; exit 1; }
+fi
 test -z "$(git status --porcelain)" || { echo 'Working tree has local changes.' >&2; exit 1; }
 git fetch --no-tags origin master
 test "$(git rev-parse origin/master)" = "$target_sha" || { echo 'Selected SHA is not the current fork master.' >&2; exit 1; }
