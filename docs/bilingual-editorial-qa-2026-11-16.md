@@ -21,10 +21,10 @@
 - Two GitHub CI checks passed for commit `3239d81` on the draft PR.
 - On 2026-11-16, anonymous requests to the old and replacement admin base/login paths on both public hosts redirected to the same Cloudflare Access application. Both public home pages returned HTTP 200. This confirms edge interception, not the current Allow/MFA policy contents.
 - The VPS private `.env` was backed up before adding the Access team/audience and Gmail SMTP settings; it remains root-owned with mode `0600`. The VPS reached `smtp.gmail.com:587`, completed STARTTLS and authenticated with the saved app password. The owner received the test message. No application restart or deploy occurred.
-- The owner confirmed that the current Access Allow policy remains limited to their exact email, requires MFA and has no Everyone or Bypass rule. This policy still needs the dedicated collaborator group before the first invitation.
+- The owner created the dedicated `DND Tools Collaborators` Access rule group and a separate `DND Tools - Collaborators` Allow policy using that group. Screenshots showed the application with both the existing owner policy and the new collaborator policy, configured for authenticator-app MFA with a 24-hour authentication duration. The owner confirmed saving the application. Group membership after removing extra addresses is owner-reported; no Cloudflare API read or real collaborator sign-in has been performed.
 
 ## Release gates still open
 
-- Set up a dedicated collaborator group in the current Access Allow policy, preserving its MFA requirement. A real invited collaborator sign-in has not yet been verified.
+- Run the Cloudflare policy tester for the owner, invited collaborator and an unauthorized address. A real invited collaborator sign-in has not yet been verified.
 - Review source rights before publishing translated catalog prose or new source excerpts. The interface and workflow are ready; existing catalog prose stays in English until approved translation proposals exist.
 - The VPS and public domains have not been updated from this branch.
