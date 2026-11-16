@@ -67,18 +67,20 @@ docker compose run --rm --volume "${privateDb}:/private/dnd.sqlite:ro" app pytho
 docker compose up -d app
 ```
 
-Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido. Se o banco já contém registros, o importador recusa uma segunda carga.
+Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido antes da curadoria, que altera intencionalmente descrições e capas. Se o banco já contém registros, o importador recusa uma segunda carga.
 
-As capas dos livros e as ilustrações das raças também não são distribuídas pelo GitHub. Numa instalação nova, depois de importar o banco, restaure as 81 imagens encontradas nos arquivos públicos antigos e copie-as para o volume privado do Docker:
+As capas dos livros e as ilustrações das raças também não são distribuídas pelo GitHub. Numa instalação nova, depois de importar o banco, restaure as 81 imagens referenciadas pelo banco e as 39 capas adicionais identificadas no arquivo público antigo. Copie-as para o volume privado do Docker:
 
 ```powershell
-py -3 scripts\restore_catalog_media.py --sqlite $privateDb
+py -3 scripts\restore_catalog_media.py --sqlite $privateDb --covers-file dndtools\dnd\legacy_rulebook_covers.json
 docker compose cp dndtools/static/media/rulebook app:/var/www/media/rulebook
 docker compose cp dndtools/static/media/race app:/var/www/media/race
 docker compose run --rm volume_permissions
+docker compose run --rm app python manage.py curate_rulebooks
+docker compose run --rm app python manage.py curate_rulebooks --apply
 ```
 
-O script valida os formatos e gera um manifesto SHA-256 local. Confira o [relatório da recuperação](docs/media-restoration-2026-11-16.md) para as fontes e os nomes que precisaram de ajuste.
+O script valida os formatos e gera um manifesto SHA-256 local. O comando de curadoria só altera os 114 livros antigos quando seus IDs e títulos correspondem ao catálogo recuperado; faça um backup privado antes de executá-lo em um banco já utilizado. Sete registros sem capa verificada exibem um substituto visual, sem gerar requisições para arquivos inexistentes. Confira o [relatório da recuperação](docs/media-restoration-2026-11-16.md) para as fontes e os nomes que precisaram de ajuste.
 
 Para entrar na administração, crie sua própria conta local após iniciar o aplicativo:
 
@@ -161,6 +163,8 @@ Para testar a ligação **GitHub Actions → VPS** sem publicar nada, há o work
 
 Para **atualizações depois da instalação inicial**, execute manualmente **Actions → Deploy D&D Tools to VPS → Run workflow** na branch `master`. O workflow exige os mesmos segredos, recusa alterações locais no checkout do VPS e só aceita o commit atual da branch. Antes de atualizar, cria um dump MySQL em `/var/backups/dndtools` e testa sua restauração em um banco temporário. Depois atualiza apenas `/opt/dndtools`, aplica migrações e verifica a página inicial e o CSS pela porta local `8766`. Não altera as rotas do Cloudflare nem os outros projetos do VPS. Se uma migração ou a verificação final falhar, investigue antes de repetir; o backup verificado permanece disponível para recuperação manual.
 
+O catálogo de livros permite filtrar por título, descrição, edição, tipo, ano e conteúdo catalogado. A atualização classifica os 114 livros recuperados e acrescenta resumos próprios somente aos 53 sem descrição, depois do backup verificado. As listas HTML oferecem até 5.000 itens por página. Não há API pública de exportação do catálogo: o JSON de sugestões retorna no máximo oito nomes e links por consulta, e o sitemap XML contém somente URLs. Como o catálogo é público, os registros visíveis ainda podem ser copiados das páginas individuais; paginação não é proteção contra coleta automatizada.
+
 ## Backups and verification
 
 Before each release, save a MySQL dump **outside the repository** and test its restoration into a temporary database:
@@ -174,7 +178,7 @@ On Linux use `python3` and a private backup directory such as `/var/backups/dndt
 
 See [modernization status](docs/modernization-status.md) for the verified baseline and remaining activation gates.
 
-The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) record the 81 catalog images that were missing on 2026-11-15; the [restoration report](docs/media-restoration-2026-11-16.md) records their recovery. The binaries are not in Git. After obtaining the private SQLite snapshot, run `py -3 scripts/restore_catalog_media.py --sqlite dnd.sqlite` (or `python3` on Linux) to restore them locally. Transfer `dndtools/static/media/rulebook/` and `dndtools/static/media/race/` to the deployment's media volume separately. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the earlier local checks and limits.
+The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) record the 81 catalog images that were missing on 2026-11-15; the [restoration report](docs/media-restoration-2026-11-16.md) records their recovery. The binaries are not in Git. After obtaining the private SQLite snapshot, run `py -3 scripts/restore_catalog_media.py --sqlite dnd.sqlite --covers-file dndtools/dnd/legacy_rulebook_covers.json` (or `python3` on Linux) to restore 81 existing references and 39 newly matched covers locally. Transfer `dndtools/static/media/rulebook/` and `dndtools/static/media/race/` to the deployment's media volume separately. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the earlier local checks and limits.
 
 The [identity and privacy QA report](docs/identity-privacy-qa-2026-11-15.md) records the visual checks, browser storage behavior and legal details still to confirm before publishing that branch.
 

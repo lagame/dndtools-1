@@ -1,37 +1,30 @@
 {% extends "dnd/rulebooks/rulebooks_layout.html" %}
-{% load i18n %}
-{% load catalog_i18n %}
+{% load i18n catalog_i18n %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
-
-{% block title %}Rulebooks{% endblock %}
-
-{% block breadcrumbs %}
-    &raquo; <a href="{% url 'rulebook_list'  %}">{% translate 'Rulebooks' %}</a>
-{% endblock %}
+{% block title %}{% translate 'Rulebooks' %}{% endblock %}
+{% block breadcrumbs %}&raquo; <a href="{% url 'rulebook_list' %}">{% translate 'Rulebooks' %}</a>{% endblock %}
 
 {% block content %}
+<header class="rulebook-heading">
+  <span class="eyebrow">{% translate 'D&D reference library' %}</span>
+  <h1>{% translate 'Rulebooks' %}</h1>
+  <p>{% translate 'Browse game material by publication type or use the filters to find a specific book.' %}</p>
+</header>
 
-<h2>{% translate 'Rulebooks' %}</h2>
+{% if categories %}
+<nav class="rulebook-categories" aria-label="{% translate 'Publication types' %}">
+  <a href="{% url 'rulebook_list' %}" {% if not request.GET.publication_type %}aria-current="page"{% endif %}>{% translate 'All rulebooks' %} <span>{{ total_rulebooks }}</span></a>
+  {% for category in categories %}<a href="{% url 'rulebook_list' %}?publication_type={{ category.key }}" {% if request.GET.publication_type == category.key %}aria-current="page"{% endif %}>{{ category.label }} <span>{{ category.count }}</span></a>{% endfor %}
+</nav>
+{% endif %}
 
 {% include "dnd/filter_form.html" %}
-
 {{ paginator.print_navigation }}
-
-<table class="common">
-<tr>
-  <th>{% translate 'Rulebook name' %}</th>
-  <th>{% translate 'Edition' %}</th>
-</tr>
-    {% for rulebook in rulebook_list %}
-        <tr>
-            <td><a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a></td>
-            <td><a href="{{ rulebook.dnd_edition.get_absolute_url }}">{% localized rulebook.dnd_edition 'name' %}</a></td>
-        </tr>
-    {% endfor %}
-</table>
-
+<div class="rulebook-grid">
+  {% for rulebook in rulebook_list %}{% include 'dnd/rulebooks/rulebook_card.html' %}
+  {% empty %}<p class="empty-state">{% translate 'No rulebooks match these filters.' %}</p>{% endfor %}
+</div>
 {{ paginator.print_navigation }}
-
 {% endblock %}

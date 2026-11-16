@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from PIL import Image
+from datetime import date
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from dnd.utilities import update_html_cache_attributes
 
@@ -50,6 +52,14 @@ class DndEdition(models.Model):
 
 
 class Rulebook(models.Model):
+    PUBLICATION_TYPES = (
+        ('core', _('Core rulebook')),
+        ('setting', _('Campaign setting')),
+        ('setting_guide', _('Setting guide')),
+        ('sourcebook', _('Rules sourcebook')),
+        ('adventure', _('Adventure')),
+        ('periodical', _('Magazine or web article')),
+    )
     dnd_edition = models.ForeignKey(
         DndEdition,
     )
@@ -63,6 +73,16 @@ class Rulebook(models.Model):
     description = models.TextField(
         blank=True,
     )
+    publication_type = models.CharField(
+        max_length=16, choices=PUBLICATION_TYPES, blank=True,
+    )
+    isbn = models.CharField(max_length=17, blank=True)
+    authors = models.CharField(max_length=255, blank=True)
+    cover_artist = models.CharField(max_length=120, blank=True)
+    publisher = models.CharField(max_length=120, blank=True)
+    pages = models.PositiveSmallIntegerField(null=True, blank=True)
+    format = models.CharField(max_length=40, blank=True)
+    bibliography_url = models.URLField(max_length=255, blank=True)
     year = models.CharField(
         max_length=4,
         null=True,
@@ -93,6 +113,14 @@ class Rulebook(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def publication_year(self):
+        if self.year and self.year.isdigit() and len(self.year) == 4:
+            year = int(self.year)
+            if 1974 <= year <= date.today().year:
+                return self.year
+        return self.published.year if self.published else None
 
     @models.permalink
     def get_absolute_url(self):

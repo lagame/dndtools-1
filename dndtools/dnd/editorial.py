@@ -43,7 +43,9 @@ GRANT_CHOICES = ([(name, name) for name in sorted(RESOURCES - {'SupplementalEntr
 EXCLUDED_FIELDS = {'slug', 'verified', 'verified_author', 'verified_time', 'added'}
 UNTRANSLATED_FIELDS = {'slug', 'abbr', 'system', 'kind', 'type', 'year',
                        'url', 'official_url', 'website', 'email', 'code',
-                       'icon', 'print_format'}
+                       'icon', 'print_format', 'publication_type', 'isbn',
+                       'authors', 'cover_artist', 'publisher', 'format',
+                       'bibliography_url'}
 
 
 def model_for(resource):

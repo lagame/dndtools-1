@@ -464,6 +464,11 @@ class EditorialFlowTests(TestCase):
 
     def test_portuguese_route_switch_translation_and_bilingual_search(self):
         self.assertEqual(self.client.get('/', HTTP_ACCEPT_LANGUAGE='pt-BR,pt;q=0.9')['Location'], '/pt-br/')
+        home = self.client.get('/pt-br/')
+        self.assertEqual(home.content.decode().count(
+            'Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa.'), 1)
+        self.assertEqual(home.content.decode().count(
+            'Uma referência mantida pela comunidade para aventureiros de RPG de mesa.'), 1)
         self.assertContains(self.client.get('/pt-br/contacts/'), 'Entre em contato com o projeto')
         self.assertContains(self.client.get('/pt-br/contacts/staff/'), 'Ronassic mantém este fork')
         response = self.client.get(reverse('switch_language'), {
@@ -499,4 +504,6 @@ class EditorialFlowTests(TestCase):
         entry.save()
         fallback = self.client.get('/pt-br' + entry.get_absolute_url())
         self.assertContains(fallback, 'Este registro ainda está disponível')
+        self.assertEqual(fallback.content.decode().count(
+            'Este registro ainda está disponível apenas na versão original em inglês.'), 1)
         self.assertNotContains(fallback, 'Efeito traduzido')

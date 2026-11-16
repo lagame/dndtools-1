@@ -85,10 +85,10 @@ class DndEditionAdmin(CatalogModelAdmin):
 
 class RulebookAdmin(CatalogModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    list_display = ('id', 'name', 'dnd_edition', )
+    list_display = ('id', 'name', 'dnd_edition', 'publication_type', 'isbn')
     list_display_links = ('name', )
-    list_filter = ('dnd_edition', )
-    search_fields = ('name', )
+    list_filter = ('dnd_edition', 'publication_type')
+    search_fields = ('name', 'isbn', 'authors')
 
 
 class CharacterClassAdmin(CatalogModelAdmin):
