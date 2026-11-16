@@ -12,6 +12,7 @@
 .rulebook-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
 .rulebook-grid .empty-state { grid-column: 1 / -1; }
 .rulebook-card { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 1rem; min-width: 0; padding: .9rem; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.rulebook-card--text-only { grid-template-columns: 1fr; }
 .rulebook-card:focus-within, .rulebook-card:hover { border-color: var(--blue); }
 .rulebook-card-cover { display: grid; place-items: center; min-height: 124px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: var(--background); }
 .rulebook-card-cover img { display: block; width: 100%; max-height: 136px; object-fit: contain; }
@@ -26,6 +27,7 @@
 .rulebook-pending { color: var(--muted); font-style: italic; }
 
 .rulebook-detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 185px; gap: clamp(1.2rem, 3vw, 2.4rem); align-items: start; }
+.rulebook-detail-grid--text-only { grid-template-columns: 1fr; }
 .rulebook-detail-copy { min-width: 0; }
 .rulebook-detail-copy h2 { margin-top: 0; font-size: 1.3rem; }
 .rulebook-detail-copy .nice-textile { line-height: 1.7; }
@@ -45,6 +47,7 @@ html[data-theme="simple"] .rulebook-detail-grid { display: block; }
 @media (max-width: 1050px) { .rulebook-grid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) {
   .rulebook-card { grid-template-columns: 72px minmax(0, 1fr); gap: .75rem; padding: .75rem; }
+  .rulebook-card--text-only { grid-template-columns: 1fr; }
   .rulebook-card-cover { min-height: 98px; }
   .rulebook-cover-fallback { min-height: 98px; font-size: 1rem; }
   .rulebook-detail-grid { grid-template-columns: 1fr; }

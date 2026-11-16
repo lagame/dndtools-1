@@ -32,6 +32,18 @@ SOURCE_OVERRIDES = {
     # The archived dragonmarked.jpg contains GIF data despite its .jpg name.
     'dragonmarked.jpg':
         'https://covers.openlibrary.org/b/isbn/9780786939336-L.jpg',
+    'enemies-and-allies.jpg':
+        'https://covers.openlibrary.org/b/isbn/0786918527-L.jpg?default=false',
+    'players-handbook-3-0.jpg':
+        'https://covers.openlibrary.org/b/isbn/0786915501-L.jpg?default=false',
+    'dragon-magazine-326.jpg':
+        'https://wonderclub.com/images/DRAGON/DRAGON326.jpg',
+    'dragon-magazine-324.png':
+        'https://www.dragonstrove.com/cdn/shop/files/dragon324_400x.png?v=1696968083',
+    'salt-and-sea-dogs.jpg':
+        'https://covers.openlibrary.org/b/isbn/1889182907-L.jpg?default=false',
+    'towers-of-high-sorcery.jpg':
+        'https://covers.openlibrary.org/b/isbn/1931567174-L.jpg?default=false',
 }
 MAX_IMAGE_BYTES = 2_000_000
 

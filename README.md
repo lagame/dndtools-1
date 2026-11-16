@@ -69,7 +69,7 @@ docker compose up -d app
 
 Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido antes da curadoria, que altera intencionalmente descrições e capas. Se o banco já contém registros, o importador recusa uma segunda carga.
 
-As capas dos livros e as ilustrações das raças também não são distribuídas pelo GitHub. Numa instalação nova, depois de importar o banco, restaure as 81 imagens referenciadas pelo banco e as 39 capas adicionais identificadas no arquivo público antigo. Copie-as para o volume privado do Docker:
+As capas dos livros e as ilustrações das raças também não são distribuídas pelo GitHub. Numa instalação nova, depois de importar o banco, restaure as 81 imagens referenciadas pelo banco e as 45 capas adicionais identificadas no arquivo público antigo e em outras fontes conferidas. Copie-as para o volume privado do Docker:
 
 ```powershell
 py -3 scripts\restore_catalog_media.py --sqlite $privateDb --covers-file dndtools\dnd\legacy_rulebook_covers.json
@@ -80,7 +80,7 @@ docker compose run --rm app python manage.py curate_rulebooks
 docker compose run --rm app python manage.py curate_rulebooks --apply
 ```
 
-O script valida os formatos e gera um manifesto SHA-256 local. O comando de curadoria só altera os 114 livros antigos quando seus IDs e títulos correspondem ao catálogo recuperado; faça um backup privado antes de executá-lo em um banco já utilizado. Sete registros sem capa verificada exibem um substituto visual, sem gerar requisições para arquivos inexistentes. Confira o [relatório da recuperação](docs/media-restoration-2026-11-16.md) para as fontes e os nomes que precisaram de ajuste.
+O script valida os formatos e gera um manifesto SHA-256 local. O comando de curadoria só altera os 114 livros antigos quando seus IDs e títulos correspondem ao catálogo recuperado; faça um backup privado antes de executá-lo em um banco já utilizado. A fonte online `Web` não possui capa e é exibida sem espaço reservado para imagem. Confira o [relatório da recuperação](docs/media-restoration-2026-11-16.md) para as fontes e os nomes que precisaram de ajuste.
 
 Para entrar na administração, crie sua própria conta local após iniciar o aplicativo:
 
@@ -178,7 +178,7 @@ On Linux use `python3` and a private backup directory such as `/var/backups/dndt
 
 See [modernization status](docs/modernization-status.md) for the verified baseline and remaining activation gates.
 
-The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) record the 81 catalog images that were missing on 2026-11-15; the [restoration report](docs/media-restoration-2026-11-16.md) records their recovery. The binaries are not in Git. After obtaining the private SQLite snapshot, run `py -3 scripts/restore_catalog_media.py --sqlite dnd.sqlite --covers-file dndtools/dnd/legacy_rulebook_covers.json` (or `python3` on Linux) to restore 81 existing references and 39 newly matched covers locally. Transfer `dndtools/static/media/rulebook/` and `dndtools/static/media/race/` to the deployment's media volume separately. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the earlier local checks and limits.
+The [navigation and filter map](docs/navigation-and-filters.md) lists the old menu entries and their current destinations. The [image inventory](docs/image-inventory.md) and [CSV](docs/image-inventory.csv) record the 81 catalog images that were missing on 2026-11-15; the [restoration report](docs/media-restoration-2026-11-16.md) records their recovery. The binaries are not in Git. After obtaining the private SQLite snapshot, run `py -3 scripts/restore_catalog_media.py --sqlite dnd.sqlite --covers-file dndtools/dnd/legacy_rulebook_covers.json` (or `python3` on Linux) to restore 81 existing references and 45 newly matched covers locally. Transfer `dndtools/static/media/rulebook/` and `dndtools/static/media/race/` to the deployment's media volume separately. The [2026-11-15 QA report](docs/modernization-qa-2026-11-15.md) records the earlier local checks and limits.
 
 The [identity and privacy QA report](docs/identity-privacy-qa-2026-11-15.md) records the visual checks, browser storage behavior and legal details still to confirm before publishing that branch.
 
