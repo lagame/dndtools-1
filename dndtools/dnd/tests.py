@@ -312,10 +312,26 @@ class CatalogSmokeTests(TestCase):
     def test_staff_page_shows_current_maintainer_without_legacy_staff(self):
         response = self.client.get(reverse('staff'))
         self.assertContains(response, 'Ronassic')
+        self.assertContains(response, '37 years')
+        self.assertContains(response, 'SpellBrasil')
+        self.assertContains(response, '270 members')
         self.assertContains(response, 'mailto:ronassic@gmail.com')
         self.assertContains(response, 'Maintainer')
+        portuguese = self.client.get('/pt-br/contacts/staff/')
+        self.assertContains(portuguese, '37 anos')
+        self.assertContains(portuguese, '270 membros')
         StaticPage.objects.create(name='staff', body='Outdated volunteer listing')
         self.assertNotContains(self.client.get(reverse('staff')), 'Outdated volunteer listing')
+
+    def test_home_hides_legacy_domain_announcements(self):
+        NewsEntry.objects.create(published=date(2012, 5, 5), title='Old domain update',
+                                 body='http://dndtools.eu/spells/')
+        NewsEntry.objects.create(published=date(2026, 11, 16), title='Current catalog update',
+                                 body='The catalog is available here.')
+        response = self.client.get('/')
+        self.assertContains(response, 'Current catalog update')
+        self.assertNotContains(response, 'Old domain update')
+        self.assertNotContains(response, 'dndtools.eu')
 
     def test_conditions_and_missing_legacy_android_page(self):
         condition = RuleCondition.objects.create(name='Dazed', description='Limited actions.')

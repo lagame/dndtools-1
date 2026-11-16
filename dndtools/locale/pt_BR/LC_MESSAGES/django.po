@@ -871,8 +871,8 @@ msgid "Ronassic currently maintains this fork."
 msgstr "Ronassic mantém este fork atualmente."
 
 #: templates/dnd/contacts/staff.html:7
-msgid "Ronassic has spent years supporting Brazil's RPG community and now runs a WhatsApp community with more than 200 members focused on D&D 3.5."
-msgstr "Ronassic trabalha há anos para apoiar a comunidade de RPG no Brasil e hoje mantém uma comunidade no WhatsApp com mais de 200 membros focada em D&D 3.5."
+msgid "Ronassic has been part of Brazil's RPG community for 37 years and formerly administered SpellBrasil, once the country's largest RPG website. Today he runs a WhatsApp community of 270 members focused on D&D 3.5."
+msgstr "Ronassic tem 37 anos de trajetória na comunidade de RPG no Brasil e foi administrador do SpellBrasil, que já foi o maior site de RPG do país. Hoje mantém uma comunidade no WhatsApp com 270 membros, focada em D&D 3.5."
 
 #: templates/dnd/contacts/staff.html:8
 msgid "Email:"
