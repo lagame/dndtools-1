@@ -2,6 +2,7 @@
 
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView, RedirectView
+from django.views.decorators.cache import never_cache
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from dnd.sitemap import sitemaps
@@ -64,7 +65,8 @@ urlpatterns = patterns(
 
     # OTHERS
 
-    (r'^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+    (r'^robots\.txt$', never_cache(TemplateView.as_view(
+        template_name='robots.txt', content_type='text/plain'))),
 
     # inaccurate
     url(

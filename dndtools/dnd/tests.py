@@ -134,6 +134,7 @@ class CatalogSmokeTests(TestCase):
         robots = self.client.get('/robots.txt')
         self.assertEqual(robots.status_code, 200)
         self.assertIn('text/plain', robots['Content-Type'])
+        self.assertIn('no-store', robots['Cache-Control'])
         self.assertContains(robots, 'Allow: /')
         self.assertContains(robots, 'Sitemap: https://dndtools.quest/sitemap.xml')
         self.assertEqual(self.client.get('/rss.xml').status_code, 404)
