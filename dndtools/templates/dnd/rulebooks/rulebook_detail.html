@@ -32,17 +32,40 @@
 {% block content %}
 
 
-<h2>{% localized rulebook 'name' %}</h2>
-{% if rulebook.year %}({{ rulebook.year }}{% endif %}
+<article class="rulebook-detail">
+  <header class="rulebook-heading">
+    {% if rulebook.publication_type %}<span class="eyebrow">{{ rulebook.get_publication_type_display }}</span>{% endif %}
+    <h1>{% localized rulebook 'name' %}</h1>
+    <p><a href="{{ dnd_edition.get_absolute_url }}">{% localized dnd_edition 'name' %}</a>{% if rulebook.publication_year %} · {{ rulebook.publication_year }}{% endif %}</p>
+  </header>
+  <div class="rulebook-detail-grid">
+    <div class="rulebook-detail-copy">
+      <h2>{% translate 'About this book' %}</h2>
+      {% localized rulebook 'description' as description %}
+      {% if description %}<div class="nice-textile">{{ description|linebreaks }}</div>
+      {% else %}<p class="rulebook-pending">{% translate 'A verified summary is not available yet. You can still browse the catalog entries linked to this book.' %}</p>{% endif %}
 
-<div class="nice-textile">
-<p>
-  {% if rulebook.image %}
-        {% available_catalog_image rulebook.image as cover_url %}
-        <span class="right">{% if cover_url %}<img data-theme-src="{{ cover_url }}" loading="lazy" alt="Cover of {% localized rulebook 'name' %}" /><span class="image-placeholder theme-image-placeholder">Cover hidden in Simple</span><noscript><img src="{{ cover_url }}" alt="Cover of {% localized rulebook 'name' %}" /></noscript>{% else %}<span class="image-placeholder" role="img" aria-label="Cover unavailable">Cover unavailable</span>{% endif %}</span>
-  {% endif %}
-  {{ rulebook.description|linebreaksbr }}
-</p>
-</div>
+      {% if rulebook.isbn or rulebook.authors or rulebook.cover_artist or rulebook.publisher or rulebook.pages or rulebook.format or rulebook.bibliography_url %}
+      <section class="rulebook-bibliography" aria-labelledby="rulebook-bibliography-heading">
+        <h2 id="rulebook-bibliography-heading">{% translate 'Publication details' %}</h2>
+        <dl>
+          {% if rulebook.authors %}<div><dt>{% translate 'Authors' %}</dt><dd>{{ rulebook.authors }}</dd></div>{% endif %}
+          {% if rulebook.cover_artist %}<div><dt>{% translate 'Cover artist' %}</dt><dd>{{ rulebook.cover_artist }}</dd></div>{% endif %}
+          {% if rulebook.publisher %}<div><dt>{% translate 'Publisher' %}</dt><dd>{{ rulebook.publisher }}</dd></div>{% endif %}
+          {% if rulebook.isbn %}<div><dt>ISBN</dt><dd>{{ rulebook.isbn }}</dd></div>{% endif %}
+          {% if rulebook.pages %}<div><dt>{% translate 'Pages' %}</dt><dd>{{ rulebook.pages }}</dd></div>{% endif %}
+          {% if rulebook.format %}<div><dt>{% translate 'Format' %}</dt><dd>{{ rulebook.format }}</dd></div>{% endif %}
+        </dl>
+        {% if rulebook.bibliography_url %}<p><a href="{{ rulebook.bibliography_url }}" rel="noopener noreferrer" target="_blank">{% translate 'Bibliographic source' %} ↗</a></p>{% endif %}
+      </section>
+      {% endif %}
+    </div>
+    <figure class="rulebook-detail-cover">
+      {% available_catalog_image rulebook.image as cover_url %}
+      {% if cover_url %}<img data-theme-src="{{ cover_url }}" loading="lazy" alt="{% blocktranslate with title=rulebook.name %}Cover of {{ title }}{% endblocktranslate %}"><noscript><img src="{{ cover_url }}" alt="{% blocktranslate with title=rulebook.name %}Cover of {{ title }}{% endblocktranslate %}"></noscript>
+      {% else %}<div class="rulebook-cover-fallback" aria-hidden="true">D&amp;D</div><figcaption>{% translate 'Cover unavailable' %}</figcaption>{% endif %}
+    </figure>
+  </div>
+</article>
 
 {% endblock %}

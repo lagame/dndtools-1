@@ -360,6 +360,61 @@ class CatalogSmokeTests(TestCase):
         self.assertEqual(self.client.get(reverse('search_suggest'), {'q': 'a'}).json(), {'results': []})
         self.assertEqual(self.client.get(reverse('search'), {'q': 'arcane', 'category': 'bogus'}).status_code, 400)
 
+    def test_public_suggestions_are_small_and_expose_no_record_body(self):
+        for index in range(10):
+            Spell.objects.create(
+                rulebook=self.spell.rulebook, school=self.spell.school,
+                name=f'Arcane Test {index}', slug=f'arcane-test-{index}',
+                description='Private body is not part of suggestions.',
+                verbal_component=False, somatic_component=False,
+                material_component=False, arcane_focus_component=False,
+                divine_focus_component=False, xp_component=False,
+                meta_breath_component=False, true_name_component=False,
+            )
+        response = self.client.get(reverse('search_suggest'), {'q': 'arcane'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Cache-Control'], 'private, no-store')
+        self.assertEqual(len(response.json()['results']), 3)
+        self.assertEqual(set(response.json()['results'][0]),
+                         {'title', 'original_title', 'url', 'category', 'book', 'edition'})
+        self.assertNotIn('Private body', response.content.decode())
+
+    def test_crawlers_can_discover_catalog_without_legacy_feed(self):
+        robots = self.client.get('/robots.txt')
+        self.assertEqual(robots.status_code, 200)
+        self.assertIn('text/plain', robots['Content-Type'])
+        self.assertContains(robots, 'Allow: /')
+        self.assertContains(robots, 'Sitemap: https://dndtools.quest/sitemap.xml')
+        self.assertEqual(self.client.get('/rss.xml').status_code, 404)
+        sitemap = self.client.get('/sitemap.xml')
+        self.assertEqual(sitemap.status_code, 200)
+        self.assertContains(sitemap, self.spell.get_absolute_url())
+
+    def test_rulebook_filters_and_large_html_page_size(self):
+        book = self.spell.rulebook
+        book.description = 'Rules for an arcane library.'
+        book.publication_type = 'core'
+        book.year = '2004'
+        book.save(update_fields=['description', 'publication_type', 'year'])
+        other = Rulebook.objects.create(
+            dnd_edition=book.dnd_edition, name='Other Guide', abbr='OG',
+            slug='other-guide', publication_type='sourcebook', year='2005')
+        response = self.client.get('/rulebooks/', {
+            'description': 'LIBRARY', 'publication_type': 'core',
+            'publication_year': '2004', 'content': 'spells', 'page_size': '5000',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['paginator'].page_size, 5000)
+        self.assertEqual(response.context['paginator'].count(), 1)
+        self.assertContains(response, book.get_absolute_url())
+        self.assertNotContains(response, other.get_absolute_url())
+        self.assertContains(response, '<option value="5000" selected="selected">5000</option>', html=True)
+        no_spells = self.client.get('/rulebooks/', {'publication_type': 'sourcebook',
+                                                      'content': 'spells'})
+        self.assertEqual(no_spells.context['paginator'].count(), 0)
+        self.assertEqual(self.client.get('/spells/', {'page_size': '5001'}).context[
+            'paginator'].page_size, 5000)
+
     def test_spell_class_and_level_use_the_same_link(self):
         wizard = CharacterClass.objects.create(name='Wizard', slug='wizard', prestige=False)
         cleric = CharacterClass.objects.create(name='Cleric', slug='cleric', prestige=False)

@@ -79,20 +79,28 @@ def image_info(data, name):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--sqlite', type=Path, required=True)
+    parser.add_argument('--sqlite', type=Path)
+    parser.add_argument('--covers-file', type=Path,
+                        help='JSON map of legacy book IDs to archived cover filenames')
     parser.add_argument('--output-dir', type=Path,
                         default=Path('dndtools/static/media'))
     args = parser.parse_args()
 
-    db = sqlite3.connect('file:' + args.sqlite.resolve().as_posix() + '?mode=ro',
-                         uri=True)
-    try:
-        references = set()
-        for table in ('dnd_rulebook', 'dnd_race'):
-            references.update(row[0].removeprefix('media/') for row in db.execute(
-                f"SELECT image FROM {table} WHERE image IS NOT NULL AND image != ''"))
-    finally:
-        db.close()
+    if not args.sqlite and not args.covers_file:
+        parser.error('Pass --sqlite, --covers-file, or both.')
+    references = set()
+    if args.sqlite:
+        db = sqlite3.connect('file:' + args.sqlite.resolve().as_posix() + '?mode=ro',
+                             uri=True)
+        try:
+            for table in ('dnd_rulebook', 'dnd_race'):
+                references.update(row[0].removeprefix('media/') for row in db.execute(
+                    f"SELECT image FROM {table} WHERE image IS NOT NULL AND image != ''"))
+        finally:
+            db.close()
+    if args.covers_file:
+        covers = json.loads(args.covers_file.read_text(encoding='utf-8'))
+        references.update('rulebook/' + name for name in covers.values())
 
     indexes = {kind: archive_files(url) for kind, url in ARCHIVE.items()}
     manifest = []
@@ -122,7 +130,9 @@ def main():
                          'bytes': len(data), 'size': size})
         print(f'{status}: {reference} ({size[0]}x{size[1]})')
 
-    manifest_path = args.output_dir / 'catalog-media-manifest.json'
+    manifest_name = ('catalog-media-covers-manifest.json' if args.covers_file and not args.sqlite
+                     else 'catalog-media-manifest.json')
+    manifest_path = args.output_dir / manifest_name
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     print(f'Validated {len(manifest)} images; manifest: {manifest_path}')
 

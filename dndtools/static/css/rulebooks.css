@@ -1,0 +1,53 @@
+.rulebook-heading { margin-bottom: 1.4rem; }
+.rulebook-heading .eyebrow { display: block; margin-bottom: .55rem; }
+.rulebook-heading h1 { margin-bottom: .35rem; }
+.rulebook-heading p { max-width: 52rem; margin: 0; color: var(--muted); }
+
+.rulebook-categories { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.3rem; }
+.rulebook-categories a { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.6rem; padding: .45rem .75rem; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--paper); text-decoration: none; font-size: .85rem; font-weight: 650; }
+.rulebook-categories a:hover, .rulebook-categories a[aria-current="page"] { border-color: var(--blue); color: var(--blue); }
+.rulebook-categories a[aria-current="page"] { box-shadow: inset 0 -2px var(--blue); }
+.rulebook-categories span { color: var(--muted); font-size: .76rem; font-weight: 500; }
+
+.rulebook-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.rulebook-grid .empty-state { grid-column: 1 / -1; }
+.rulebook-card { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 1rem; min-width: 0; padding: .9rem; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.rulebook-card:focus-within, .rulebook-card:hover { border-color: var(--blue); }
+.rulebook-card-cover { display: grid; place-items: center; min-height: 124px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: var(--background); }
+.rulebook-card-cover img { display: block; width: 100%; max-height: 136px; object-fit: contain; }
+.rulebook-cover-fallback { display: grid; place-items: center; width: 100%; min-height: 124px; color: var(--muted); font: 700 1.2rem Georgia, serif; letter-spacing: -.04em; }
+.rulebook-card-body { min-width: 0; }
+.rulebook-type { display: inline-block; margin-bottom: .3rem; color: var(--muted); font-size: .72rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+.rulebook-card h2 { margin: 0 0 .3rem; font-size: 1.08rem; line-height: 1.35; }
+.rulebook-card h2 a { color: var(--ink); text-decoration: none; }
+.rulebook-card h2 a:hover { color: var(--blue); text-decoration: underline; }
+.rulebook-card-meta { margin: 0 0 .5rem; font-size: .82rem; color: var(--muted); }
+.rulebook-card-summary { margin: 0; font-size: .88rem; line-height: 1.5; }
+.rulebook-pending { color: var(--muted); font-style: italic; }
+
+.rulebook-detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 185px; gap: clamp(1.2rem, 3vw, 2.4rem); align-items: start; }
+.rulebook-detail-copy { min-width: 0; }
+.rulebook-detail-copy h2 { margin-top: 0; font-size: 1.3rem; }
+.rulebook-detail-copy .nice-textile { line-height: 1.7; }
+.rulebook-detail-cover { margin: 0; text-align: center; }
+.rulebook-detail-cover img, .rulebook-detail-cover .rulebook-cover-fallback { display: block; width: 100%; min-height: 224px; border: 1px solid var(--line); border-radius: 8px; background: var(--background); object-fit: contain; }
+.rulebook-detail-cover figcaption { margin-top: .5rem; color: var(--muted); font-size: .8rem; }
+.rulebook-bibliography { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.rulebook-bibliography dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem 1.2rem; margin: 0 0 1rem; }
+.rulebook-bibliography dl div { min-width: 0; }
+.rulebook-bibliography dt { color: var(--muted); font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.rulebook-bibliography dd { margin: .12rem 0 0; overflow-wrap: anywhere; }
+
+html[data-theme="simple"] .rulebook-card-cover, html[data-theme="simple"] .rulebook-detail-cover { display: none; }
+html[data-theme="simple"] .rulebook-card { display: block; }
+html[data-theme="simple"] .rulebook-detail-grid { display: block; }
+
+@media (max-width: 1050px) { .rulebook-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .rulebook-card { grid-template-columns: 72px minmax(0, 1fr); gap: .75rem; padding: .75rem; }
+  .rulebook-card-cover { min-height: 98px; }
+  .rulebook-cover-fallback { min-height: 98px; font-size: 1rem; }
+  .rulebook-detail-grid { grid-template-columns: 1fr; }
+  .rulebook-detail-cover { grid-row: 1; width: min(180px, 55vw); margin: 0 auto 1.2rem; }
+  .rulebook-bibliography dl { grid-template-columns: 1fr; }
+}

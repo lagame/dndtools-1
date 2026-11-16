@@ -34,7 +34,11 @@ git switch --detach --quiet "$target_sha"
 compose=(docker compose -f compose.yaml -f compose.tunnel.yaml)
 "${compose[@]}" config --quiet
 "${compose[@]}" build app
+"${compose[@]}" run --rm -T app python - \
+  --covers-file /app/dndtools/dnd/legacy_rulebook_covers.json \
+  --output-dir /var/www/media < scripts/restore_catalog_media.py
 "${compose[@]}" run --rm app python manage.py migrate --noinput
+"${compose[@]}" run --rm app python manage.py curate_rulebooks --apply
 "${compose[@]}" up -d --wait app tunnel_proxy
 curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/
 curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null http://127.0.0.1:8766/static/css/modern.css

@@ -871,8 +871,8 @@ msgid "Ronassic currently maintains this fork."
 msgstr "Ronassic mantém este fork atualmente."
 
 #: templates/dnd/contacts/staff.html:7
-msgid "Ronassic has spent years supporting Brazil's RPG community and now runs a WhatsApp community with more than 200 members focused on D&D 3.5."
-msgstr "Ronassic trabalha há anos para apoiar a comunidade de RPG no Brasil e hoje mantém uma comunidade no WhatsApp com mais de 200 membros focada em D&D 3.5."
+msgid "Ronassic has been part of Brazil's RPG community for 37 years and formerly administered SpellBrasil, once the country's largest RPG website. Today he runs a WhatsApp community of 270 members focused on D&D 3.5."
+msgstr "Ronassic tem 37 anos de trajetória na comunidade de RPG no Brasil e foi administrador do SpellBrasil, que já foi o maior site de RPG do país. Hoje mantém uma comunidade no WhatsApp com 270 membros, focada em D&D 3.5."
 
 #: templates/dnd/contacts/staff.html:8
 msgid "Email:"
@@ -1974,3 +1974,89 @@ msgstr "Buscar nomes"
 #: templates/dnd/supplemental/index.html:12
 msgid "No published entries yet."
 msgstr "Ainda não há registros publicados."
+msgid "Title contains"
+msgstr "Título contém"
+
+msgid "Type of book"
+msgstr "Tipo de livro"
+
+msgid "Publication year"
+msgstr "Ano de publicação"
+
+msgid "Includes"
+msgstr "Inclui"
+
+msgid "All content"
+msgstr "Todo o conteúdo"
+
+msgid "Core rulebook"
+msgstr "Livro básico"
+
+msgid "Campaign setting"
+msgstr "Cenário de campanha"
+
+msgid "Setting guide"
+msgstr "Guia de cenário"
+
+msgid "Rules sourcebook"
+msgstr "Suplemento de regras"
+
+msgid "Adventure"
+msgstr "Aventura"
+
+msgid "Magazine or web article"
+msgstr "Revista ou artigo web"
+
+msgid "D&D reference library"
+msgstr "Biblioteca de referência de D&D"
+
+msgid "Browse game material by publication type or use the filters to find a specific book."
+msgstr "Explore o material de jogo por tipo de publicação ou use os filtros para encontrar um livro."
+
+msgid "Publication types"
+msgstr "Tipos de publicação"
+
+msgid "No rulebooks match these filters."
+msgstr "Nenhum livro corresponde a esses filtros."
+
+msgid "About this book"
+msgstr "Sobre este livro"
+
+msgid "Publication details"
+msgstr "Dados da publicação"
+
+msgid "Authors"
+msgstr "Autores"
+
+msgid "Cover artist"
+msgstr "Artista da capa"
+
+msgid "Publisher"
+msgstr "Editora"
+
+msgid "Pages"
+msgstr "Páginas"
+
+msgid "Format"
+msgstr "Formato"
+
+msgid "Bibliographic source"
+msgstr "Fonte bibliográfica"
+
+msgid "Summary pending source verification."
+msgstr "Resumo aguardando verificação da fonte."
+
+msgid "Cover unavailable"
+msgstr "Capa indisponível"
+
+msgid "A verified summary is not available yet. You can still browse the catalog entries linked to this book."
+msgstr "Ainda não há resumo verificado. Você pode consultar os registros do catálogo ligados a este livro."
+
+msgid "Game material listed for this edition."
+msgstr "Material de jogo catalogado nesta edição."
+
+msgid "No rulebooks are listed for this edition."
+msgstr "Não há livros catalogados para esta edição."
+
+msgid "Cover of %(title)s"
+msgstr "Capa de %(title)s"

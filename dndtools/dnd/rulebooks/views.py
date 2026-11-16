@@ -2,6 +2,7 @@
 
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
+from django.db.models import Count
 from dnd.filters import RulebookFilter
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
@@ -18,6 +19,12 @@ def rulebook_list(request):
     form_submitted = 1 if '_filter' in request.GET else 0
 
     paginator = DndPaginator(f.qs, request)
+    category_counts = dict(Rulebook.objects.exclude(publication_type='').values_list(
+        'publication_type').annotate(count=Count('id')))
+    categories = [
+        {'key': key, 'label': label, 'count': category_counts.get(key, 0)}
+        for key, label in Rulebook.PUBLICATION_TYPES if category_counts.get(key)
+    ]
 
     return render_to_response('dnd/rulebooks/rulebook_list.html',
                               {
@@ -26,6 +33,8 @@ def rulebook_list(request):
                                   'paginator': paginator,
                                   'filter': f,
                                   'form_submitted': form_submitted,
+                                  'categories': categories,
+                                  'total_rulebooks': Rulebook.objects.count(),
                               }, context_instance=RequestContext(request), )
 
 @menu_item(MenuItem.RULEBOOKS)

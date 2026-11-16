@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import django_filters2
+from django.db.models import Exists, OuterRef, Q
 from django.utils.translation import gettext_lazy as _
 from dnd.models import (
     Spell, DndEdition, SpellSchool, SpellSubSchool, SpellDescriptor, FeatCategory,
     CharacterClass, CharacterClassVariant, Rulebook, Domain, Feat, Skill, Item, Language, Race, Monster, RaceType, ItemSlot,
-    ItemProperty, Deity, Rule)
+    ItemProperty, Deity, Rule, CreatureTemplate)
 from dnd.filters_fields import CatalogCharFilter, FeatMultiPrerequisiteFieldFilter
 
 
@@ -298,17 +299,72 @@ class CharacterClassFilter(django_filters2.FilterSet):
                   'class_features', 'hit_die', 'required_races__race', 'required_skills__skill', 'required_feats__feat', 'requirements',]
 
 
+def rulebook_year_choices():
+    years = set(Rulebook.objects.exclude(year__isnull=True).values_list('year', flat=True))
+    years.update(str(value.year) for value in Rulebook.objects.exclude(
+        published__isnull=True).values_list('published', flat=True))
+    return [('', _('All'))] + [(year, year) for year in sorted(
+        (year for year in years if year.isdigit() and len(year) == 4), reverse=True)]
+
+
+RULEBOOK_CONTENT = {
+    'spells': Spell,
+    'feats': Feat,
+    'classes': CharacterClassVariant,
+    'items': Item,
+    'races': Race,
+    'monsters': Monster,
+    'templates': CreatureTemplate,
+}
+
+
+def rulebook_year_filter(qs, year):
+    if year:
+        return qs.filter(Q(year=year) | (
+            (Q(year__isnull=True) | Q(year='')) & Q(published__year=year)))
+    return qs
+
+
+def rulebook_content_filter(qs, content):
+    if content:
+        model = RULEBOOK_CONTENT[content]
+        return qs.alias(_has_catalog_entries=Exists(
+            model.objects.filter(rulebook_id=OuterRef('pk')))).filter(
+                _has_catalog_entries=True)
+    return qs
+
+
 class RulebookFilter(django_filters2.FilterSet):
     name = CatalogCharFilter(
-        lookup_type='icontains'
+        lookup_type='icontains', label=_('Title contains')
+    )
+    description = CatalogCharFilter(
+        lookup_type='icontains', label=_('Description contains')
     )
     dnd_edition__slug = django_filters2.ChoiceFilter(
         label=_('Edition'), choices=edition_choices
     )
+    publication_type = django_filters2.ChoiceFilter(
+        label=_('Type of book'), choices=Rulebook.PUBLICATION_TYPES,
+    )
+    publication_year = django_filters2.ChoiceFilter(
+        label=_('Publication year'), choices=rulebook_year_choices,
+        action=rulebook_year_filter,
+    )
+    content = django_filters2.ChoiceFilter(
+        label=_('Includes'), choices=[
+            ('', _('All content')),
+            ('spells', _('Spells')), ('feats', _('Feats')),
+            ('classes', _('Classes')), ('items', _('Items')),
+            ('races', _('Races')), ('monsters', _('Monsters')),
+            ('templates', _('Creature templates')),
+        ], action=rulebook_content_filter,
+    )
 
     class Meta:
         model = Rulebook
-        fields = ['name', 'dnd_edition__slug', ]
+        fields = ['name', 'description', 'dnd_edition__slug', 'publication_type',
+                  'publication_year', 'content']
 
 
 class FeatFilter(django_filters2.FilterSet):

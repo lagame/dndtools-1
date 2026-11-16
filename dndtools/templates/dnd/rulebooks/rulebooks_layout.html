@@ -1,1 +1,3 @@
 {% extends "dnd/layout.html" %}
+{% load versioned_static %}
+{% block extra_link %}<link rel="stylesheet" href="{% versioned_static 'css/rulebooks.css' %}">{% endblock %}

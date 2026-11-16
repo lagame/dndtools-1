@@ -291,6 +291,18 @@ def main():
             if REAL_DATA:
                 page = browser.new_page(locale='en-US')
                 visit(page, '/')
+                page.locator('#privacy-notice').get_by_role('button', name='Got it').click()
+                for width in (390, 1440):
+                    page.set_viewport_size({'width': width, 'height': 750})
+                    assert visit(page, '/rulebooks/?publication_type=setting_guide&description=Eberron').status == 200
+                    assert page.locator('.rulebook-card').count() > 0
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    screenshot(page, f'rulebook-catalog-{width}.png')
+                    assert visit(page, '/rulebooks/eberron-35--3/sharn-city-of-towers--11/').status == 200
+                    assert page.locator('.rulebook-detail-copy').inner_text().strip()
+                    assert page.locator('.rulebook-detail-cover img').first.get_attribute('src')
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    screenshot(page, f'rulebook-detail-{width}.png')
                 destinations = set(page.locator('#catalog-sidebar a[href]').evaluate_all(
                     '(links) => links.map((link) => link.getAttribute("href"))'))
                 for path in sorted(destinations):

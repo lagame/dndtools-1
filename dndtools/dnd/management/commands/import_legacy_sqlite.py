@@ -40,12 +40,19 @@ class Command(BaseCommand):
 
             columns = {}
             counts = {}
+            new_rulebook_columns = {
+                'authors': '', 'bibliography_url': '', 'cover_artist': '',
+                'format': '', 'isbn': '', 'pages': None,
+                'publication_type': '', 'publisher': '',
+            }
             with connection.cursor() as target:
                 for table in tables:
                     columns[table] = [row[1] for row in source.execute(
                         'PRAGMA table_info("%s")' % table)]
                     target_columns = [col.name for col in connection.introspection.get_table_description(target, table)]
-                    if set(columns[table]) != set(target_columns):
+                    extra = set(target_columns) - set(columns[table])
+                    allowed_extra = set(new_rulebook_columns) if table == 'dnd_rulebook' else set()
+                    if set(columns[table]) - set(target_columns) or extra - allowed_extra:
                         raise CommandError('%s column mismatch: source=%s target=%s' % (
                             table, columns[table], target_columns))
                     counts[table] = source.execute('SELECT COUNT(*) FROM "%s"' % table).fetchone()[0]
@@ -73,9 +80,10 @@ class Command(BaseCommand):
                         self_indexes = {col: columns[table].index(col) for col in self_columns}
                         pending = {col: [] for col in self_columns}
                         quoted_table = connection.ops.quote_name(table)
-                        quoted_cols = ', '.join(connection.ops.quote_name(col) for col in columns[table])
+                        added = [col for col in new_rulebook_columns if col not in columns[table]] if table == 'dnd_rulebook' else []
+                        quoted_cols = ', '.join(connection.ops.quote_name(col) for col in columns[table] + added)
                         sql = 'INSERT INTO %s (%s) VALUES (%s)' % (
-                            quoted_table, quoted_cols, ', '.join(['%s'] * len(columns[table])))
+                            quoted_table, quoted_cols, ', '.join(['%s'] * (len(columns[table]) + len(added))))
                         reader = source.execute('SELECT %s FROM "%s" ORDER BY CAST(id AS INTEGER)' % (
                             ', '.join('"%s"' % col for col in columns[table]), table))
                         while batch := reader.fetchmany(500):
@@ -86,6 +94,9 @@ class Command(BaseCommand):
                                             pending[col].append((row[index], row[columns[table].index('id')]))
                                 batch = [tuple(None if col in self_indexes else value
                                                for col, value in zip(columns[table], row)) for row in batch]
+                            if added:
+                                batch = [tuple(row) + tuple(new_rulebook_columns[col] for col in added)
+                                         for row in batch]
                             target.executemany(sql, batch)
                         for col, updates in pending.items():
                             if updates:

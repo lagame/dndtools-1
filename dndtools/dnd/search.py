@@ -147,7 +147,9 @@ def search(request):
 def search_suggest(request):
     query = request.GET.get('q', '').strip()[:100]
     if len(query) < 2:
-        return JsonResponse({'results': []})
+        response = JsonResponse({'results': []})
+        response['Cache-Control'] = 'private, no-store'
+        return response
     candidates = []
     translated = _translated_results(query, names_only=True) if request.LANGUAGE_CODE == 'pt-br' else {}
     for source in SOURCES:
@@ -155,5 +157,7 @@ def search_suggest(request):
         candidates.extend(_result(source, obj, translated) for obj in
                           _matches(source, query, names_only=True, translated_ids=ids)[:3])
     candidates.sort(key=lambda result: (result['rank'], result['title'].casefold(), result['category']))
-    return JsonResponse({'results': [{key: value for key, value in item.items() if key != 'rank'}
-                                   for item in candidates[:8]]})
+    response = JsonResponse({'results': [{key: value for key, value in item.items() if key != 'rank'}
+                                        for item in candidates[:8]]})
+    response['Cache-Control'] = 'private, no-store'
+    return response

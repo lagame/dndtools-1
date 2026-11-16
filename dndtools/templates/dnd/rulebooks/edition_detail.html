@@ -15,22 +15,14 @@
 
 {% block content %}
 
-<h2>{% translate 'Rulebooks in' %} {% localized dnd_edition 'name' %}</h2>
+<header class="rulebook-heading"><span class="eyebrow">{% translate 'Browse by edition' %}</span><h1>{% localized dnd_edition 'name' %}</h1><p>{% translate 'Game material listed for this edition.' %}</p></header>
 
 {{ paginator.print_navigation }}
 
-<table class="common">
-<tr>
-  <th>{% translate 'Rulebook name' %}</th>
-  <th>{% translate 'Edition' %}</th>
-</tr>
-    {% for rulebook in rulebook_list %}
-        <tr>
-            <td><a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a></td>
-            <td><a href="{{ rulebook.dnd_edition.get_absolute_url }}">{% localized rulebook.dnd_edition 'name' %}</a></td>
-        </tr>
-    {% endfor %}
-</table>
+<div class="rulebook-grid">
+  {% for rulebook in rulebook_list %}{% include 'dnd/rulebooks/rulebook_card.html' %}
+  {% empty %}<p class="empty-state">{% translate 'No rulebooks are listed for this edition.' %}</p>{% endfor %}
+</div>
 
 {{ paginator.print_navigation }}
 

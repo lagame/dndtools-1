@@ -4,7 +4,6 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView, RedirectView
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
-from dnd.feeds import AdminLogFeed
 from dnd.sitemap import sitemaps
 from dnd.search import search, search_suggest
 from dndproject import settings
@@ -79,7 +78,6 @@ urlpatterns = patterns(
         'inaccurate_content_sent',
         name='inaccurate_content_sent',
     ),
-    (r'^rss.xml$', AdminLogFeed()),
     (r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}),
 
     # Old mobile links now use the responsive pages.
