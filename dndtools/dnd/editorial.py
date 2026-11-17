@@ -27,19 +27,148 @@ RESOURCE_GROUPS = {
                           'SpecialFeatPrerequisite', 'TextFeatPrerequisite',
                           'FeatSpecialFeatPrerequisite', 'FeatRequiresFeat', 'FeatRequiresSkill',
                           'Skill', 'SkillVariant', 'Deity', 'Language'),
-    'Magic': ('Spell', 'SpellClassLevel', 'SpellDomainLevel', 'SpellSchool',
+    _('Magic'): ('Spell', 'SpellClassLevel', 'SpellDomainLevel', 'SpellSchool',
               'SpellSubSchool', 'SpellDescriptor', 'Domain', 'DomainVariant'),
-    'Bestiary': ('Race', 'RaceSize', 'RaceSpeedType', 'RaceType', 'RaceSpeed',
+    _('Bestiary'): ('Race', 'RaceSize', 'RaceSpeedType', 'RaceType', 'RaceSpeed',
                  'RaceFavoredCharacterClass', 'Monster', 'MonsterType',
                  'MonsterSubtype', 'MonsterHasFeat', 'MonsterHasSkill',
                  'MonsterSpeed', 'CreatureTemplate'),
-    'Items': ('Item', 'ItemSlot', 'ItemProperty', 'ItemAuraType', 'ItemActivationType'),
-    'Additional 3.5 mechanics': ('SupplementalEntry',),
+    _('Items'): ('Item', 'ItemSlot', 'ItemProperty', 'ItemAuraType', 'ItemActivationType'),
+    _('Additional 3.5 mechanics'): ('SupplementalEntry',),
 }
 RESOURCES = frozenset(name for names in RESOURCE_GROUPS.values() for name in names)
-GRANT_CHOICES = ([(name, name) for name in sorted(RESOURCES - {'SupplementalEntry'})] +
-                 [('SupplementalEntry', 'All additional mechanics')] +
-                 [('SupplementalEntry:' + kind, label) for kind, label in SupplementalEntry.KINDS])
+RESOURCE_LABELS = {
+    'DndEdition': _('Editions'), 'Rulebook': _('Rulebooks'), 'Rule': _('Rules'),
+    'RuleCondition': _('Rule conditions'), 'CharacterClass': _('Classes'),
+    'CharacterClassVariant': _('Class variants'),
+    'CharacterClassVariantRequiresRace': _('Class variant race requirements'),
+    'CharacterClassVariantRequiresFeat': _('Class variant feat requirements'),
+    'CharacterClassVariantRequiresSkill': _('Class variant skill requirements'),
+    'FeatCategory': _('Feat categories'), 'Feat': _('Feats'),
+    'SpecialFeatPrerequisite': _('Special feat prerequisites'),
+    'TextFeatPrerequisite': _('Text feat prerequisites'),
+    'FeatSpecialFeatPrerequisite': _('Feat special prerequisites'),
+    'FeatRequiresFeat': _('Feat requirements'),
+    'FeatRequiresSkill': _('Feat skill requirements'),
+    'Skill': _('Skills'), 'SkillVariant': _('Skill variants'),
+    'Deity': _('Deities'), 'Language': _('Languages'),
+    'Spell': _('Spells'), 'SpellClassLevel': _('Spell class levels'),
+    'SpellDomainLevel': _('Spell domain levels'),
+    'SpellSchool': _('Spell schools'), 'SpellSubSchool': _('Spell subschools'),
+    'SpellDescriptor': _('Spell descriptors'), 'Domain': _('Domains'),
+    'DomainVariant': _('Domain variants'), 'Race': _('Races'),
+    'RaceSize': _('Race sizes'), 'RaceSpeedType': _('Race speed types'),
+    'RaceType': _('Race types'), 'RaceSpeed': _('Race speeds'),
+    'RaceFavoredCharacterClass': _('Race favored classes'),
+    'Monster': _('Monsters'), 'MonsterType': _('Monster types'),
+    'MonsterSubtype': _('Monster subtypes'), 'MonsterHasFeat': _('Monster feats'),
+    'MonsterHasSkill': _('Monster skills'), 'MonsterSpeed': _('Monster speeds'),
+    'CreatureTemplate': _('Creature templates'), 'Item': _('Items'),
+    'ItemSlot': _('Item slots'), 'ItemProperty': _('Item properties'),
+    'ItemAuraType': _('Item aura types'), 'ItemActivationType': _('Item activation types'),
+    'SupplementalEntry': _('Additional mechanics'),
+}
+KIND_LABELS = {
+    'mysteries': _('Shadow casting mysteries'),
+    'invocations': _('Invocations'),
+    'psionics': _('Psionic powers'),
+    'auras': _('Auras'),
+    'maneuvers': _('Martial maneuvers'),
+    'monstrous-traits': _('Monstrous traits'),
+}
+FIELD_LABELS = {
+    'name': _('Name'), 'rulebook': _('Rulebook'), 'dnd_edition': _('Edition'),
+    'page': _('Page'), 'page_from': _('First page'), 'page_to': _('Last page'),
+    'description': _('Description'), 'short_description': _('Short description'),
+    'body': _('Rule text'), 'text': _('Text'), 'extra': _('Additional details'),
+    'kind': _('Type'), 'type': _('Type'), 'category': _('Category'),
+    'level': _('Level'), 'mechanics': _('Rules text'), 'prerequisites': _('Prerequisites'),
+    'character_class': _('Class'), 'character_class_variant': _('Class variant'),
+    'race': _('Race'), 'feat': _('Feat'), 'spell': _('Spell'), 'skill': _('Skill'),
+    'monster': _('Monster'), 'domain': _('Domain'), 'school': _('School'),
+    'sub_school': _('Subschool'), 'size': _('Size'), 'system': _('System'),
+    'core': _('Core book'), 'prestige': _('Prestige class'),
+    'skill_points': _('Skill points'), 'requirements': _('Requirements'),
+    'required_bab': _('Required base attack bonus'), 'class_features': _('Class features'),
+    'hit_die': _('Hit die'), 'alignment': _('Alignment'),
+    'starting_gold': _('Starting gold'), 'advancement': _('Advancement'),
+    'class_skills': _('Class skills'), 'ranks': _('Ranks'),
+    'text_before': _('Text before'), 'text_after': _('Text after'),
+    'remove_comma': _('Remove comma'), 'benefit': _('Benefit'),
+    'special': _('Special'), 'normal': _('Normal'),
+    'source_feat': _('Source feat'), 'required_feat': _('Required feat'),
+    'min_rank': _('Minimum ranks'), 'additional_text': _('Additional text'),
+    'special_feat_prerequisite': _('Special prerequisite'),
+    'value_1': _('First value'), 'value_2': _('Second value'),
+    'base_skill': _('Base skill'), 'trained_only': _('Trained only'),
+    'armor_check_penalty': _('Armor check penalty'),
+    'check_text': _('Check'), 'action': _('Action'),
+    'try_again': _('Try again'), 'synergy': _('Synergy'),
+    'restriction': _('Restriction'), 'untrained': _('Untrained'),
+    'deities_text': _('Deities'), 'requirement': _('Requirement'),
+    'granted_power': _('Granted power'), 'granted_power_type': _('Granted power type'),
+    'deities': _('Deities'), 'other_deities': _('Other deities'),
+    'favored_weapon': _('Favored weapon'), 'print_format': _('Display format'),
+    'applicable_creatures': _('Applicable creatures'),
+    'challenge_rating_adjustment': _('Challenge rating adjustment'),
+    'level_adjustment': _('Level adjustment'),
+    'mechanical_changes': _('Mechanical changes'),
+    'publication_type': _('Publication type'), 'isbn': _('ISBN'),
+    'authors': _('Authors'), 'cover_artist': _('Cover artist'),
+    'publisher': _('Publisher'), 'pages': _('Pages'), 'format': _('Format'),
+    'bibliography_url': _('Bibliography URL'), 'year': _('Year'),
+    'published': _('Published'), 'official_url': _('Official URL'),
+    'abbr': _('Abbreviation'), 'price_gp': _('Price in gp'),
+    'price_bonus': _('Enhancement bonus'), 'item_level': _('Item level'),
+    'body_slot': _('Body slot'), 'property': _('Property'),
+    'caster_level': _('Caster level'), 'aura': _('Aura'), 'aura_dc': _('Aura DC'),
+    'activation': _('Activation'), 'weight': _('Weight'),
+    'visual_description': _('Appearance'), 'cost_to_create': _('Creation cost'),
+    'required_extra': _('Other requirements'),
+    'synergy_prerequisite': _('Synergy prerequisite'),
+    'aura_schools': _('Aura schools'), 'required_feats': _('Required feats'),
+    'required_spells': _('Required spells'), 'feat_categories': _('Feat categories'),
+    'descriptors': _('Descriptors'), 'subtypes': _('Subtypes'),
+    'automatic_languages': _('Automatic languages'),
+    'bonus_languages': _('Bonus languages'), 'race_type': _('Race type'),
+    'racial_hit_dice_count': _('Racial hit dice'),
+    'hit_die_size': _('Hit die size'),
+    'base_attack_type': _('Base attack progression'),
+    'base_fort_save_type': _('Fortitude save progression'),
+    'base_reflex_save_type': _('Reflex save progression'),
+    'base_will_save_type': _('Will save progression'),
+    'speed': _('Speed'), 'order': _('Order'),
+    'hit_dice': _('Hit dice'), 'initiative': _('Initiative'),
+    'armor_class': _('Armor class'), 'touch_armor_class': _('Touch armor class'),
+    'flat_footed_armor_class': _('Flat-footed armor class'),
+    'base_attack': _('Base attack'), 'grapple': _('Grapple'),
+    'attack': _('Attack'), 'full_attack': _('Full attack'),
+    'space': _('Space'), 'reach': _('Reach'),
+    'special_attacks': _('Special attacks'), 'special_qualities': _('Special qualities'),
+    'fort_save': _('Fortitude save'), 'fort_save_extra': _('Fortitude details'),
+    'reflex_save': _('Reflex save'), 'reflex_save_extra': _('Reflex details'),
+    'will_save': _('Will save'), 'will_save_extra': _('Will details'),
+    'str': _('Strength'), 'dex': _('Dexterity'), 'con': _('Constitution'),
+    'int': _('Intelligence'), 'wis': _('Wisdom'), 'cha': _('Charisma'),
+    'environment': _('Environment'), 'organization': _('Organization'),
+    'challenge_rating': _('Challenge rating'), 'treasure': _('Treasure'),
+    'combat': _('Combat'), 'racial_traits': _('Racial traits'),
+    'natural_armor': _('Natural armor'),
+    'verbal_component': _('Verbal component'), 'somatic_component': _('Somatic component'),
+    'material_component': _('Material component'),
+    'arcane_focus_component': _('Arcane focus component'),
+    'divine_focus_component': _('Divine focus component'),
+    'xp_component': _('XP component'), 'meta_breath_component': _('Metabreath component'),
+    'true_name_component': _('Truename component'),
+    'extra_components': _('Other components'), 'casting_time': _('Casting time'),
+    'range': _('Range'), 'target': _('Target'), 'effect': _('Effect'),
+    'area': _('Area'), 'duration': _('Duration'),
+    'saving_throw': _('Saving throw'), 'spell_resistance': _('Spell resistance'),
+    'corrupt_component': _('Corrupt component'), 'corrupt_level': _('Corrupt level'),
+}
+GRANT_CHOICES = ([(name, RESOURCE_LABELS[name]) for name in sorted(RESOURCES - {'SupplementalEntry'})] +
+                 [('SupplementalEntry', _('All additional mechanics'))] +
+                 [('SupplementalEntry:' + kind, KIND_LABELS[kind]) for kind, _ in SupplementalEntry.KINDS])
 EXCLUDED_FIELDS = {'slug', 'verified', 'verified_author', 'verified_time', 'added'}
 UNTRANSLATED_FIELDS = {'slug', 'abbr', 'system', 'kind', 'type', 'year',
                        'url', 'official_url', 'website', 'email', 'code',
@@ -83,7 +212,13 @@ def editable_form(resource):
               and not (field.many_to_many and not field.remote_field.through._meta.auto_created)
               and field.name not in EXCLUDED_FIELDS and not field.name.endswith('_html')
               and not isinstance(field, (models.FileField, models.ImageField))]
-    return modelform_factory(model, fields=fields)
+    form = modelform_factory(model, fields=fields)
+    for name, field in form.base_fields.items():
+        if name in FIELD_LABELS:
+            field.label = FIELD_LABELS[name]
+    if resource == 'SupplementalEntry':
+        form.base_fields['kind'].choices = [('', '---------')] + list(KIND_LABELS.items())
+    return form
 
 
 def translatable_fields(obj):
@@ -120,11 +255,11 @@ def translation_form(obj):
     for name, value in translatable_fields(obj).items():
         model_field = obj._meta.get_field(name)
         fields[name] = forms.CharField(
-            label=model_field.verbose_name, required=True,
+            label=FIELD_LABELS.get(name, model_field.verbose_name), required=True,
             max_length=getattr(model_field, 'max_length', None),
             widget=forms.Textarea(attrs={'rows': 5}) if isinstance(model_field, models.TextField)
             else forms.TextInput(),
-            help_text='Original: ' + str(value)[:300],
+            help_text=str(_('Original')) + ': ' + str(value)[:300],
         )
     return type('%sTranslationForm' % obj._meta.object_name, (forms.Form,), fields)
 

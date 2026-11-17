@@ -20,9 +20,9 @@
   <header class="site-header" id="header">
     <div class="header-inner">
       <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="{% translate 'Toggle catalog menu' %}" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span><span class="navigation-toggle-label">{% translate 'Menu' %}</span></button>
-      <a class="brand" href="{% url 'index' %}" aria-label="D&amp;D Tools home">
+      <a class="brand" href="{% url 'index' %}" aria-label="{% translate 'D&D Tools home' %}">
         <span class="brand-symbol" aria-hidden="true">D20</span>
-        <span><strong>D&amp;D<span>tools</span></strong><small>Explore the worlds of 3.5</small></span>
+        <span><strong>D&amp;D<span>tools</span></strong><small>{% translate 'Explore the worlds of 3.5' %}</small></span>
       </a>
       <nav class="language-picker" aria-label="{% translate 'Language' %}"><a href="{% url 'switch_language' %}?language=en-us&amp;next={{ request.get_full_path|urlencode }}" {% if request.LANGUAGE_CODE == 'en-us' %}aria-current="page"{% endif %}>EN</a><a href="{% url 'switch_language' %}?language=pt-br&amp;next={{ request.get_full_path|urlencode }}" {% if request.LANGUAGE_CODE == 'pt-br' %}aria-current="page"{% endif %}>PT-BR</a></nav>
       <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">{% translate 'Theme' %}</span><select id="theme-select" aria-label="{% translate 'Site theme' %}"><option value="standard">Standard</option><option value="modern">Modern</option><option value="simple">Simple</option><option value="dark">Petroleo</option><option value="oled">Dark</option></select></label>

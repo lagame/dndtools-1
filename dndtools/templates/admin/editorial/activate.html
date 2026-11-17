@@ -1,9 +1,10 @@
 {% extends 'admin/base_site.html' %}
+{% load i18n %}
 {% block content %}
-<h1>Activate editorial access</h1>
-<p>Cloudflare Access identity: {{ email }}.</p>
-{% if expired %}<p>This invitation has expired. Ask the project owner to resend it.</p>{% else %}
-<p>Enter the one-time code sent by D&amp;D Tools to this email. The Cloudflare login code is separate. Future visits use your Cloudflare identity and MFA.</p>
-<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button default">Activate account</button></form>
+<h1>{% translate "Activate editorial access" %}</h1>
+<p>{% translate "Cloudflare Access identity" %}: {{ email }}.</p>
+{% if expired %}<p>{% translate "This invitation has expired. Ask the project owner to resend it." %}</p>{% else %}
+<p>{% translate "Enter the one-time code sent by D&D Tools to this email. The Cloudflare login code is separate. Future visits use your Cloudflare identity and MFA." %}</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button default">{% translate "Activate account" %}</button></form>
 {% endif %}
 {% endblock %}

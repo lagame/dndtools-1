@@ -6,7 +6,7 @@
 {% load custom_filters %}
 {% load custom_tags %}
 
-{% block title %}{% localized race 'name' %} &ndash; Race{% endblock %}
+{% block title %}{% localized race 'name' %} &ndash; {% translate 'Race' %}{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'race_index'  %}">{% translate 'Races' %}</a>
@@ -21,7 +21,7 @@
 {% block content %}
     {% if race.image %}
         {% available_catalog_image race.image as portrait_url %}
-        <span class="right" style="clear: right">{% if portrait_url %}<img data-theme-src="{{ portrait_url }}" loading="lazy" alt="{% localized race 'name' %}" /><span class="image-placeholder theme-image-placeholder">Illustration hidden in Simple</span><noscript><img src="{{ portrait_url }}" alt="{% localized race 'name' %}" /></noscript>{% else %}<span class="image-placeholder" role="img" aria-label="Illustration unavailable">Illustration unavailable</span>{% endif %}</span>
+        <span class="right" style="clear: right">{% if portrait_url %}<img data-theme-src="{{ portrait_url }}" loading="lazy" alt="{% localized race 'name' %}" /><span class="image-placeholder theme-image-placeholder">{% translate 'Illustration hidden in Simple' %}</span><noscript><img src="{{ portrait_url }}" alt="{% localized race 'name' %}" /></noscript>{% else %}<span class="image-placeholder" role="img" aria-label="{% translate 'Illustration unavailable' %}">{% translate 'Illustration unavailable' %}</span>{% endif %}</span>
     {% endif %}
 
     <h2>{% localized race 'name' %}</h2>

@@ -5,11 +5,11 @@
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 
-{% block title %}Spell Domains{% endblock %}
+{% block title %}{% translate 'Spell Domains' %}{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'spell_index' %}">{% translate 'Spells' %}</a>
-    &raquo; <a href="{% url 'spell_domain_list'  %}">Domains</a>
+    &raquo; <a href="{% url 'spell_domain_list'  %}">{% translate 'Domains' %}</a>
 {% endblock %}
 
 

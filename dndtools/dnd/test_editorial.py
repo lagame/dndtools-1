@@ -16,7 +16,7 @@ from django.test import Client, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from dnd.editorial import RESOURCES, approve
+from dnd.editorial import RESOURCES, RESOURCE_LABELS, FIELD_LABELS, editable_form, approve
 from dnd.access import verified_email
 from dnd.models import (CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
                         EditorialProposal, Feat, FeatCategory, FeatRequiresFeat, Monster, MonsterType, PublishedTranslation,
@@ -152,6 +152,20 @@ class EditorialFlowTests(TestCase):
         response = self.client.get(reverse('editorial_catalog', args=('SupplementalEntry',)),
                                    {'kind': 'auras', 'q': 'ARCANE'})
         self.assertContains(response, entry.name)
+
+    def test_relation_catalog_searches_related_names_and_shows_them(self):
+        required = Feat.objects.create(rulebook=self.book, name='Power Attack',
+                                       slug='power-attack', description='Rule', benefit='Benefit')
+        dependent = Feat.objects.create(rulebook=self.book, name='Cleave',
+                                        slug='cleave', description='Rule', benefit='Benefit')
+        link = FeatRequiresFeat.objects.create(source_feat=dependent, required_feat=required)
+        self.assertEqual(str(link), 'Cleave → Power Attack')
+        self.client.force_login(self.owner)
+        url = reverse('editorial_catalog', args=('FeatRequiresFeat',))
+        self.assertContains(self.client.get(url, {'q': 'power attack'}), 'Cleave → Power Attack')
+        self.assertContains(self.client.get(url, {'q': 'CLEAVE'}), 'Cleave → Power Attack')
+        self.assertContains(self.client.get(url, {'q': str(link.pk)}), 'Cleave → Power Attack')
+        self.assertContains(self.client.get(url, {'q': 'missing'}), 'No matching records.')
 
     def test_each_missing_mechanic_has_moderated_create_and_public_read(self):
         self.client.force_login(self.owner)
@@ -358,7 +372,7 @@ class EditorialFlowTests(TestCase):
                                       can_create=True)
         self.client.force_login(limited)
         dashboard = self.client.get(reverse('editorial_dashboard'))
-        self.assertContains(dashboard, 'Additional D&amp;D 3.5 mechanics')
+        self.assertContains(dashboard, 'Additional D&D 3.5 mechanics')
         self.assertNotContains(dashboard, 'href="' + reverse('editorial_catalog', args=('SupplementalEntry',)) + '"')
         self.assertEqual(self.client.get(reverse('editorial_catalog', args=('SupplementalEntry',)) +
                                          '?kind=auras').status_code, 200)
@@ -395,10 +409,36 @@ class EditorialFlowTests(TestCase):
 
     def test_every_editorial_resource_has_a_renderable_create_form(self):
         self.client.force_login(self.owner)
+        self.assertEqual(set(RESOURCE_LABELS), RESOURCES)
         for resource in sorted(RESOURCES):
             with self.subTest(resource=resource):
+                self.assertFalse(set(editable_form(resource)().fields) - set(FIELD_LABELS))
                 self.assertEqual(self.client.get(reverse('editorial_catalog', args=(resource,))).status_code, 200)
                 self.assertEqual(self.client.get(reverse('editorial_create', args=(resource,))).status_code, 200)
+
+    def test_portuguese_editorial_navigation_forms_and_login(self):
+        self.client.force_login(self.owner)
+        dashboard_url = reverse('editorial_dashboard')
+        response = self.client.get(reverse('switch_language'), {
+            'language': 'pt-br', 'next': dashboard_url,
+        })
+        self.assertEqual(response['Location'], dashboard_url)
+        dashboard = self.client.get(dashboard_url)
+        self.assertEqual(dashboard['Content-Language'], 'pt-br')
+        self.assertContains(dashboard, 'Área editorial')
+        self.assertContains(dashboard, 'Colaborações pendentes: 0')
+        self.assertContains(dashboard, 'Talentos dos monstros')
+        self.assertContains(self.client.get(reverse('editorial_create', args=('CreatureTemplate',))),
+                            'Alterações mecânicas')
+        self.client.logout()
+        self.client.get(reverse('switch_language'), {
+            'language': 'pt-br', 'next': reverse('admin:login'),
+        })
+        login_page = self.client.get(reverse('admin:login'))
+        self.assertEqual(login_page.status_code, 200)
+        self.assertEqual(login_page['Content-Language'], 'pt-br')
+        self.assertContains(login_page, 'Administração do catálogo')
+        self.assertContains(login_page, 'Entrar')
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_invitation_activation_and_revocation(self):
@@ -577,6 +617,9 @@ class EditorialFlowTests(TestCase):
             'Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa.'), 1)
         self.assertEqual(home.content.decode().count(
             'Uma referência mantida pela comunidade para aventureiros de RPG de mesa.'), 1)
+        self.assertContains(home, 'Explore os mundos da 3.5')
+        self.assertContains(self.client.get('/pt-br' + reverse('rule_condition_list')),
+                            'Nenhuma condição disponível.')
         self.assertContains(self.client.get('/pt-br/contacts/'), 'Entre em contato com o projeto')
         self.assertContains(self.client.get('/pt-br/contacts/staff/'), 'Ronassic mantém este fork')
         response = self.client.get(reverse('switch_language'), {

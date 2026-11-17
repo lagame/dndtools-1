@@ -322,6 +322,9 @@ class CharacterClassVariantRequiresRace(models.Model):
         help_text='Removes comma before Race! Use to create "or", "and" etc.',
     )
 
+    def __str__(self):
+        return '%s → %s' % (self.character_class_variant, self.race)
+
 
 class CharacterClassVariantRequiresFeat(models.Model):
     character_class_variant = models.ForeignKey(
@@ -348,6 +351,9 @@ class CharacterClassVariantRequiresFeat(models.Model):
     remove_comma = models.BooleanField(
         help_text='Removes comma before Feat! Use to create "or", "and" etc.',
     )
+
+    def __str__(self):
+        return '%s → %s' % (self.character_class_variant, self.feat)
 
 
 class CharacterClassVariantRequiresSkill(models.Model):
@@ -379,6 +385,9 @@ class CharacterClassVariantRequiresSkill(models.Model):
     remove_comma = models.BooleanField(
         help_text='Removes comma before Skill! Use to create "or", "and" etc.',
     )
+
+    def __str__(self):
+        return '%s → %s (%s ranks)' % (self.character_class_variant, self.skill, self.ranks)
 
 
 class Deity(models.Model):
@@ -844,6 +853,9 @@ class SpellClassLevel(models.Model):
         ordering = ['spell', 'level', ]
         unique_together = (("character_class", "spell",))
 
+    def __str__(self):
+        return '%s — %s %s' % (self.spell, self.character_class, self.level)
+
 
 class SpellDomainLevel(models.Model):
     domain = models.ForeignKey(
@@ -861,6 +873,9 @@ class SpellDomainLevel(models.Model):
     class Meta:
         ordering = ['spell', 'level', ]
         unique_together = (("domain", "spell",))
+
+    def __str__(self):
+        return '%s — %s %s' % (self.spell, self.domain, self.level)
 
 
 class FeatCategory(models.Model):
@@ -1187,7 +1202,7 @@ class TextFeatPrerequisite(models.Model):
         ordering = ['text']
 
     def __str__(self):
-        return self.text
+        return '%s → %s' % (self.feat, self.text)
 
 
 class FeatSpecialFeatPrerequisite(models.Model):
@@ -1217,7 +1232,7 @@ class FeatSpecialFeatPrerequisite(models.Model):
             return self.special_feat_prerequisite.print_format
 
     def __str__(self):
-        return self.format_value()
+        return '%s → %s' % (self.feat, self.format_value())
 
 
 class FeatRequiresFeat(models.Model):
@@ -1234,6 +1249,9 @@ class FeatRequiresFeat(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        return '%s → %s' % (self.source_feat, self.required_feat)
+
 
 class FeatRequiresSkill(models.Model):
     feat = models.ForeignKey(
@@ -1248,6 +1266,9 @@ class FeatRequiresSkill(models.Model):
         max_length=32
     )
     min_rank = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return '%s → %s (%s ranks)' % (self.feat, self.skill, self.min_rank)
 
 
 class Language(models.Model):
@@ -1627,6 +1648,9 @@ class MonsterHasFeat(models.Model):
         max_length=32
     )
 
+    def __str__(self):
+        return '%s → %s' % (self.monster, self.feat)
+
 
 class MonsterHasSkill(models.Model):
     monster = models.ForeignKey(
@@ -1644,6 +1668,9 @@ class MonsterHasSkill(models.Model):
         max_length=32
     )
 
+    def __str__(self):
+        return '%s → %s (%s ranks)' % (self.monster, self.skill, self.ranks)
+
 
 class MonsterSpeed(models.Model):
     race = models.ForeignKey(
@@ -1655,6 +1682,9 @@ class MonsterSpeed(models.Model):
         related_name='+',
     )
     speed = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return '%s — %s %s' % (self.race, self.type, self.speed)
 
 
 class RaceType(models.Model):
@@ -1953,6 +1983,9 @@ class RaceSpeed(models.Model):
     )
     speed = models.PositiveSmallIntegerField()
 
+    def __str__(self):
+        return '%s — %s %s' % (self.race, self.type, self.speed)
+
 
 class RaceFavoredCharacterClass(models.Model):
     race = models.ForeignKey(
@@ -1966,6 +1999,9 @@ class RaceFavoredCharacterClass(models.Model):
         blank=True,
         max_length=32,
     )
+
+    def __str__(self):
+        return '%s → %s' % (self.race, self.character_class)
 
 
 class ItemSlot(models.Model):
@@ -2469,6 +2505,20 @@ class EditorialProposal(models.Model):
     class Meta:
         ordering = ('-created_at',)
 
+    @property
+    def action_label(self):
+        return {
+            'create': _('Create'), 'correct': _('Correct'),
+            'translate': _('Translate'), 'delete': _('Remove'),
+        }.get(self.action, self.action)
+
+    @property
+    def status_label(self):
+        return {
+            'pending': _('Pending'), 'approved': _('Approved'),
+            'rejected': _('Rejected'),
+        }.get(self.status, self.status)
+
     def __str__(self):
         return '%s %s #%s' % (self.get_action_display(), self.resource, self.pk)
 
@@ -2495,3 +2545,9 @@ class CollaboratorInvite(models.Model):
     activated_at = models.DateTimeField(null=True, blank=True)
     access_state = models.CharField(max_length=16, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def access_state_label(self):
+        return {
+            'pending': _('Pending'), 'active': _('Active'), 'revoked': _('Revoked'),
+        }.get(self.access_state, self.access_state)

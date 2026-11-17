@@ -25,14 +25,6 @@
 	<td>{% localized spell 'duration' %}</td>
 	<td>{% localized spell 'range' %}</td>
 	<td>
-		{% if spell.verbal_component %}<abbr title="Verbal">V</abbr>, {% endif %}
-		{% if spell.somatic_component %}<abbr title="Somatic">S</abbr>, {% endif %}
-		{% if spell.material_component %}<abbr title="Material">M</abbr>, {% endif %}
-		{% if spell.arcane_focus_component %}<abbr title="Arcane Focus">AF</abbr>, {% endif %}
-		{% if spell.divine_focus_component %}<abbr title="Divine Focus">DF</abbr>, {% endif %}
-		{% if spell.xp_component %}<abbr title="Experience">XP</abbr>, {% endif %}
-		{% if spell.meta_breath_component %}<abbr title="Meta Breath">MB</abbr>, {% endif %}
-		{% if spell.true_name_component %}<abbr title="True Name">TN</abbr>, {% endif %}
 		{% if spell.corrupt_component %}Corrupt, {% endif %}
 		{% if spell.extra_components %}{{ spell.extra_components }}{% endif %}
 	</td>

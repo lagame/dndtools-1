@@ -1,5 +1,5 @@
 {% extends "dnd/layout.html" %}
-{% load catalog_html %}
+{% load catalog_html i18n %}
 
 {% block title %}Android{% endblock %}
 
@@ -9,7 +9,7 @@
         {% if page_body %}
             {{ page_body.body_html|safe_catalog_html }}
         {% else %}
-            <p>The original Android page is not available in this catalog snapshot. Check the <a href="https://github.com/lagame/dndtools-1/issues">project issues</a> for updates.</p>
+            <p>{% translate 'The original Android page is not available in this catalog snapshot.' %} <a href="https://github.com/lagame/dndtools-1/issues">{% translate 'Check project issues for updates.' %}</a></p>
         {% endif %}
     </div>
 

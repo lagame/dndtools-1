@@ -3,7 +3,7 @@
 {% load catalog_i18n %}
 {% load catalog_html %}
 
-{% block title %}{% localized character_class 'name' %} &ndash; Class{% endblock %}
+{% block title %}{% localized character_class 'name' %} &ndash; {% translate 'Class' %}{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'character_class_list'  %}">{% translate 'Classes' %}</a>
@@ -28,7 +28,7 @@
 
 <h2>{% localized character_class 'name' %}</h2>
 {% if selected_variant %}
-<p>(<a href="{% url 'character_classes_in_rulebook' selected_variant.rulebook.slug selected_variant.rulebook.id %}">{% localized selected_variant.rulebook 'name' %}</a> variant, p. {{ selected_variant.page }})</p>
+<p>(<a href="{% url 'character_classes_in_rulebook' selected_variant.rulebook.slug selected_variant.rulebook.id %}">{% localized selected_variant.rulebook 'name' %}</a> {% translate 'variant' %}, p. {{ selected_variant.page }})</p>
 {% endif %}
 
 <div class="nice-textile">
@@ -54,16 +54,16 @@
 <h3>{% translate 'Spells for' %} {% localized character_class 'name' %}</h3>
 
 <ul>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=0 %}">Level 0</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=1 %}">Level 1</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=2 %}">Level 2</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=3 %}">Level 3</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=4 %}">Level 4</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=5 %}">Level 5</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=6 %}">Level 6</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=7 %}">Level 7</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=8 %}">Level 8</a></li>
-  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=9 %}">Level 9</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=0 %}">{% translate 'Level' %} 0</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=1 %}">{% translate 'Level' %} 1</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=2 %}">{% translate 'Level' %} 2</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=3 %}">{% translate 'Level' %} 3</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=4 %}">{% translate 'Level' %} 4</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=5 %}">{% translate 'Level' %} 5</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=6 %}">{% translate 'Level' %} 6</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=7 %}">{% translate 'Level' %} 7</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=8 %}">{% translate 'Level' %} 8</a></li>
+  <li><a href="{% url 'character_class_spells' character_class_slug=character_class.slug level=9 %}">{% translate 'Level' %} 9</a></li>
 </ul>
 
 {% endblock %}

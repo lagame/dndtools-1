@@ -1,4 +1,6 @@
 /* Use Django's native controls and theme preference with the Standard palette. */
+.editorial-language { margin-left: 1rem; white-space: nowrap; }
+.editorial-language a[aria-current="true"] { font-weight: 700; text-decoration: underline; }
 @font-face {
   font-family: Inter;
   src: url('../fonts/InterVariable.woff2') format('woff2');

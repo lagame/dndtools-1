@@ -15,15 +15,16 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.db.models.functions import Collate
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from dnd.editorial import (RESOURCE_GROUPS, GRANT_CHOICES, approve, can_propose, editable_form,
+from dnd.editorial import (RESOURCE_GROUPS, RESOURCE_LABELS, KIND_LABELS, GRANT_CHOICES, approve, can_propose, editable_form,
                            model_for, owner, serialize_form, source_digest,
                            translation_form, validate_new_edition, detect_duplicate)
 from dnd.models import CollaboratorInvite, EditorialGrant, EditorialProposal, SupplementalEntry
@@ -34,39 +35,41 @@ logger = logging.getLogger(__name__)
 
 class SourceForm(forms.Form):
     source_reference = forms.CharField(
-        label='Official D&D 3.5 source, page and editorial notes',
+        label=_('Official D&D 3.5 source, page and editorial notes'),
         widget=forms.Textarea(attrs={'rows': 3}), max_length=2000)
 
 
 class InviteForm(forms.Form):
-    email = forms.EmailField(max_length=254)
+    email = forms.EmailField(max_length=254, label=_('Email'))
     resources = forms.MultipleChoiceField(
+        label=_('Catalog resources'),
         choices=GRANT_CHOICES,
         widget=forms.SelectMultiple(attrs={'size': 12}))
     permissions = forms.MultipleChoiceField(
-        choices=(('create', 'Add records'), ('correct', 'Correct records'),
-                 ('translate', 'Translate records'), ('delete', 'Propose removals')),
+        label=_('Permissions'),
+        choices=(('create', _('Add records')), ('correct', _('Correct records')),
+                 ('translate', _('Translate records')), ('delete', _('Propose removals'))),
         widget=forms.CheckboxSelectMultiple)
 
     def clean_email(self):
         email = self.cleaned_data['email'].casefold()
         accounts = list(User.objects.filter(email__iexact=email).order_by('pk')[:2])
         if len(accounts) > 1:
-            raise forms.ValidationError('Multiple Django accounts use this email. Resolve them before inviting.')
+            raise forms.ValidationError(_('Multiple Django accounts use this email. Resolve them before inviting.'))
         existing = accounts[0] if accounts else None
         if existing and (existing.is_superuser or not hasattr(existing, 'editorial_invite') or
                          existing.editorial_invite.access_state == 'active'):
-            raise forms.ValidationError('This email already has an active or unrelated Django account.')
+            raise forms.ValidationError(_('This email already has an active or unrelated Django account.'))
         return email
 
 
 class ActivationForm(forms.Form):
-    code = forms.CharField(max_length=100, widget=forms.PasswordInput)
+    code = forms.CharField(max_length=100, widget=forms.PasswordInput, label=_('Invitation code'))
 
 
 @staff_member_required
 def dashboard(request):
-    groups = [(label, [(name, model_for(name)._meta.verbose_name_plural.title(),
+    groups = [(label, [(name, RESOURCE_LABELS[name],
                         can_propose(request.user, name, 'create'),
                         can_propose(request.user, name, 'correct'),
                         can_propose(request.user, name, 'translate'),
@@ -75,15 +78,19 @@ def dashboard(request):
               for label, names in RESOURCE_GROUPS.items()]
     proposals = (EditorialProposal.objects.all() if owner(request.user) else
                  EditorialProposal.objects.filter(author=request.user))
+    pending_count = proposals.filter(status='pending').count()
+    proposals = list(proposals.select_related('author')[:30])
+    for proposal in proposals:
+        proposal.resource_label = RESOURCE_LABELS[proposal.resource]
     return render(request, 'admin/editorial/dashboard.html', {
-        'groups': groups, 'pending_count': proposals.filter(status='pending').count(),
-        'proposals': proposals.select_related('author')[:30],
+        'groups': groups, 'pending_count': pending_count,
+        'proposals': proposals,
         'collaborators': (CollaboratorInvite.objects.select_related('user').order_by('-created_at')[:50]
                           if owner(request.user) else ()),
-        'supplemental_kinds': [(kind, label) for kind, label in SupplementalEntry.KINDS
+        'supplemental_kinds': [(kind, KIND_LABELS[kind]) for kind, _ in SupplementalEntry.KINDS
                                if any(can_propose(request.user, 'SupplementalEntry', action, kind=kind)
                                       for action in ('create', 'correct', 'translate', 'delete'))],
-        'is_owner': owner(request.user), 'title': 'Editorial workspace',
+        'is_owner': owner(request.user), 'title': _('Editorial workspace'),
     })
 
 
@@ -139,12 +146,12 @@ def invite(request):
                     raise smtplib.SMTPException('Invitation email was not accepted.')
         except (OSError, smtplib.SMTPException) as error:
             logger.warning('Editorial invitation email failed: %s', type(error).__name__)
-            form.add_error(None, 'The invitation could not be sent. Please try again; no account was changed.')
+            form.add_error(None, _('The invitation could not be sent. Please try again; no account was changed.'))
         else:
-            messages.success(request, 'Invitation emailed. The collaborator must complete Cloudflare MFA and activation.')
+            messages.success(request, _('Invitation emailed. The collaborator must complete Cloudflare MFA and activation.'))
             return redirect('editorial_dashboard')
     return render(request, 'admin/editorial/invite.html', {
-        'title': 'Invite collaborator', 'form': form,
+        'title': _('Invite collaborator'), 'form': form,
     })
 
 
@@ -152,27 +159,27 @@ def activate(request):
     """Activate an Access-authenticated invitee with an emailed one-time code."""
     email = getattr(request, 'access_email', None)
     if not email:
-        return HttpResponseForbidden('Cloudflare Access sign-in required.')
+        return HttpResponseForbidden(_('Cloudflare Access sign-in required.'))
     invitations = list(CollaboratorInvite.objects.select_related('user').filter(
         user__email__iexact=email, access_state='pending').order_by('pk')[:2])
     if len(invitations) != 1:
         if request.user.is_authenticated:
             return redirect('editorial_dashboard')
-        return HttpResponseForbidden('No pending invitation for this Access identity.')
+        return HttpResponseForbidden(_('No pending invitation for this Access identity.'))
     invite_record = invitations[0]
     form = ActivationForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         digest = hashlib.sha256(form.cleaned_data['code'].encode()).hexdigest()
         if (timezone.now() >= invite_record.expires_at or
                 not secrets.compare_digest(digest, invite_record.token_hash)):
-            form.add_error('code', 'Code invalid or expired.')
+            form.add_error('code', _('Code invalid or expired.'))
         if not form.errors:
             with transaction.atomic():
                 invite_record = CollaboratorInvite.objects.select_for_update().select_related('user').get(
                     pk=invite_record.pk)
                 if (invite_record.access_state != 'pending' or timezone.now() >= invite_record.expires_at or
                         not secrets.compare_digest(digest, invite_record.token_hash)):
-                    return HttpResponseForbidden('Invitation no longer available.')
+                    return HttpResponseForbidden(_('Invitation no longer available.'))
                 invite_record.user.is_active = True
                 invite_record.user.save(update_fields=('is_active',))
                 invite_record.access_state = 'active'
@@ -180,10 +187,10 @@ def activate(request):
                 invite_record.activated_at = timezone.now()
                 invite_record.save(update_fields=('access_state', 'token_hash', 'activated_at'))
             login(request, invite_record.user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, 'Account activated. Your Cloudflare identity now signs you in.')
+            messages.success(request, _('Account activated. Your Cloudflare identity now signs you in.'))
             return redirect('editorial_dashboard')
     response = render(request, 'admin/editorial/activate.html', {
-        'title': 'Activate editorial access', 'form': form, 'email': email,
+        'title': _('Activate editorial access'), 'form': form, 'email': email,
         'expired': timezone.now() >= invite_record.expires_at,
     })
     response['Cache-Control'] = 'no-store'
@@ -202,7 +209,7 @@ def revoke(request, invite_id):
         record.access_state = 'revoked'
         record.token_hash = ''
         record.save(update_fields=('access_state', 'token_hash'))
-    messages.success(request, 'Django access revoked immediately. Synchronize the Access group as well.')
+    messages.success(request, _('Django access revoked immediately. Synchronize the Access group as well.'))
     return redirect('editorial_dashboard')
 
 
@@ -217,27 +224,36 @@ def catalog(request, resource):
         if kind not in dict(SupplementalEntry.KINDS):
             raise Http404
     if resource == 'SupplementalEntry' and not kind and not owner(request.user):
-        return HttpResponseForbidden('Select a catalog type from the editorial workspace.')
+        return HttpResponseForbidden(_('Select a catalog type from the editorial workspace.'))
     if not any(can_propose(request.user, resource, action, kind=kind or None)
                for action in ('create', 'correct', 'translate', 'delete')):
         return HttpResponseForbidden()
-    entries = model.objects.all().order_by('pk')
+    related_fields = [field.name for field in model._meta.concrete_fields
+                      if field.many_to_one and any(related.name == 'name'
+                                                   for related in field.related_model._meta.concrete_fields)]
+    entries = model.objects.select_related(*related_fields).order_by('pk')
     if kind:
         entries = entries.filter(kind=kind)
     query = request.GET.get('q', '').strip()[:100]
     if query:
         if query.isdigit():
             entries = entries.filter(pk=int(query))
-        elif any(field.name == 'name' for field in model._meta.concrete_fields):
-            entries = entries.alias(search_name=Collate(F('name'), 'utf8mb4_0900_ai_ci')).filter(
-                search_name__contains=query)
         else:
-            entries = entries.none()
+            lookups = Q()
+            aliases = {}
+            if any(field.name == 'name' for field in model._meta.concrete_fields):
+                aliases['search_name'] = Collate(F('name'), 'utf8mb4_0900_ai_ci')
+                lookups |= Q(search_name__contains=query)
+            for field in related_fields:
+                alias = 'search_' + field
+                aliases[alias] = Collate(F(field + '__name'), 'utf8mb4_0900_ai_ci')
+                lookups |= Q(**{alias + '__contains': query})
+            entries = entries.alias(**aliases).filter(lookups) if lookups else entries.none()
     return render(request, 'admin/editorial/catalog.html', {
-        'title': model._meta.verbose_name_plural.title(),
-        'resource': resource, 'resource_label': model._meta.verbose_name_plural.title(),
+        'title': RESOURCE_LABELS[resource],
+        'resource': resource, 'resource_label': RESOURCE_LABELS[resource],
         'query': query,
-        'kind': kind, 'kind_label': dict(SupplementalEntry.KINDS).get(kind, ''),
+        'kind': kind, 'kind_label': KIND_LABELS.get(kind, ''),
         'entries': Paginator(entries, 50).get_page(request.GET.get('page')),
         'can_create': can_propose(request.user, resource, 'create', kind=kind or None),
         'can_correct': can_propose(request.user, resource, 'correct', kind=kind or None),
@@ -264,7 +280,7 @@ def propose(request, resource, action, target_pk=None):
     if not can_propose(request.user, resource, action, kind=kind or (target.kind if resource == 'SupplementalEntry' and target else None)):
         return HttpResponseForbidden()
     if resource == 'SupplementalEntry' and action == 'create' and not kind and not owner(request.user) and not EditorialGrant.objects.filter(user=request.user, resource='SupplementalEntry', can_create=True).exists():
-        return HttpResponseForbidden('Select a catalog type from the editorial workspace.')
+        return HttpResponseForbidden(_('Select a catalog type from the editorial workspace.'))
     original_digest = (source_digest(target, translation=action == 'translate')
                        if target and request.method == 'POST' else '')
     Form = (translation_form(target) if action == 'translate' else
@@ -279,7 +295,7 @@ def propose(request, resource, action, target_pk=None):
         if action == 'create':
             try:
                 if kind and form.cleaned_data.get('kind') != kind:
-                    raise forms.ValidationError('The selected catalog type changed. Reload the form.')
+                    raise forms.ValidationError(_('The selected catalog type changed. Reload the form.'))
                 validate_new_edition(resource, form)
                 detect_duplicate(resource, form)
             except forms.ValidationError as error:
@@ -304,12 +320,14 @@ def propose(request, resource, action, target_pk=None):
                     )
                 except (OSError, smtplib.SMTPException):
                     logger.exception('Editorial email notification failed for proposal %s', proposal.pk)
-                    messages.warning(request, 'Proposal saved, but the email alert could not be sent. '
-                                              'The pending queue still shows it.')
-            messages.success(request, 'Proposal submitted for Ronassic’s review.')
+                    messages.warning(request, _('Proposal saved, but the email alert could not be sent. '
+                                                  'The pending queue still shows it.'))
+            messages.success(request, _('Proposal submitted for Ronassic’s review.'))
             return redirect('editorial_dashboard')
     return render(request, 'admin/editorial/propose.html', {
-        'title': '%s %s' % (action.title(), model._meta.verbose_name),
+        'title': '%s — %s' % ({'create': _('Propose addition'), 'correct': _('Propose correction'),
+                              'translate': _('Propose translation'), 'delete': _('Propose removal')}[action],
+                             RESOURCE_LABELS[resource]),
         'resource': resource,
         'action': action, 'target': target, 'form': form, 'source_form': source_form,
         'kind': kind,
@@ -322,7 +340,8 @@ def review(request, proposal_id):
         return HttpResponseForbidden()
     proposal = get_object_or_404(EditorialProposal.objects.select_related('author', 'reviewer'), pk=proposal_id)
     return render(request, 'admin/editorial/review.html', {
-        'title': 'Review proposal', 'proposal': proposal,
+        'title': _('Review proposal'), 'proposal': proposal,
+        'resource_label': RESOURCE_LABELS[proposal.resource],
         'original': (model_for(proposal.resource).objects.filter(pk=proposal.target_pk).first()
                      if proposal.target_pk else None),
     })
@@ -341,19 +360,19 @@ def decide(request, proposal_id):
         except (forms.ValidationError, ValueError) as error:
             messages.error(request, str(error))
             return redirect('editorial_review', proposal_id=proposal.pk)
-        messages.success(request, 'Proposal approved and published.')
+        messages.success(request, _('Proposal approved and published.'))
     elif decision == 'reject':
         with transaction.atomic():
             proposal = EditorialProposal.objects.select_for_update().get(pk=proposal_id)
             if proposal.status != 'pending':
-                messages.error(request, 'This proposal has already been reviewed.')
+                messages.error(request, _('This proposal has already been reviewed.'))
                 return redirect('editorial_review', proposal_id=proposal.pk)
             proposal.status = 'rejected'
             proposal.review_note = request.POST.get('review_note', '').strip()[:2000]
             proposal.reviewer = request.user
             proposal.reviewed_at = timezone.now()
             proposal.save(update_fields=('status', 'review_note', 'reviewer', 'reviewed_at'))
-        messages.success(request, 'Proposal rejected.')
+        messages.success(request, _('Proposal rejected.'))
     else:
         return HttpResponseForbidden()
     return redirect('editorial_dashboard')

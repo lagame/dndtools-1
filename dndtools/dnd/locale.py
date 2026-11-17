@@ -21,7 +21,12 @@ class PublicLocaleMiddleware:
                 return HttpResponseRedirect('/pt-br/' + ('?' + request.META['QUERY_STRING'] if request.META.get('QUERY_STRING') else ''))
         if path == '/privacy/' and request.GET.get('lang', '').lower() == 'pt':
             return HttpResponseRedirect('/pt-br/privacy/')
-        language = 'pt-br' if path.startswith('/pt-br/') else 'en-us'
+        if path.startswith('/' + settings.ADMIN_URL):
+            language = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, 'en-us')
+            if language not in ('en-us', 'pt-br'):
+                language = 'en-us'
+        else:
+            language = 'pt-br' if path.startswith('/pt-br/') else 'en-us'
         translation.activate(language)
         request.LANGUAGE_CODE = language
         try:
@@ -46,9 +51,10 @@ def switch_language(request):
         path = path[len('/pt-br'):]
     elif path == '/pt-br':
         path = '/'
-    if path.startswith('/' + settings.ADMIN_URL) or path.startswith('/language/'):
+    is_admin = path.startswith('/' + settings.ADMIN_URL)
+    if path.startswith('/language/'):
         path = '/'
-    if language == 'pt-br':
+    if language == 'pt-br' and not is_admin:
         path = '/pt-br' + path
     response = HttpResponseRedirect(urlunsplit(('', '', path, parsed.query, '')))
     response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=31536000,

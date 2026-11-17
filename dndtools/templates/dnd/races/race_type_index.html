@@ -3,11 +3,11 @@
 
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 
-{% block title %}Race Types{% endblock %}
+{% block title %}{% translate 'Race Types' %}{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'race_index' %}">{% translate 'Races' %}</a>
-    &raquo; <a href="{% url 'race_type_index' %}">Types</a>
+    &raquo; <a href="{% url 'race_type_index' %}">{% translate 'Types' %}</a>
 {% endblock %}
 
 {% block content %}

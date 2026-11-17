@@ -43,7 +43,7 @@
         {% endif %},
     {% endfor %}
     {% for req_skill in required_skills %}
-        <a href="{{ req_skill.skill.get_absolute_url }}">{% localized req_skill.skill 'name' %}</a> {% if req_skill.extra %}({{ req_skill.extra }}){% endif %} {{ req_skill.min_rank }} ranks,
+        <a href="{{ req_skill.skill.get_absolute_url }}">{% localized req_skill.skill 'name' %}</a> {% if req_skill.extra %}({{ req_skill.extra }}){% endif %} {{ req_skill.min_rank }} {% translate 'ranks' %},
     {% endfor %}
     {% for req_special in special_prerequisities %}
         {{ req_special.format_value }},

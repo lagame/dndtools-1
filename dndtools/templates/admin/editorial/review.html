@@ -1,15 +1,16 @@
 {% extends 'admin/base_site.html' %}
+{% load i18n %}
 {% block content %}
-<p><a href="{% url 'editorial_dashboard' %}">← Editorial workspace</a></p>
-<h1>Review {{ proposal.get_action_display }}: {{ proposal.resource }}</h1>
-<p>Author: {{ proposal.author.username }} ({{ proposal.author.email }}) · Submitted: {{ proposal.created_at }} · Status: {{ proposal.get_status_display }}</p>
-{% if original %}<p>Original: {{ original }} (ID {{ original.pk }})</p>{% endif %}
-<h2>Source and editorial notes</h2><pre class="editorial-source">{{ proposal.source_reference }}</pre>
-{% if proposal.action == 'delete' %}<p>This approval removes the record from the public catalog. Dependent catalog links will block removal.</p>{% else %}<h2>Proposed values</h2><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>
+<p><a href="{% url 'editorial_dashboard' %}">← {% translate "Editorial workspace" %}</a></p>
+<h1>{% translate "Review" %} {{ proposal.action_label }}: {{ resource_label }}</h1>
+<p>{% translate "Author" %}: {{ proposal.author.username }} ({{ proposal.author.email }}) · {% translate "Submitted" %}: {{ proposal.created_at }} · {% translate "Status" %}: {{ proposal.status_label }}</p>
+{% if original %}<p>{% translate "Original" %}: {{ original }} (ID {{ original.pk }})</p>{% endif %}
+<h2>{% translate "Source and editorial notes" %}</h2><pre class="editorial-source">{{ proposal.source_reference }}</pre>
+{% if proposal.action == 'delete' %}<p>{% translate "This approval removes the record from the public catalog. Dependent catalog links will block removal." %}</p>{% else %}<h2>{% translate "Proposed values" %}</h2><table><thead><tr><th>{% translate "Field" %}</th><th>{% translate "Value" %}</th></tr></thead><tbody>
 {% for field, value in proposal.payload.items %}<tr><th>{{ field }}</th><td>{{ value|linebreaksbr }}</td></tr>{% endfor %}
 </tbody></table>{% endif %}
 {% if proposal.status == 'pending' %}<form method="post" action="{% url 'editorial_decide' proposal.pk %}">{% csrf_token %}
-<p><label for="review-note">Review note</label><br><textarea id="review-note" name="review_note" rows="3" cols="70"></textarea></p>
-<button type="submit" name="decision" value="approve" class="button default">{% if proposal.action == 'delete' %}Approve and remove{% else %}Approve and publish{% endif %}</button>
-<button type="submit" name="decision" value="reject" class="button">Reject</button></form>{% else %}<p>Reviewed by {{ proposal.reviewer.username }}. {{ proposal.review_note }}</p>{% endif %}
+<p><label for="review-note">{% translate "Review note" %}</label><br><textarea id="review-note" name="review_note" rows="3" cols="70"></textarea></p>
+<button type="submit" name="decision" value="approve" class="button default">{% if proposal.action == 'delete' %}{% translate "Approve and remove" %}{% else %}{% translate "Approve and publish" %}{% endif %}</button>
+<button type="submit" name="decision" value="reject" class="button">{% translate "Reject" %}</button></form>{% else %}<p>{% translate "Reviewed by" %} {{ proposal.reviewer.username }}. {{ proposal.review_note }}</p>{% endif %}
 {% endblock %}

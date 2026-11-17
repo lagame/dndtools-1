@@ -16,5 +16,5 @@
 
 <strong>{% translate 'Activation:' %}</strong> {{ item.activation|empty_as_dash }}<br/>
 {% if item.synergy_prerequisite %}
-    <strong>Synergy Prerequisite:</strong> <a href="{{ item.synergy_prerequisite.get_absolute_url }}">{% localized item.synergy_prerequisite 'name' %}</a><br/>
+    <strong>{% translate 'Synergy Prerequisite:' %}</strong> <a href="{{ item.synergy_prerequisite.get_absolute_url }}">{% localized item.synergy_prerequisite 'name' %}</a><br/>
 {% endif %}

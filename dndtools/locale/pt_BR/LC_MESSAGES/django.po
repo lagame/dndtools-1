@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: D&D Tools\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 14:05+0100\n"
+"POT-Creation-Date: 2026-11-17 03:56+0100\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -29,7 +29,7 @@ msgstr "Este mês"
 msgid "This year"
 msgstr "Este ano"
 
-#: django_filters2/widgets.py:50 dnd/spells/filtering.py:17
+#: django_filters2/widgets.py:50 dnd/filters.py:306 dnd/spells/filtering.py:17
 #: dnd/spells/filtering.py:37 dnd/spells/filtering.py:67
 #: dnd/spells/filtering.py:70 dnd/spells/filtering.py:73
 #: dnd/spells/filtering.py:79 dnd/spells/filtering.py:86
@@ -37,255 +37,41 @@ msgstr "Este ano"
 msgid "All"
 msgstr "Todos"
 
-#: dnd/editorial.py:22
+#: dnd/editorial.py:23
 msgid "Rulebooks and rules"
 msgstr "Livros e regras"
 
-#: dnd/editorial.py:23
+#: dnd/editorial.py:24
 msgid "Character options"
 msgstr "Opções de personagem"
 
-#: dnd/filters.py:114 dnd/spells/filtering.py:21
-#: templates/dnd/spells/spell_table.html:10
-msgid "Spell name"
-msgstr "Nome da magia"
+#: dnd/editorial.py:30 dnd/navigation.py:15
+msgid "Magic"
+msgstr "Magia"
 
-#: dnd/filters.py:137 dnd/spells/filtering.py:26 dnd/spells/filtering.py:53
-msgid "School"
-msgstr "Escola"
+#: dnd/editorial.py:32 dnd/navigation.py:21
+msgid "Bestiary"
+msgstr "Bestiário"
 
-#: dnd/filters.py:140 dnd/spells/filtering.py:27
-msgid "Sub-school"
-msgstr "Subescola"
+#: dnd/editorial.py:36 dnd/editorial.py:66 dnd/filters.py:358
+#: dnd/navigation.py:26 dnd/search.py:35 templates/dnd/index.html:21
+#: templates/dnd/items/item_detail.html:10
+#: templates/dnd/items/item_index.html:9 templates/dnd/items/item_index.html:14
+#: templates/dnd/items/item_list_by_rulebook.html:11
+#: templates/dnd/items/items_in_rulebook.html:10
+#: templates/dnd/mobile/items/item_index.html:8
+#: templates/dnd/mobile/items/item_layout.html:5
+#: templates/dnd/mobile/layout.html:48
+#: templates/dnd/mobile/rulebooks/rulebook_detail.html:17
+#: templates/dnd/rulebooks/rulebook_detail.html:24
+msgid "Items"
+msgstr "Itens"
 
-#: dnd/filters.py:143
-msgid "Descriptor"
-msgstr "Descritor"
+#: dnd/editorial.py:37
+msgid "Additional 3.5 mechanics"
+msgstr "Regras adicionais de D&D 3.5"
 
-#: dnd/filters.py:154 dnd/filters.py:216 dnd/filters.py:265 dnd/filters.py:306
-#: dnd/filters.py:328 dnd/filters.py:426 dnd/filters.py:444
-#: templates/dnd/items/item_list_by_rulebook.html:24
-#: templates/dnd/items/item_table.html:14
-#: templates/dnd/mobile/items/item_list_by_rulebook.html:15
-#: templates/dnd/mobile/monsters/monster_list_by_rulebook.html:15
-#: templates/dnd/mobile/races/race_list_by_rulebook.html:16
-#: templates/dnd/mobile/rulebooks/edition_detail.html:15
-#: templates/dnd/mobile/rulebooks/rulebook_list.html:17
-#: templates/dnd/mobile/skills/skills_list_by_rulebook.html:15
-#: templates/dnd/mobile/spells/spell_list_by_rulebook.html:15
-#: templates/dnd/monsters/monster_list_by_rulebook.html:24
-#: templates/dnd/monsters/monster_table.html:9
-#: templates/dnd/races/race_list_by_rulebook.html:24
-#: templates/dnd/races/race_table.html:9
-#: templates/dnd/rulebooks/edition_detail.html:25
-#: templates/dnd/rulebooks/rulebook_list.html:25
-#: templates/dnd/spells/spell_list_by_rulebook.html:24
-msgid "Edition"
-msgstr "Edição"
-
-#: dnd/filters.py:157 dnd/filters.py:219 dnd/filters.py:261 dnd/filters.py:324
-#: dnd/filters.py:422 dnd/filters.py:440 dnd/spells/filtering.py:32
-#: dnd/spells/filtering.py:52
-#: templates/dnd/character_classes/character_class_list.html:29
-#: templates/dnd/creature_templates/index.html:9
-#: templates/dnd/feats/feat_table.html:9
-#: templates/dnd/mobile/character_classes/character_class_list.html:21
-#: templates/dnd/mobile/feats/feat_table.html:7
-#: templates/dnd/spells/spell_table.html:12
-#: templates/dnd/supplemental/index.html:10
-msgid "Rulebook"
-msgstr "Livro"
-
-#: dnd/filters.py:165 dnd/spells/filtering.py:22
-msgid "Class"
-msgstr "Classe"
-
-#: dnd/filters.py:170
-msgid "Level for class"
-msgstr "Nível por classe"
-
-#: dnd/filters.py:176 dnd/spells/filtering.py:38
-msgid "Domain"
-msgstr "Domínio"
-
-#: dnd/filters.py:181
-msgid "Level for domain"
-msgstr "Nível por domínio"
-
-#: dnd/filters.py:212
-msgid "Item name"
-msgstr "Nome do item"
-
-#: dnd/filters.py:222
-msgid "Item Type"
-msgstr "Tipo de item"
-
-#: dnd/filters.py:225
-msgid "Body Slot"
-msgstr "Espaço no corpo"
-
-#: dnd/filters.py:228
-msgid "Price bonus"
-msgstr "Bônus no preço"
-
-#: dnd/filters.py:231
-msgid "Price in GP (range)"
-msgstr "Preço em PO (intervalo)"
-
-#: dnd/filters.py:234
-msgid "Property"
-msgstr "Propriedade"
-
-#: dnd/filters.py:247 templates/dnd/languages/language_table.html:7
-msgid "Language name"
-msgstr "Nome do idioma"
-
-#: dnd/filters.py:257
-#: templates/dnd/character_classes/character_class_list.html:27
-#: templates/dnd/character_classes/character_classes_in_rulebook.html:20
-#: templates/dnd/mobile/character_classes/character_class_list.html:19
-#: templates/dnd/mobile/character_classes/character_classes_in_rulebook.html:14
-msgid "Class name"
-msgstr "Nome da classe"
-
-#: dnd/filters.py:268
-msgid "Required Base Attack (range)"
-msgstr "Ataque base exigido (intervalo)"
-
-#: dnd/filters.py:271
-msgid "Skill points/level (range)"
-msgstr "Pontos de perícia por nível (intervalo)"
-
-#: dnd/filters.py:274
-msgid "Class feature"
-msgstr "Característica de classe"
-
-#: dnd/filters.py:278
-msgid "Hit die (range)"
-msgstr "Dado de vida (intervalo)"
-
-#: dnd/filters.py:281
-msgid "Race"
-msgstr "Raça"
-
-#: dnd/filters.py:284 dnd/navigation.py:14 dnd/search.py:28
-#: templates/dnd/index.html:22 templates/dnd/mobile/layout.html:47
-#: templates/dnd/mobile/rulebooks/rulebook_detail.html:16
-#: templates/dnd/mobile/skills/skill_layout.html:5
-#: templates/dnd/mobile/skills/skill_list.html:8
-#: templates/dnd/rulebooks/rulebook_detail.html:23
-#: templates/dnd/skills/skill_detail.html:15
-#: templates/dnd/skills/skill_in_rulebook.html:10
-#: templates/dnd/skills/skill_list.html:10
-#: templates/dnd/skills/skill_list.html:15
-#: templates/dnd/skills/skills_list_by_rulebook.html:5
-msgid "Skills"
-msgstr "Perícias"
-
-#: dnd/filters.py:287 dnd/navigation.py:12 dnd/search.py:25
-#: templates/dnd/feats/feat_category_detail.html:9
-#: templates/dnd/feats/feat_category_list.html:11
-#: templates/dnd/feats/feat_detail.html:8 templates/dnd/feats/feat_index.html:7
-#: templates/dnd/feats/feat_index.html:10
-#: templates/dnd/feats/feat_index.html:15
-#: templates/dnd/feats/feats_in_rulebook.html:10 templates/dnd/index.html:17
-#: templates/dnd/mobile/feats/feat_layout.html:5
-#: templates/dnd/mobile/layout.html:44
-#: templates/dnd/mobile/rulebooks/rulebook_detail.html:14
-#: templates/dnd/rulebooks/rulebook_detail.html:21
-msgid "Feats"
-msgstr "Talentos"
-
-#: dnd/filters.py:290
-msgid "Requirement"
-msgstr "Exigência"
-
-#: dnd/filters.py:316 templates/dnd/feats/feat_table.html:7
-#: templates/dnd/mobile/feats/feat_table.html:6
-#: templates/dnd/mobile/skills/skill_detail.html:33
-#: templates/dnd/skills/skill_detail.html:54
-msgid "Feat name"
-msgstr "Nome do talento"
-
-#: dnd/filters.py:320
-msgid "Feat category"
-msgstr "Categoria de talento"
-
-#: dnd/filters.py:343 templates/dnd/supplemental/detail.html:11
-msgid "Prerequisites"
-msgstr "Pré-requisitos"
-
-#: dnd/filters.py:355
-msgid "Domain name"
-msgstr "Nome do domínio"
-
-#: dnd/filters.py:365
-msgid "Descriptor name"
-msgstr "Nome do descritor"
-
-#: dnd/filters.py:419 templates/dnd/monsters/monster_table.html:7
-msgid "Monster name"
-msgstr "Nome do monstro"
-
-#: dnd/filters.py:437 templates/dnd/races/race_table.html:7
-msgid "Race name"
-msgstr "Nome da raça"
-
-#: dnd/filters.py:461 templates/dnd/races/race_type_table.html:9
-msgid "Race type name"
-msgstr "Nome do tipo de raça"
-
-#: dnd/filters.py:464
-msgid "Hit Die Size"
-msgstr "Tamanho do dado de vida"
-
-#: dnd/filters.py:468
-msgid "Base Attack Type"
-msgstr "Tipo de ataque base"
-
-#: dnd/filters.py:471
-msgid "Fort Save Type"
-msgstr "Tipo de resistência de Fortitude"
-
-#: dnd/filters.py:474
-msgid "Reflex Save Type"
-msgstr "Tipo de resistência de Reflexos"
-
-#: dnd/filters.py:477
-msgid "Will Save Type"
-msgstr "Tipo de resistência de Vontade"
-
-#: dnd/monsters/views.py:16
-msgid "Types"
-msgstr "Tipos"
-
-#: dnd/monsters/views.py:24
-msgid "Subtypes"
-msgstr "Subtipos"
-
-#: dnd/monsters/views.py:34
-msgid "type"
-msgstr "tipo"
-
-#: dnd/monsters/views.py:44
-msgid "subtype"
-msgstr "subtipo"
-
-#: dnd/navigation.py:9 dnd/search.py:36 templates/dnd/index.html:23
-#: templates/dnd/mobile/layout.html:43
-#: templates/dnd/mobile/rulebooks/rulebook_list.html:8
-#: templates/dnd/mobile/rulebooks/rulebooks_layout.html:5
-#: templates/dnd/rulebooks/rulebook_detail.html:10
-#: templates/dnd/rulebooks/rulebook_list.html:11
-#: templates/dnd/rulebooks/rulebook_list.html:16
-msgid "Rulebooks"
-msgstr "Livros"
-
-#: dnd/navigation.py:9
-msgid "All rulebooks"
-msgstr "Todos os livros"
-
-#: dnd/navigation.py:10 dnd/search.py:37
+#: dnd/editorial.py:41 dnd/navigation.py:10 dnd/search.py:37
 #: templates/dnd/mobile/rulebooks/edition_list.html:8
 #: templates/dnd/mobile/rulebooks/rulebooks_layout.html:6
 #: templates/dnd/rulebooks/edition_detail.html:10
@@ -294,24 +80,30 @@ msgstr "Todos os livros"
 msgid "Editions"
 msgstr "Edições"
 
-#: dnd/navigation.py:10 dnd/search.py:41
+#: dnd/editorial.py:41 dnd/navigation.py:9 dnd/search.py:36
+#: templates/dnd/index.html:23 templates/dnd/mobile/layout.html:43
+#: templates/dnd/mobile/rulebooks/rulebook_list.html:8
+#: templates/dnd/mobile/rulebooks/rulebooks_layout.html:5
+#: templates/dnd/rulebooks/rulebook_detail.html:10
+#: templates/dnd/rulebooks/rulebook_list.html:6
+#: templates/dnd/rulebooks/rulebook_list.html:7
+#: templates/dnd/rulebooks/rulebook_list.html:12
+msgid "Rulebooks"
+msgstr "Livros"
+
+#: dnd/editorial.py:41 dnd/navigation.py:10 dnd/search.py:41
 #: templates/dnd/rules/condition_detail.html:5
 #: templates/dnd/rules/condition_list.html:5
-#: templates/dnd/rules/rule_detail.html:16
+#: templates/dnd/rules/rule_detail.html:16 templates/dnd/rules/rule_list.html:7
 #: templates/dnd/rules/rule_list.html:10 templates/dnd/rules/rule_list.html:15
 msgid "Rules"
 msgstr "Regras"
 
-#: dnd/navigation.py:10 dnd/search.py:42
-#: templates/dnd/rules/condition_list.html:7
-msgid "Conditions"
-msgstr "Condições"
+#: dnd/editorial.py:42
+msgid "Rule conditions"
+msgstr "Condições das regras"
 
-#: dnd/navigation.py:11
-msgid "Character Options"
-msgstr "Opções de personagem"
-
-#: dnd/navigation.py:11 dnd/search.py:26
+#: dnd/editorial.py:42 dnd/filters.py:358 dnd/navigation.py:11 dnd/search.py:26
 #: templates/dnd/character_classes/character_class_detail.html:9
 #: templates/dnd/character_classes/character_class_list.html:13
 #: templates/dnd/character_classes/character_class_list.html:18
@@ -326,26 +118,81 @@ msgstr "Opções de personagem"
 msgid "Classes"
 msgstr "Classes"
 
-#: dnd/navigation.py:12 dnd/search.py:46
+#: dnd/editorial.py:43
+msgid "Class variants"
+msgstr "Variantes de classe"
+
+#: dnd/editorial.py:44
+msgid "Class variant race requirements"
+msgstr "Requisitos de raça das variantes de classe"
+
+#: dnd/editorial.py:45
+msgid "Class variant feat requirements"
+msgstr "Requisitos de talento das variantes de classe"
+
+#: dnd/editorial.py:46
+msgid "Class variant skill requirements"
+msgstr "Requisitos de perícia das variantes de classe"
+
+#: dnd/editorial.py:47 dnd/editorial.py:130 dnd/navigation.py:12
+#: dnd/search.py:46
 msgid "Feat categories"
 msgstr "Categorias de talentos"
 
-#: dnd/navigation.py:13
-msgid "Traits"
-msgstr "Traços"
+#: dnd/editorial.py:47 dnd/filters.py:288 dnd/filters.py:357
+#: dnd/navigation.py:12 dnd/search.py:25
+#: templates/dnd/feats/feat_category_detail.html:9
+#: templates/dnd/feats/feat_category_list.html:11
+#: templates/dnd/feats/feat_detail.html:8 templates/dnd/feats/feat_index.html:7
+#: templates/dnd/feats/feat_index.html:10
+#: templates/dnd/feats/feat_index.html:15
+#: templates/dnd/feats/feats_in_rulebook.html:10 templates/dnd/index.html:17
+#: templates/dnd/mobile/feats/feat_layout.html:5
+#: templates/dnd/mobile/layout.html:44
+#: templates/dnd/mobile/rulebooks/rulebook_detail.html:14
+#: templates/dnd/rulebooks/rulebook_detail.html:21
+msgid "Feats"
+msgstr "Talentos"
 
-#: dnd/navigation.py:13
-msgid "Flaws"
-msgstr "Defeitos"
+#: dnd/editorial.py:48
+msgid "Special feat prerequisites"
+msgstr "Pré-requisitos especiais de talentos"
 
-#: dnd/navigation.py:13
-msgid "Skill tricks"
-msgstr "Truques de perícia"
+#: dnd/editorial.py:49
+msgid "Text feat prerequisites"
+msgstr "Pré-requisitos textuais de talentos"
 
-#: dnd/navigation.py:14 templates/dnd/skills/skills_list_by_rulebook.html:7
-msgid "Skills by rulebook"
-msgstr "Perícias por livro"
+#: dnd/editorial.py:50
+msgid "Feat special prerequisites"
+msgstr "Pré-requisitos especiais dos talentos"
 
+#: dnd/editorial.py:51
+msgid "Feat requirements"
+msgstr "Dependências entre talentos"
+
+#: dnd/editorial.py:52
+msgid "Feat skill requirements"
+msgstr "Requisitos de perícia dos talentos"
+
+#: dnd/editorial.py:53 dnd/filters.py:285 dnd/navigation.py:14 dnd/search.py:28
+#: templates/dnd/index.html:22 templates/dnd/mobile/layout.html:47
+#: templates/dnd/mobile/rulebooks/rulebook_detail.html:16
+#: templates/dnd/mobile/skills/skill_layout.html:5
+#: templates/dnd/mobile/skills/skill_list.html:8
+#: templates/dnd/rulebooks/rulebook_detail.html:23
+#: templates/dnd/skills/skill_detail.html:15
+#: templates/dnd/skills/skill_in_rulebook.html:10
+#: templates/dnd/skills/skill_list.html:10
+#: templates/dnd/skills/skill_list.html:15
+#: templates/dnd/skills/skills_list_by_rulebook.html:5
+msgid "Skills"
+msgstr "Perícias"
+
+#: dnd/editorial.py:53
+msgid "Skill variants"
+msgstr "Variantes de perícia"
+
+#: dnd/editorial.py:54 dnd/editorial.py:108 dnd/editorial.py:110
 #: dnd/navigation.py:15 dnd/search.py:40
 #: templates/dnd/deities/deity_detail.html:9
 #: templates/dnd/deities/deity_list.html:8
@@ -354,7 +201,7 @@ msgstr "Perícias por livro"
 msgid "Deities"
 msgstr "Divindades"
 
-#: dnd/navigation.py:15 dnd/search.py:39
+#: dnd/editorial.py:54 dnd/navigation.py:15 dnd/search.py:39
 #: templates/dnd/languages/language_detail.html:11
 #: templates/dnd/languages/language_index.html:9
 #: templates/dnd/languages/language_index.html:14
@@ -363,12 +210,8 @@ msgstr "Divindades"
 msgid "Languages"
 msgstr "Idiomas"
 
-#: dnd/navigation.py:15
-msgid "Magic"
-msgstr "Magia"
-
-#: dnd/navigation.py:16 dnd/search.py:24 templates/dnd/index.html:16
-#: templates/dnd/mobile/layout.html:45
+#: dnd/editorial.py:55 dnd/filters.py:357 dnd/navigation.py:16 dnd/search.py:24
+#: templates/dnd/index.html:16 templates/dnd/mobile/layout.html:45
 #: templates/dnd/mobile/rulebooks/rulebook_detail.html:13
 #: templates/dnd/mobile/spells/spell_index.html:8
 #: templates/dnd/mobile/spells/spell_layout.html:5
@@ -390,48 +233,37 @@ msgstr "Magia"
 msgid "Spells"
 msgstr "Magias"
 
-#: dnd/navigation.py:16 templates/dnd/spells/spell_list_by_rulebook.html:17
-msgid "Spells by rulebook"
-msgstr "Magias por livro"
+#: dnd/editorial.py:55
+msgid "Spell class levels"
+msgstr "Níveis de magia por classe"
 
-#: dnd/navigation.py:17 dnd/search.py:43
+#: dnd/editorial.py:56
+msgid "Spell domain levels"
+msgstr "Níveis de magia por domínio"
+
+#: dnd/editorial.py:57 dnd/navigation.py:17 dnd/search.py:43
 msgid "Spell schools"
 msgstr "Escolas de magia"
 
-#: dnd/navigation.py:17 dnd/search.py:45 dnd/spells/filtering.py:29
-msgid "Descriptors"
-msgstr "Descritores"
+#: dnd/editorial.py:57
+msgid "Spell subschools"
+msgstr "Subescolas de magia"
 
-#: dnd/navigation.py:18 dnd/search.py:38
+#: dnd/editorial.py:58
+msgid "Spell descriptors"
+msgstr "Descritores de magia"
+
+#: dnd/editorial.py:58 dnd/navigation.py:18 dnd/search.py:38
+#: templates/dnd/spells/spell_domain_list.html:12
 msgid "Domains"
 msgstr "Domínios"
 
-#: dnd/navigation.py:18
-msgid "Shadow casting"
-msgstr "Magia das sombras"
+#: dnd/editorial.py:59
+msgid "Domain variants"
+msgstr "Variantes de domínio"
 
-#: dnd/navigation.py:19
-msgid "Invocations"
-msgstr "Invocações"
-
-#: dnd/navigation.py:19
-msgid "Psionics"
-msgstr "Psiquismo"
-
-#: dnd/navigation.py:20
-msgid "Auras"
-msgstr "Auras"
-
-#: dnd/navigation.py:20
-msgid "Maneuvers"
-msgstr "Manobras"
-
-#: dnd/navigation.py:21
-msgid "Bestiary"
-msgstr "Bestiário"
-
-#: dnd/navigation.py:21 dnd/search.py:29 templates/dnd/index.html:19
-#: templates/dnd/mobile/races/race_index.html:8
+#: dnd/editorial.py:59 dnd/filters.py:359 dnd/navigation.py:21 dnd/search.py:29
+#: templates/dnd/index.html:19 templates/dnd/mobile/races/race_index.html:8
 #: templates/dnd/mobile/races_monsters_layout.html:14
 #: templates/dnd/mobile/rulebooks/rulebook_detail.html:18
 #: templates/dnd/races/race_detail.html:12
@@ -444,15 +276,28 @@ msgstr "Bestiário"
 msgid "Races"
 msgstr "Raças"
 
-#: dnd/navigation.py:22 dnd/search.py:47
+#: dnd/editorial.py:60
+msgid "Race sizes"
+msgstr "Tamanhos de raça"
+
+#: dnd/editorial.py:60
+msgid "Race speed types"
+msgstr "Tipos de deslocamento"
+
+#: dnd/editorial.py:61 dnd/navigation.py:22 dnd/search.py:47
 msgid "Race types"
 msgstr "Tipos de raça"
 
-#: dnd/navigation.py:22 templates/dnd/races/race_list_by_rulebook.html:17
-msgid "Races by rulebook"
-msgstr "Raças por livro"
+#: dnd/editorial.py:61
+msgid "Race speeds"
+msgstr "Deslocamentos das raças"
 
-#: dnd/navigation.py:23 dnd/search.py:30 templates/dnd/index.html:20
+#: dnd/editorial.py:62
+msgid "Race favored classes"
+msgstr "Classes favorecidas das raças"
+
+#: dnd/editorial.py:63 dnd/filters.py:359 dnd/navigation.py:23 dnd/search.py:30
+#: templates/dnd/index.html:20
 #: templates/dnd/mobile/monsters/monster_index.html:8
 #: templates/dnd/mobile/races_monsters_layout.html:6
 #: templates/dnd/monsters/monster_detail.html:10
@@ -460,41 +305,1265 @@ msgstr "Raças por livro"
 #: templates/dnd/monsters/monster_index.html:14
 #: templates/dnd/monsters/monster_kind_detail.html:5
 #: templates/dnd/monsters/monster_kind_list.html:5
+#: templates/dnd/monsters/monster_list_by_rulebook.html:8
+#: templates/dnd/monsters/monster_list_by_rulebook.html:11
+#: templates/dnd/monsters/monsters_in_rulebook.html:10
 msgid "Monsters"
 msgstr "Monstros"
+
+#: dnd/editorial.py:63 dnd/navigation.py:24 dnd/search.py:48
+msgid "Monster types"
+msgstr "Tipos de monstro"
+
+#: dnd/editorial.py:64 dnd/navigation.py:24 dnd/search.py:49
+msgid "Monster subtypes"
+msgstr "Subtipos de monstro"
+
+#: dnd/editorial.py:64
+msgid "Monster feats"
+msgstr "Talentos dos monstros"
+
+#: dnd/editorial.py:65
+msgid "Monster skills"
+msgstr "Perícias dos monstros"
+
+#: dnd/editorial.py:65
+msgid "Monster speeds"
+msgstr "Deslocamentos dos monstros"
+
+#: dnd/editorial.py:66 dnd/filters.py:360 dnd/search.py:31
+#: templates/dnd/creature_templates/detail.html:5
+#: templates/dnd/creature_templates/index.html:4
+#: templates/dnd/creature_templates/index.html:5
+#: templates/dnd/creature_templates/index.html:7
+msgid "Creature templates"
+msgstr "Modelos de criaturas"
+
+#: dnd/editorial.py:67
+msgid "Item slots"
+msgstr "Espaços dos itens"
+
+#: dnd/editorial.py:67
+msgid "Item properties"
+msgstr "Propriedades dos itens"
+
+#: dnd/editorial.py:68
+msgid "Item aura types"
+msgstr "Tipos de aura dos itens"
+
+#: dnd/editorial.py:68
+msgid "Item activation types"
+msgstr "Tipos de ativação dos itens"
+
+#: dnd/editorial.py:69 dnd/search.py:33
+msgid "Additional mechanics"
+msgstr "Regras adicionais"
+
+#: dnd/editorial.py:72
+msgid "Shadow casting mysteries"
+msgstr "Mistérios de magia das sombras"
+
+#: dnd/editorial.py:73 dnd/navigation.py:19
+msgid "Invocations"
+msgstr "Invocações"
+
+#: dnd/editorial.py:74
+msgid "Psionic powers"
+msgstr "Poderes psiônicos"
+
+#: dnd/editorial.py:75 dnd/navigation.py:20
+msgid "Auras"
+msgstr "Auras"
+
+#: dnd/editorial.py:76
+msgid "Martial maneuvers"
+msgstr "Manobras marciais"
+
+#: dnd/editorial.py:77 dnd/navigation.py:25
+msgid "Monstrous traits"
+msgstr "Traços monstruosos"
+
+#: dnd/editorial.py:80 templates/dnd/creature_templates/index.html:9
+#: templates/dnd/items/item_table.html:9
+#: templates/dnd/mobile/items/item_table.html:8
+#: templates/dnd/mobile/spells/spell_descriptor_list.html:16
+#: templates/dnd/mobile/spells/spell_domain_list.html:16
+#: templates/dnd/spells/spell_descriptor_list.html:25
+#: templates/dnd/spells/spell_domain_list.html:26
+#: templates/dnd/supplemental/index.html:10
+msgid "Name"
+msgstr "Nome"
+
+#: dnd/editorial.py:80 dnd/filters.py:158 dnd/filters.py:220 dnd/filters.py:262
+#: dnd/filters.py:380 dnd/filters.py:478 dnd/filters.py:496
+#: dnd/spells/filtering.py:32 dnd/spells/filtering.py:52
+#: templates/dnd/character_classes/character_class_list.html:29
+#: templates/dnd/creature_templates/index.html:9
+#: templates/dnd/feats/feat_table.html:9
+#: templates/dnd/mobile/character_classes/character_class_list.html:21
+#: templates/dnd/mobile/feats/feat_table.html:7
+#: templates/dnd/spells/spell_table.html:12
+#: templates/dnd/supplemental/index.html:10
+msgid "Rulebook"
+msgstr "Livro"
+
+#: dnd/editorial.py:80 dnd/filters.py:155 dnd/filters.py:217 dnd/filters.py:266
+#: dnd/filters.py:345 dnd/filters.py:384 dnd/filters.py:482 dnd/filters.py:500
+#: templates/dnd/items/item_list_by_rulebook.html:24
+#: templates/dnd/items/item_table.html:14
+#: templates/dnd/mobile/items/item_list_by_rulebook.html:15
+#: templates/dnd/mobile/monsters/monster_list_by_rulebook.html:15
+#: templates/dnd/mobile/races/race_list_by_rulebook.html:16
+#: templates/dnd/mobile/rulebooks/edition_detail.html:15
+#: templates/dnd/mobile/rulebooks/rulebook_list.html:17
+#: templates/dnd/mobile/skills/skills_list_by_rulebook.html:15
+#: templates/dnd/mobile/spells/spell_list_by_rulebook.html:15
+#: templates/dnd/monsters/monster_list_by_rulebook.html:24
+#: templates/dnd/monsters/monster_table.html:9
+#: templates/dnd/races/race_list_by_rulebook.html:24
+#: templates/dnd/races/race_table.html:9
+#: templates/dnd/spells/spell_list_by_rulebook.html:24
+msgid "Edition"
+msgstr "Edição"
+
+#: dnd/editorial.py:81
+msgid "Page"
+msgstr "Página"
+
+#: dnd/editorial.py:81
+msgid "First page"
+msgstr "Página inicial"
+
+#: dnd/editorial.py:81
+msgid "Last page"
+msgstr "Página final"
+
+#: dnd/editorial.py:82 templates/dnd/creature_templates/detail.html:14
+#: templates/dnd/mobile/races/race_detail.html:135
+#: templates/dnd/races/race_detail.html:164
+#: templates/dnd/skills/skill_variant_inner.html:5
+#: templates/dnd/supplemental/detail.html:13
+msgid "Description"
+msgstr "Descrição"
+
+#: dnd/editorial.py:82 templates/dnd/feats/feat_table.html:8
+msgid "Short description"
+msgstr "Descrição resumida"
+
+#: dnd/editorial.py:83
+msgid "Rule text"
+msgstr "Texto da regra"
+
+#: dnd/editorial.py:83
+msgid "Text"
+msgstr "Texto"
+
+#: dnd/editorial.py:83
+msgid "Additional details"
+msgstr "Detalhes adicionais"
+
+#: dnd/editorial.py:84 templates/dnd/creature_templates/detail.html:9
+#: templates/dnd/creature_templates/index.html:9
+msgid "Type"
+msgstr "Tipo"
+
+#: dnd/editorial.py:84 templates/dnd/search.html:11
+#: templates/dnd/supplemental/detail.html:9
+#: templates/dnd/supplemental/index.html:10
+msgid "Category"
+msgstr "Categoria"
+
+#: dnd/editorial.py:85
+#: templates/dnd/character_classes/character_class_detail.html:57
+#: templates/dnd/character_classes/character_class_detail.html:58
+#: templates/dnd/character_classes/character_class_detail.html:59
+#: templates/dnd/character_classes/character_class_detail.html:60
+#: templates/dnd/character_classes/character_class_detail.html:61
+#: templates/dnd/character_classes/character_class_detail.html:62
+#: templates/dnd/character_classes/character_class_detail.html:63
+#: templates/dnd/character_classes/character_class_detail.html:64
+#: templates/dnd/character_classes/character_class_detail.html:65
+#: templates/dnd/character_classes/character_class_detail.html:66
+#: templates/dnd/items/item_table.html:10
+#: templates/dnd/supplemental/detail.html:10
+msgid "Level"
+msgstr "Nível"
+
+#: dnd/editorial.py:85
+msgid "Rules text"
+msgstr "Texto das regras"
+
+#: dnd/editorial.py:85 dnd/filters.py:399
+#: templates/dnd/supplemental/detail.html:11
+msgid "Prerequisites"
+msgstr "Pré-requisitos"
+
+#: dnd/editorial.py:86 dnd/filters.py:166 dnd/spells/filtering.py:22
+#: templates/dnd/character_classes/character_class_detail.html:6
+msgid "Class"
+msgstr "Classe"
+
+#: dnd/editorial.py:86
+msgid "Class variant"
+msgstr "Variante de classe"
+
+#: dnd/editorial.py:87 dnd/filters.py:282
+#: templates/dnd/races/race_detail.html:9
+msgid "Race"
+msgstr "Raça"
+
+#: dnd/editorial.py:87 templates/dnd/feats/feat_detail.html:5
+msgid "Feat"
+msgstr "Talento"
+
+#: dnd/editorial.py:87 templates/dnd/spells/spell_detail.html:7
+msgid "Spell"
+msgstr "Magia"
+
+#: dnd/editorial.py:87
+msgid "Skill"
+msgstr "Perícia"
+
+#: dnd/editorial.py:88 templates/dnd/monsters/monster_detail.html:7
+#: templates/dnd/monsters/monster_kind_list.html:4
+#: templates/dnd/monsters/monster_kind_list.html:7
+msgid "Monster"
+msgstr "Monstro"
+
+#: dnd/editorial.py:88 dnd/filters.py:177 dnd/spells/filtering.py:38
+msgid "Domain"
+msgstr "Domínio"
+
+#: dnd/editorial.py:88 dnd/filters.py:138 dnd/spells/filtering.py:26
+#: dnd/spells/filtering.py:53
+msgid "School"
+msgstr "Escola"
+
+#: dnd/editorial.py:89
+msgid "Subschool"
+msgstr "Subescola"
+
+#: dnd/editorial.py:89
+msgid "Size"
+msgstr "Tamanho"
+
+#: dnd/editorial.py:89
+msgid "System"
+msgstr "Sistema"
+
+#: dnd/editorial.py:90
+msgid "Core book"
+msgstr "Livro básico"
+
+#: dnd/editorial.py:90
+msgid "Prestige class"
+msgstr "Classe de prestígio"
+
+#: dnd/editorial.py:91
+#: templates/dnd/character_classes/character_class_variant_inner.html:88
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:77
+msgid "Skill points"
+msgstr "Pontos de perícia"
+
+#: dnd/editorial.py:91
+#: templates/dnd/character_classes/character_class_variant_inner.html:5
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:5
+msgid "Requirements"
+msgstr "Requisitos"
+
+#: dnd/editorial.py:92
+msgid "Required base attack bonus"
+msgstr "Bônus base de ataque exigido"
+
+#: dnd/editorial.py:92
+msgid "Class features"
+msgstr "Características de classe"
+
+#: dnd/editorial.py:93
+#: templates/dnd/character_classes/character_class_variant_inner.html:72
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:61
+msgid "Hit die"
+msgstr "Dado de vida"
+
+#: dnd/editorial.py:93
+#: templates/dnd/character_classes/character_class_variant_inner.html:78
+#: templates/dnd/deities/deity_detail.html:29
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:67
+#: templates/dnd/mobile/deities/deity_detail.html:18
+msgid "Alignment"
+msgstr "Tendência"
+
+#: dnd/editorial.py:94
+#: templates/dnd/character_classes/character_class_variant_inner.html:83
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:72
+msgid "Starting gold"
+msgstr "Ouro inicial"
+
+#: dnd/editorial.py:94
+#: templates/dnd/character_classes/character_class_variant_inner.html:101
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:90
+msgid "Advancement"
+msgstr "Progressão"
+
+#: dnd/editorial.py:95
+#: templates/dnd/character_classes/character_class_variant_inner.html:106
+#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:95
+msgid "Class skills"
+msgstr "Perícias de classe"
+
+#: dnd/editorial.py:95
+msgid "Ranks"
+msgstr "Graduações"
+
+#: dnd/editorial.py:96
+msgid "Text before"
+msgstr "Texto anterior"
+
+#: dnd/editorial.py:96
+msgid "Text after"
+msgstr "Texto posterior"
+
+#: dnd/editorial.py:97
+msgid "Remove comma"
+msgstr "Remover vírgula"
+
+#: dnd/editorial.py:97 templates/dnd/feats/feat_detail.html:68
+msgid "Benefit"
+msgstr "Benefício"
+
+#: dnd/editorial.py:98 templates/dnd/feats/feat_detail.html:77
+#: templates/dnd/skills/skill_variant_inner.html:25
+msgid "Special"
+msgstr "Especial"
+
+#: dnd/editorial.py:98 templates/dnd/feats/feat_detail.html:86
+msgid "Normal"
+msgstr "Normal"
+
+#: dnd/editorial.py:99
+msgid "Source feat"
+msgstr "Talento de origem"
+
+#: dnd/editorial.py:99
+msgid "Required feat"
+msgstr "Talento exigido"
+
+#: dnd/editorial.py:100
+msgid "Minimum ranks"
+msgstr "Graduações mínimas"
+
+#: dnd/editorial.py:100
+msgid "Additional text"
+msgstr "Texto adicional"
+
+#: dnd/editorial.py:101
+msgid "Special prerequisite"
+msgstr "Pré-requisito especial"
+
+#: dnd/editorial.py:102
+msgid "First value"
+msgstr "Primeiro valor"
+
+#: dnd/editorial.py:102
+msgid "Second value"
+msgstr "Segundo valor"
+
+#: dnd/editorial.py:103
+msgid "Base skill"
+msgstr "Perícia base"
+
+#: dnd/editorial.py:103 templates/dnd/skills/skill_table_inner.html:10
+msgid "Trained only"
+msgstr "Somente treinado"
+
+#: dnd/editorial.py:104 templates/dnd/skills/skill_table_inner.html:11
+msgid "Armor check penalty"
+msgstr "Penalidade de armadura"
+
+#: dnd/editorial.py:105 templates/dnd/skills/skill_variant_inner.html:10
+msgid "Check"
+msgstr "Teste"
+
+#: dnd/editorial.py:105 templates/admin/editorial/dashboard.html:8
+#: templates/admin/editorial/dashboard.html:11
+#: templates/dnd/skills/skill_variant_inner.html:15
+msgid "Action"
+msgstr "Ação"
+
+#: dnd/editorial.py:106 templates/dnd/skills/skill_variant_inner.html:20
+msgid "Try again"
+msgstr "Tentar novamente"
+
+#: dnd/editorial.py:106 templates/dnd/skills/skill_variant_inner.html:30
+msgid "Synergy"
+msgstr "Sinergia"
+
+#: dnd/editorial.py:107 templates/dnd/skills/skill_variant_inner.html:35
+msgid "Restriction"
+msgstr "Restrição"
+
+#: dnd/editorial.py:107 templates/dnd/skills/skill_variant_inner.html:40
+msgid "Untrained"
+msgstr "Sem treinamento"
+
+#: dnd/editorial.py:108 dnd/filters.py:291
+msgid "Requirement"
+msgstr "Exigência"
+
+#: dnd/editorial.py:109 templates/dnd/spells/spell_domain_detail.html:62
+msgid "Granted power"
+msgstr "Poder concedido"
+
+#: dnd/editorial.py:109
+msgid "Granted power type"
+msgstr "Tipo do poder concedido"
+
+#: dnd/editorial.py:110
+msgid "Other deities"
+msgstr "Outras divindades"
+
+#: dnd/editorial.py:111
+msgid "Favored weapon"
+msgstr "Arma favorita"
+
+#: dnd/editorial.py:111
+msgid "Display format"
+msgstr "Formato de exibição"
+
+#: dnd/editorial.py:112 templates/dnd/creature_templates/detail.html:10
+msgid "Applicable creatures"
+msgstr "Criaturas aplicáveis"
+
+#: dnd/editorial.py:113
+msgid "Challenge rating adjustment"
+msgstr "Ajuste no nível de desafio"
+
+#: dnd/editorial.py:114
+msgid "Level adjustment"
+msgstr "Ajuste de nível"
+
+#: dnd/editorial.py:115 templates/dnd/creature_templates/detail.html:13
+msgid "Mechanical changes"
+msgstr "Alterações mecânicas"
+
+#: dnd/editorial.py:116 dnd/spells/filtering.py:36
+msgid "Publication type"
+msgstr "Tipo de publicação"
+
+#: dnd/editorial.py:116
+msgid "ISBN"
+msgstr "ISBN"
+
+#: dnd/editorial.py:117 templates/dnd/rulebooks/rulebook_detail.html:52
+msgid "Authors"
+msgstr "Autores"
+
+#: dnd/editorial.py:117 templates/dnd/rulebooks/rulebook_detail.html:53
+msgid "Cover artist"
+msgstr "Artista da capa"
+
+#: dnd/editorial.py:118 templates/dnd/rulebooks/rulebook_detail.html:54
+msgid "Publisher"
+msgstr "Editora"
+
+#: dnd/editorial.py:118 templates/dnd/rulebooks/rulebook_detail.html:56
+msgid "Pages"
+msgstr "Páginas"
+
+#: dnd/editorial.py:118 templates/dnd/rulebooks/rulebook_detail.html:57
+msgid "Format"
+msgstr "Formato"
+
+#: dnd/editorial.py:119
+msgid "Bibliography URL"
+msgstr "URL bibliográfica"
+
+#: dnd/editorial.py:119
+msgid "Year"
+msgstr "Ano"
+
+#: dnd/editorial.py:120
+msgid "Published"
+msgstr "Publicado"
+
+#: dnd/editorial.py:120
+msgid "Official URL"
+msgstr "URL oficial"
+
+#: dnd/editorial.py:121
+msgid "Abbreviation"
+msgstr "Abreviação"
+
+#: dnd/editorial.py:121
+msgid "Price in gp"
+msgstr "Preço em po"
+
+#: dnd/editorial.py:122
+msgid "Enhancement bonus"
+msgstr "Bônus de melhoria"
+
+#: dnd/editorial.py:122
+msgid "Item level"
+msgstr "Nível do item"
+
+#: dnd/editorial.py:123
+msgid "Body slot"
+msgstr "Espaço no corpo"
+
+#: dnd/editorial.py:123 dnd/filters.py:235
+msgid "Property"
+msgstr "Propriedade"
+
+#: dnd/editorial.py:124
+msgid "Caster level"
+msgstr "Nível de conjurador"
+
+#: dnd/editorial.py:124
+msgid "Aura"
+msgstr "Aura"
+
+#: dnd/editorial.py:124
+msgid "Aura DC"
+msgstr "CD da aura"
+
+#: dnd/editorial.py:125
+msgid "Activation"
+msgstr "Ativação"
+
+#: dnd/editorial.py:125
+msgid "Weight"
+msgstr "Peso"
+
+#: dnd/editorial.py:126
+msgid "Appearance"
+msgstr "Aparência"
+
+#: dnd/editorial.py:126
+msgid "Creation cost"
+msgstr "Custo de criação"
+
+#: dnd/editorial.py:127
+msgid "Other requirements"
+msgstr "Outros requisitos"
+
+#: dnd/editorial.py:128
+msgid "Synergy prerequisite"
+msgstr "Pré-requisito de sinergia"
+
+#: dnd/editorial.py:129
+msgid "Aura schools"
+msgstr "Escolas da aura"
+
+#: dnd/editorial.py:129
+msgid "Required feats"
+msgstr "Talentos exigidos"
+
+#: dnd/editorial.py:130
+msgid "Required spells"
+msgstr "Magias exigidas"
+
+#: dnd/editorial.py:131 dnd/navigation.py:17 dnd/search.py:45
+#: dnd/spells/filtering.py:29
+msgid "Descriptors"
+msgstr "Descritores"
+
+#: dnd/editorial.py:131 dnd/monsters/views.py:24
+msgid "Subtypes"
+msgstr "Subtipos"
+
+#: dnd/editorial.py:132
+msgid "Automatic languages"
+msgstr "Idiomas automáticos"
+
+#: dnd/editorial.py:133
+msgid "Bonus languages"
+msgstr "Idiomas adicionais"
+
+#: dnd/editorial.py:133
+msgid "Race type"
+msgstr "Tipo de raça"
+
+#: dnd/editorial.py:134
+msgid "Racial hit dice"
+msgstr "Dados de vida raciais"
+
+#: dnd/editorial.py:135
+msgid "Hit die size"
+msgstr "Tamanho do dado de vida"
+
+#: dnd/editorial.py:136
+msgid "Base attack progression"
+msgstr "Progressão do ataque base"
+
+#: dnd/editorial.py:137
+msgid "Fortitude save progression"
+msgstr "Progressão de Fortitude"
+
+#: dnd/editorial.py:138
+msgid "Reflex save progression"
+msgstr "Progressão de Reflexos"
+
+#: dnd/editorial.py:139
+msgid "Will save progression"
+msgstr "Progressão de Vontade"
+
+#: dnd/editorial.py:140
+msgid "Speed"
+msgstr "Deslocamento"
+
+#: dnd/editorial.py:140
+msgid "Order"
+msgstr "Ordem"
+
+#: dnd/editorial.py:141
+msgid "Hit dice"
+msgstr "Dados de vida"
+
+#: dnd/editorial.py:141
+msgid "Initiative"
+msgstr "Iniciativa"
+
+#: dnd/editorial.py:142
+msgid "Armor class"
+msgstr "Classe de armadura"
+
+#: dnd/editorial.py:142
+msgid "Touch armor class"
+msgstr "Classe de armadura de toque"
+
+#: dnd/editorial.py:143
+msgid "Flat-footed armor class"
+msgstr "Classe de armadura surpreso"
+
+#: dnd/editorial.py:144
+msgid "Base attack"
+msgstr "Ataque base"
+
+#: dnd/editorial.py:144
+msgid "Grapple"
+msgstr "Agarrar"
+
+#: dnd/editorial.py:145
+msgid "Attack"
+msgstr "Ataque"
+
+#: dnd/editorial.py:145
+msgid "Full attack"
+msgstr "Ataque total"
+
+#: dnd/editorial.py:146
+msgid "Space"
+msgstr "Espaço"
+
+#: dnd/editorial.py:146
+msgid "Reach"
+msgstr "Alcance"
+
+#: dnd/editorial.py:147
+msgid "Special attacks"
+msgstr "Ataques especiais"
+
+#: dnd/editorial.py:147
+msgid "Special qualities"
+msgstr "Qualidades especiais"
+
+#: dnd/editorial.py:148
+msgid "Fortitude save"
+msgstr "Teste de Fortitude"
+
+#: dnd/editorial.py:148
+msgid "Fortitude details"
+msgstr "Detalhes de Fortitude"
+
+#: dnd/editorial.py:149
+msgid "Reflex save"
+msgstr "Teste de Reflexos"
+
+#: dnd/editorial.py:149
+msgid "Reflex details"
+msgstr "Detalhes de Reflexos"
+
+#: dnd/editorial.py:150
+msgid "Will save"
+msgstr "Teste de Vontade"
+
+#: dnd/editorial.py:150
+msgid "Will details"
+msgstr "Detalhes de Vontade"
+
+#: dnd/editorial.py:151
+msgid "Strength"
+msgstr "Força"
+
+#: dnd/editorial.py:151
+msgid "Dexterity"
+msgstr "Destreza"
+
+#: dnd/editorial.py:151
+msgid "Constitution"
+msgstr "Constituição"
+
+#: dnd/editorial.py:152
+msgid "Intelligence"
+msgstr "Inteligência"
+
+#: dnd/editorial.py:152
+msgid "Wisdom"
+msgstr "Sabedoria"
+
+#: dnd/editorial.py:152
+msgid "Charisma"
+msgstr "Carisma"
+
+#: dnd/editorial.py:153
+msgid "Environment"
+msgstr "Ambiente"
+
+#: dnd/editorial.py:153
+msgid "Organization"
+msgstr "Organização"
+
+#: dnd/editorial.py:154
+msgid "Challenge rating"
+msgstr "Nível de desafio"
+
+#: dnd/editorial.py:154
+msgid "Treasure"
+msgstr "Tesouro"
+
+#: dnd/editorial.py:155 templates/dnd/mobile/monsters/monster_detail.html:139
+#: templates/dnd/mobile/races/race_detail.html:139
+#: templates/dnd/monsters/monster_detail.html:148
+#: templates/dnd/races/race_detail.html:168
+msgid "Combat"
+msgstr "Combate"
+
+#: dnd/editorial.py:155
+msgid "Racial traits"
+msgstr "Traços raciais"
+
+#: dnd/editorial.py:156
+msgid "Natural armor"
+msgstr "Armadura natural"
+
+#: dnd/editorial.py:157
+msgid "Verbal component"
+msgstr "Componente verbal"
+
+#: dnd/editorial.py:157
+msgid "Somatic component"
+msgstr "Componente somático"
+
+#: dnd/editorial.py:158
+msgid "Material component"
+msgstr "Componente material"
+
+#: dnd/editorial.py:159
+msgid "Arcane focus component"
+msgstr "Componente de foco arcano"
+
+#: dnd/editorial.py:160
+msgid "Divine focus component"
+msgstr "Componente de foco divino"
+
+#: dnd/editorial.py:161
+msgid "XP component"
+msgstr "Componente de XP"
+
+#: dnd/editorial.py:161
+msgid "Metabreath component"
+msgstr "Componente de metasopro"
+
+#: dnd/editorial.py:162
+msgid "Truename component"
+msgstr "Componente de nome verdadeiro"
+
+#: dnd/editorial.py:163
+msgid "Other components"
+msgstr "Outros componentes"
+
+#: dnd/editorial.py:163
+msgid "Casting time"
+msgstr "Tempo de execução"
+
+#: dnd/editorial.py:164 templates/dnd/spells/spell_table.html:15
+msgid "Range"
+msgstr "Alcance"
+
+#: dnd/editorial.py:164
+msgid "Target"
+msgstr "Alvo"
+
+#: dnd/editorial.py:164 templates/dnd/spells/spell_table.html:13
+msgid "Effect"
+msgstr "Efeito"
+
+#: dnd/editorial.py:165
+msgid "Area"
+msgstr "Área"
+
+#: dnd/editorial.py:165 templates/dnd/spells/spell_table.html:14
+msgid "Duration"
+msgstr "Duração"
+
+#: dnd/editorial.py:166
+msgid "Saving throw"
+msgstr "Teste de resistência"
+
+#: dnd/editorial.py:166
+msgid "Spell resistance"
+msgstr "Resistência à magia"
+
+#: dnd/editorial.py:167
+msgid "Corrupt component"
+msgstr "Componente corrupto"
+
+#: dnd/editorial.py:167
+msgid "Corrupt level"
+msgstr "Nível corrupto"
+
+#: dnd/editorial.py:170
+msgid "All additional mechanics"
+msgstr "Todas as regras adicionais"
+
+#: dnd/editorial.py:262 templates/admin/editorial/propose.html:6
+#: templates/admin/editorial/review.html:7
+msgid "Original"
+msgstr "Original"
+
+#: dnd/editorial_views.py:38
+msgid "Official D&D 3.5 source, page and editorial notes"
+msgstr "Fonte oficial de D&D 3.5, página e notas editoriais"
+
+#: dnd/editorial_views.py:43 templates/admin/editorial/dashboard.html:8
+msgid "Email"
+msgstr "E-mail"
+
+#: dnd/editorial_views.py:45 templates/admin/editorial/dashboard.html:15
+msgid "Catalog resources"
+msgstr "Recursos do catálogo"
+
+#: dnd/editorial_views.py:49
+msgid "Permissions"
+msgstr "Permissões"
+
+#: dnd/editorial_views.py:50
+msgid "Add records"
+msgstr "Adicionar registros"
+
+#: dnd/editorial_views.py:50
+msgid "Correct records"
+msgstr "Corrigir registros"
+
+#: dnd/editorial_views.py:51
+msgid "Translate records"
+msgstr "Traduzir registros"
+
+#: dnd/editorial_views.py:51
+msgid "Propose removals"
+msgstr "Propor remoções"
+
+#: dnd/editorial_views.py:58
+msgid "Multiple Django accounts use this email. Resolve them before inviting."
+msgstr ""
+"Mais de uma conta usa este e-mail. Resolva a duplicidade antes de convidar."
+
+#: dnd/editorial_views.py:62
+msgid "This email already has an active or unrelated Django account."
+msgstr ""
+"Este e-mail já pertence a uma conta ativa ou não vinculada a convites "
+"editoriais."
+
+#: dnd/editorial_views.py:67
+msgid "Invitation code"
+msgstr "Código do convite"
+
+#: dnd/editorial_views.py:93 templates/admin/editorial/catalog.html:4
+#: templates/admin/editorial/dashboard.html:4
+#: templates/admin/editorial/invite.html:4
+#: templates/admin/editorial/review.html:4
+msgid "Editorial workspace"
+msgstr "Área editorial"
+
+#: dnd/editorial_views.py:149
+msgid ""
+"The invitation could not be sent. Please try again; no account was changed."
+msgstr ""
+"Não foi possível enviar o convite. Tente novamente; nenhuma conta foi "
+"alterada."
+
+#: dnd/editorial_views.py:151
+msgid ""
+"Invitation emailed. The collaborator must complete Cloudflare MFA and "
+"activation."
+msgstr ""
+"Convite enviado por e-mail. O colaborador precisa concluir o MFA do "
+"Cloudflare e ativar a conta."
+
+#: dnd/editorial_views.py:154 templates/admin/editorial/dashboard.html:7
+#: templates/admin/editorial/invite.html:5
+msgid "Invite collaborator"
+msgstr "Convidar colaborador"
+
+#: dnd/editorial_views.py:162
+msgid "Cloudflare Access sign-in required."
+msgstr "É necessário entrar pelo Cloudflare Access."
+
+#: dnd/editorial_views.py:168
+msgid "No pending invitation for this Access identity."
+msgstr "Não há convite pendente para esta identidade do Cloudflare Access."
+
+#: dnd/editorial_views.py:175
+msgid "Code invalid or expired."
+msgstr "Código inválido ou expirado."
+
+#: dnd/editorial_views.py:182
+msgid "Invitation no longer available."
+msgstr "Este convite não está mais disponível."
+
+#: dnd/editorial_views.py:190
+msgid "Account activated. Your Cloudflare identity now signs you in."
+msgstr "Conta ativada. Sua identidade do Cloudflare agora permite entrar."
+
+#: dnd/editorial_views.py:193 templates/admin/editorial/activate.html:4
+msgid "Activate editorial access"
+msgstr "Ativar acesso editorial"
+
+#: dnd/editorial_views.py:212
+msgid ""
+"Django access revoked immediately. Synchronize the Access group as well."
+msgstr ""
+"Acesso ao Django revogado imediatamente. Sincronize também o grupo do "
+"Cloudflare Access."
+
+#: dnd/editorial_views.py:227 dnd/editorial_views.py:283
+msgid "Select a catalog type from the editorial workspace."
+msgstr "Selecione um tipo de catálogo na área editorial."
+
+#: dnd/editorial_views.py:298
+msgid "The selected catalog type changed. Reload the form."
+msgstr "O tipo de catálogo selecionado mudou. Recarregue o formulário."
+
+#: dnd/editorial_views.py:323
+msgid ""
+"Proposal saved, but the email alert could not be sent. The pending queue "
+"still shows it."
+msgstr ""
+"Proposta salva, mas o aviso por e-mail falhou. Ela continua na fila de "
+"revisão."
+
+#: dnd/editorial_views.py:325
+msgid "Proposal submitted for Ronassic’s review."
+msgstr "Proposta enviada para revisão de Ronassic."
+
+#: dnd/editorial_views.py:328
+msgid "Propose addition"
+msgstr "Propor inclusão"
+
+#: dnd/editorial_views.py:328 templates/admin/editorial/catalog.html:9
+msgid "Propose correction"
+msgstr "Propor correção"
+
+#: dnd/editorial_views.py:329
+msgid "Propose translation"
+msgstr "Propor tradução"
+
+#: dnd/editorial_views.py:329 templates/admin/editorial/catalog.html:9
+msgid "Propose removal"
+msgstr "Propor remoção"
+
+#: dnd/editorial_views.py:343
+msgid "Review proposal"
+msgstr "Revisar proposta"
+
+#: dnd/editorial_views.py:363
+msgid "Proposal approved and published."
+msgstr "Proposta aprovada e publicada."
+
+#: dnd/editorial_views.py:368
+msgid "This proposal has already been reviewed."
+msgstr "Esta proposta já foi revisada."
+
+#: dnd/editorial_views.py:375
+msgid "Proposal rejected."
+msgstr "Proposta rejeitada."
+
+#: dnd/filters.py:115 dnd/spells/filtering.py:21
+#: templates/dnd/spells/spell_table.html:10
+msgid "Spell name"
+msgstr "Nome da magia"
+
+#: dnd/filters.py:141 dnd/spells/filtering.py:27
+msgid "Sub-school"
+msgstr "Subescola"
+
+#: dnd/filters.py:144
+msgid "Descriptor"
+msgstr "Descritor"
+
+#: dnd/filters.py:171
+msgid "Level for class"
+msgstr "Nível por classe"
+
+#: dnd/filters.py:182
+msgid "Level for domain"
+msgstr "Nível por domínio"
+
+#: dnd/filters.py:213
+msgid "Item name"
+msgstr "Nome do item"
+
+#: dnd/filters.py:223
+msgid "Item Type"
+msgstr "Tipo de item"
+
+#: dnd/filters.py:226
+msgid "Body Slot"
+msgstr "Espaço no corpo"
+
+#: dnd/filters.py:229
+msgid "Price bonus"
+msgstr "Bônus no preço"
+
+#: dnd/filters.py:232
+msgid "Price in GP (range)"
+msgstr "Preço em PO (intervalo)"
+
+#: dnd/filters.py:248 templates/dnd/languages/language_table.html:7
+msgid "Language name"
+msgstr "Nome do idioma"
+
+#: dnd/filters.py:258
+#: templates/dnd/character_classes/character_class_list.html:27
+#: templates/dnd/character_classes/character_classes_in_rulebook.html:20
+#: templates/dnd/mobile/character_classes/character_class_list.html:19
+#: templates/dnd/mobile/character_classes/character_classes_in_rulebook.html:14
+msgid "Class name"
+msgstr "Nome da classe"
+
+#: dnd/filters.py:269
+msgid "Required Base Attack (range)"
+msgstr "Ataque base exigido (intervalo)"
+
+#: dnd/filters.py:272
+msgid "Skill points/level (range)"
+msgstr "Pontos de perícia por nível (intervalo)"
+
+#: dnd/filters.py:275
+msgid "Class feature"
+msgstr "Característica de classe"
+
+#: dnd/filters.py:279
+msgid "Hit die (range)"
+msgstr "Dado de vida (intervalo)"
+
+#: dnd/filters.py:339
+msgid "Title contains"
+msgstr "Título contém"
+
+#: dnd/filters.py:342 dnd/spells/filtering.py:44
+msgid "Description contains"
+msgstr "Descrição contém"
+
+#: dnd/filters.py:348
+msgid "Type of book"
+msgstr "Tipo de livro"
+
+#: dnd/filters.py:351
+msgid "Publication year"
+msgstr "Ano de publicação"
+
+#: dnd/filters.py:355
+msgid "Includes"
+msgstr "Inclui"
+
+#: dnd/filters.py:356
+msgid "All content"
+msgstr "Todo o conteúdo"
+
+#: dnd/filters.py:372 templates/dnd/feats/feat_table.html:7
+#: templates/dnd/mobile/feats/feat_table.html:6
+#: templates/dnd/mobile/skills/skill_detail.html:33
+#: templates/dnd/skills/skill_detail.html:54
+msgid "Feat name"
+msgstr "Nome do talento"
+
+#: dnd/filters.py:376
+msgid "Feat category"
+msgstr "Categoria de talento"
+
+#: dnd/filters.py:411
+msgid "Domain name"
+msgstr "Nome do domínio"
+
+#: dnd/filters.py:421
+msgid "Descriptor name"
+msgstr "Nome do descritor"
+
+#: dnd/filters.py:475 templates/dnd/monsters/monster_table.html:7
+msgid "Monster name"
+msgstr "Nome do monstro"
+
+#: dnd/filters.py:493 templates/dnd/races/race_table.html:7
+msgid "Race name"
+msgstr "Nome da raça"
+
+#: dnd/filters.py:517 templates/dnd/races/race_type_table.html:9
+msgid "Race type name"
+msgstr "Nome do tipo de raça"
+
+#: dnd/filters.py:520
+msgid "Hit Die Size"
+msgstr "Tamanho do dado de vida"
+
+#: dnd/filters.py:524
+msgid "Base Attack Type"
+msgstr "Tipo de ataque base"
+
+#: dnd/filters.py:527
+msgid "Fort Save Type"
+msgstr "Tipo de resistência de Fortitude"
+
+#: dnd/filters.py:530
+msgid "Reflex Save Type"
+msgstr "Tipo de resistência de Reflexos"
+
+#: dnd/filters.py:533
+msgid "Will Save Type"
+msgstr "Tipo de resistência de Vontade"
+
+#: dnd/models.py:56
+msgid "Core rulebook"
+msgstr "Livro básico"
+
+#: dnd/models.py:57
+msgid "Campaign setting"
+msgstr "Cenário de campanha"
+
+#: dnd/models.py:58
+msgid "Setting guide"
+msgstr "Guia de cenário"
+
+#: dnd/models.py:59
+msgid "Rules sourcebook"
+msgstr "Suplemento de regras"
+
+#: dnd/models.py:60
+msgid "Adventure"
+msgstr "Aventura"
+
+#: dnd/models.py:61
+msgid "Magazine or web article"
+msgstr "Revista ou artigo web"
+
+#: dnd/models.py:2511
+msgid "Create"
+msgstr "Criar"
+
+#: dnd/models.py:2511
+msgid "Correct"
+msgstr "Corrigir"
+
+#: dnd/models.py:2512
+msgid "Translate"
+msgstr "Traduzir"
+
+#: dnd/models.py:2512
+msgid "Remove"
+msgstr "Remover"
+
+#: dnd/models.py:2518 dnd/models.py:2552
+msgid "Pending"
+msgstr "Pendente"
+
+#: dnd/models.py:2518
+msgid "Approved"
+msgstr "Aprovada"
+
+#: dnd/models.py:2519
+msgid "Rejected"
+msgstr "Rejeitada"
+
+#: dnd/models.py:2552
+msgid "Active"
+msgstr "Ativo"
+
+#: dnd/models.py:2552
+msgid "Revoked"
+msgstr "Revogado"
+
+#: dnd/monsters/views.py:16 templates/dnd/races/race_type_detail.html:11
+#: templates/dnd/races/race_type_index.html:10
+msgid "Types"
+msgstr "Tipos"
+
+#: dnd/monsters/views.py:34
+msgid "type"
+msgstr "tipo"
+
+#: dnd/monsters/views.py:44
+msgid "subtype"
+msgstr "subtipo"
+
+#: dnd/navigation.py:9 templates/dnd/rulebooks/rulebook_list.html:18
+msgid "All rulebooks"
+msgstr "Todos os livros"
+
+#: dnd/navigation.py:10 dnd/search.py:42
+#: templates/dnd/rules/condition_detail.html:5
+#: templates/dnd/rules/condition_list.html:4
+#: templates/dnd/rules/condition_list.html:5
+#: templates/dnd/rules/condition_list.html:7
+msgid "Conditions"
+msgstr "Condições"
+
+#: dnd/navigation.py:11
+msgid "Character Options"
+msgstr "Opções de personagem"
+
+#: dnd/navigation.py:13
+msgid "Traits"
+msgstr "Traços"
+
+#: dnd/navigation.py:13
+msgid "Flaws"
+msgstr "Defeitos"
+
+#: dnd/navigation.py:13
+msgid "Skill tricks"
+msgstr "Truques de perícia"
+
+#: dnd/navigation.py:14 templates/dnd/skills/skills_list_by_rulebook.html:7
+msgid "Skills by rulebook"
+msgstr "Perícias por livro"
+
+#: dnd/navigation.py:16 templates/dnd/spells/spell_list_by_rulebook.html:17
+msgid "Spells by rulebook"
+msgstr "Magias por livro"
+
+#: dnd/navigation.py:18
+msgid "Shadow casting"
+msgstr "Magia das sombras"
+
+#: dnd/navigation.py:19
+msgid "Psionics"
+msgstr "Psiquismo"
+
+#: dnd/navigation.py:20
+msgid "Maneuvers"
+msgstr "Manobras"
+
+#: dnd/navigation.py:22 templates/dnd/races/race_list_by_rulebook.html:17
+msgid "Races by rulebook"
+msgstr "Raças por livro"
 
 #: dnd/navigation.py:23 templates/dnd/monsters/monster_list_by_rulebook.html:17
 msgid "Monsters by rulebook"
 msgstr "Monstros por livro"
 
-#: dnd/navigation.py:24 dnd/search.py:48
-msgid "Monster types"
-msgstr "Tipos de monstro"
-
-#: dnd/navigation.py:24 dnd/search.py:49
-msgid "Monster subtypes"
-msgstr "Subtipos de monstro"
-
-#: dnd/navigation.py:25
-msgid "Monstrous traits"
-msgstr "Traços monstruosos"
-
 #: dnd/navigation.py:25
 msgid "Templates"
 msgstr "Modelos de criaturas"
-
-#: dnd/navigation.py:26 dnd/search.py:35 templates/dnd/index.html:21
-#: templates/dnd/items/item_detail.html:10
-#: templates/dnd/items/item_index.html:9 templates/dnd/items/item_index.html:14
-#: templates/dnd/items/item_list_by_rulebook.html:11
-#: templates/dnd/items/items_in_rulebook.html:10
-#: templates/dnd/mobile/items/item_index.html:8
-#: templates/dnd/mobile/items/item_layout.html:5
-#: templates/dnd/mobile/layout.html:48
-#: templates/dnd/mobile/rulebooks/rulebook_detail.html:17
-#: templates/dnd/rulebooks/rulebook_detail.html:24
-msgid "Items"
-msgstr "Itens"
 
 #: dnd/navigation.py:26
 msgid "Magical items"
@@ -520,28 +1589,21 @@ msgstr "Notícias"
 msgid "Contact us"
 msgstr "Fale conosco"
 
-#: dnd/navigation.py:30
+#: dnd/navigation.py:30 templates/dnd/layout.html:68
+msgid "Help"
+msgstr "Ajuda"
+
+#: dnd/navigation.py:31
 msgid "Maintainer"
 msgstr "Responsável"
 
-#: dnd/navigation.py:30
+#: dnd/navigation.py:31
 msgid "Android"
 msgstr "Android"
 
-#: dnd/navigation.py:30
+#: dnd/navigation.py:31
 msgid "My D&D"
 msgstr "Meu D&D"
-
-#: dnd/search.py:31 templates/dnd/creature_templates/detail.html:5
-#: templates/dnd/creature_templates/index.html:4
-#: templates/dnd/creature_templates/index.html:5
-#: templates/dnd/creature_templates/index.html:7
-msgid "Creature templates"
-msgstr "Modelos de criaturas"
-
-#: dnd/search.py:33
-msgid "Additional mechanics"
-msgstr "Regras adicionais"
 
 #: dnd/search.py:44
 msgid "Spell sub-schools"
@@ -581,10 +1643,6 @@ msgstr "Edição / cenário"
 msgid "Ruleset"
 msgstr "Sistema de regras"
 
-#: dnd/spells/filtering.py:36
-msgid "Publication type"
-msgstr "Tipo de publicação"
-
 #: dnd/spells/filtering.py:37
 msgid "Core"
 msgstr "Básico"
@@ -605,19 +1663,15 @@ msgstr "Alcance contém"
 msgid "Duration contains"
 msgstr "Duração contém"
 
-#: dnd/spells/filtering.py:44
-msgid "Description contains"
-msgstr "Descrição contém"
-
-#: dnd/spells/filtering.py:45
+#: dnd/spells/filtering.py:45 templates/dnd/spells/spell_detail.html:56
 msgid "Verbal"
 msgstr "Verbal"
 
-#: dnd/spells/filtering.py:46
+#: dnd/spells/filtering.py:46 templates/dnd/spells/spell_detail.html:57
 msgid "Somatic"
 msgstr "Somático"
 
-#: dnd/spells/filtering.py:47
+#: dnd/spells/filtering.py:47 templates/dnd/spells/spell_detail.html:58
 msgid "Material"
 msgstr "Material"
 
@@ -660,11 +1714,269 @@ msgstr "Original em inglês"
 
 #: dnd/templatetags/catalog_i18n.py:58 templates/dnd/layout.html:49
 msgid "This record is still available only in its original English version."
-msgstr "Este registro ainda está disponível apenas na versão original em inglês."
+msgstr ""
+"Este registro ainda está disponível apenas na versão original em inglês."
+
+#: templates/admin/base_site.html:6 templates/admin/base_site.html:9
+msgid "Administration"
+msgstr "Administração"
+
+#: templates/admin/base_site.html:12
+msgid "Editorial queue"
+msgstr "Fila editorial"
+
+#: templates/admin/base_site.html:12
+msgid "Interface language"
+msgstr "Idioma da interface"
+
+#: templates/admin/editorial/activate.html:5
+msgid "Cloudflare Access identity"
+msgstr "Identidade do Cloudflare Access"
+
+#: templates/admin/editorial/activate.html:6
+msgid "This invitation has expired. Ask the project owner to resend it."
+msgstr "Este convite expirou. Peça ao responsável pelo projeto que o reenvie."
+
+#: templates/admin/editorial/activate.html:7
+msgid ""
+"Enter the one-time code sent by D&D Tools to this email. The Cloudflare "
+"login code is separate. Future visits use your Cloudflare identity and MFA."
+msgstr ""
+"Digite o código de uso único enviado pelo D&D Tools para este e-mail. O "
+"código de login do Cloudflare é diferente. Nas próximas visitas, use sua "
+"identidade do Cloudflare e o autenticador."
+
+#: templates/admin/editorial/activate.html:8
+msgid "Activate account"
+msgstr "Ativar conta"
+
+#: templates/admin/editorial/catalog.html:6
+msgid "Propose new"
+msgstr "Propor novo registro:"
+
+#: templates/admin/editorial/catalog.html:7
+msgid "Find by name or ID"
+msgstr "Buscar por nome ou ID"
+
+#: templates/admin/editorial/catalog.html:7
+msgid "Find"
+msgstr "Buscar"
+
+#: templates/admin/editorial/catalog.html:8
+msgid "Current record"
+msgstr "Registro atual"
+
+#: templates/admin/editorial/catalog.html:8
+msgid "Actions"
+msgstr "Ações"
+
+#: templates/admin/editorial/catalog.html:9
+msgid "Propose PT-BR translation"
+msgstr "Propor tradução para PT-BR"
+
+#: templates/admin/editorial/catalog.html:10
+msgid "No matching records."
+msgstr "Nenhum registro encontrado."
+
+#: templates/admin/editorial/catalog.html:12
+#: templates/dnd/creature_templates/index.html:12 templates/dnd/search.html:26
+#: templates/dnd/supplemental/index.html:14
+msgid "Previous"
+msgstr "Anterior"
+
+#: templates/admin/editorial/catalog.html:13 templates/dnd/search.html:27
+#, python-format
+msgid "Page %(number)s of %(total)s"
+msgstr "Página %(number)s de %(total)s"
+
+#: templates/admin/editorial/catalog.html:14
+#: templates/dnd/creature_templates/index.html:13 templates/dnd/search.html:28
+#: templates/dnd/supplemental/index.html:16
+msgid "Next"
+msgstr "Próxima"
+
+#: templates/admin/editorial/dashboard.html:5
+msgid ""
+"Submit catalog additions, corrections, removals and complete PT-BR "
+"translations. All submissions wait for Ronassic's review."
+msgstr ""
+"Envie inclusões, correções, remoções e traduções completas para PT-BR. Todas "
+"as propostas aguardam revisão de Ronassic."
+
+#: templates/admin/editorial/dashboard.html:6
+#, python-format
+msgid "Pending collaborations: %(pending_count)s"
+msgstr "Colaborações pendentes: %(pending_count)s"
+
+#: templates/admin/editorial/dashboard.html:7
+msgid "Collaborators"
+msgstr "Colaboradores"
+
+#: templates/admin/editorial/dashboard.html:7
+msgid "Manage resource grants"
+msgstr "Gerenciar permissões por recurso"
+
+#: templates/admin/editorial/dashboard.html:8
+msgid "Access state"
+msgstr "Situação do acesso"
+
+#: templates/admin/editorial/dashboard.html:9
+msgid "Revoke access"
+msgstr "Revogar acesso"
+
+#: templates/admin/editorial/dashboard.html:9
+msgid "No collaborators invited yet."
+msgstr "Nenhum colaborador convidado ainda."
+
+#: templates/admin/editorial/dashboard.html:10
+msgid "Proposals"
+msgstr "Propostas"
+
+#: templates/admin/editorial/dashboard.html:11
+#: templates/admin/editorial/review.html:6
+msgid "Submitted"
+msgstr "Enviada em"
+
+#: templates/admin/editorial/dashboard.html:11
+#: templates/admin/editorial/review.html:6
+msgid "Author"
+msgstr "Autor"
+
+#: templates/admin/editorial/dashboard.html:11
+msgid "Resource"
+msgstr "Recurso"
+
+#: templates/admin/editorial/dashboard.html:11
+#: templates/admin/editorial/review.html:6
+msgid "Status"
+msgstr "Situação"
+
+#: templates/admin/editorial/dashboard.html:13
+msgid "No proposals yet."
+msgstr "Nenhuma proposta ainda."
+
+#: templates/admin/editorial/dashboard.html:17
+msgid "Additional D&D 3.5 mechanics"
+msgstr "Regras adicionais de D&D 3.5"
+
+#: templates/admin/editorial/invite.html:6
+msgid ""
+"Choose exactly which catalog resources and proposal actions this person may "
+"use. An activation code will be emailed; they cannot publish directly. "
+"Inviting a pending or revoked account again replaces its code and grants."
+msgstr ""
+"Escolha os tipos de registro e as ações permitidas. A pessoa receberá um "
+"código de ativação por e-mail e não poderá publicar diretamente. Um novo "
+"convite substitui o código e as permissões de uma conta pendente ou revogada."
+
+#: templates/admin/editorial/invite.html:7
+msgid "Create invitation"
+msgstr "Criar convite"
+
+#: templates/admin/editorial/propose.html:7
+msgid ""
+"The record will stay public until Ronassic approves removal. Records with "
+"dependent catalog links cannot be removed until those links are resolved."
+msgstr ""
+"O registro continuará público até Ronassic aprovar a remoção. Vínculos com "
+"outros registros precisam ser resolvidos antes da exclusão."
+
+#: templates/admin/editorial/propose.html:7
+msgid ""
+"Changes will appear in the public catalog only after Ronassic approves them."
+msgstr ""
+"As alterações só aparecerão no catálogo público após aprovação de Ronassic."
+
+#: templates/admin/editorial/propose.html:11
+msgid "Submit for review"
+msgstr "Enviar para revisão"
+
+#: templates/admin/editorial/review.html:5
+msgid "Review"
+msgstr "Revisar"
+
+#: templates/admin/editorial/review.html:8
+msgid "Source and editorial notes"
+msgstr "Fonte e notas editoriais"
+
+#: templates/admin/editorial/review.html:9
+msgid ""
+"This approval removes the record from the public catalog. Dependent catalog "
+"links will block removal."
+msgstr ""
+"A aprovação remove o registro do catálogo público. Vínculos dependentes "
+"impedem a remoção."
+
+#: templates/admin/editorial/review.html:9
+msgid "Proposed values"
+msgstr "Valores propostos"
+
+#: templates/admin/editorial/review.html:9
+msgid "Field"
+msgstr "Campo"
+
+#: templates/admin/editorial/review.html:9
+msgid "Value"
+msgstr "Valor"
+
+#: templates/admin/editorial/review.html:13
+msgid "Review note"
+msgstr "Nota de revisão"
+
+#: templates/admin/editorial/review.html:14
+msgid "Approve and remove"
+msgstr "Aprovar e remover"
+
+#: templates/admin/editorial/review.html:14
+msgid "Approve and publish"
+msgstr "Aprovar e publicar"
+
+#: templates/admin/editorial/review.html:15
+msgid "Reject"
+msgstr "Rejeitar"
+
+#: templates/admin/editorial/review.html:15
+msgid "Reviewed by"
+msgstr "Revisado por"
 
 #: templates/admin/login.html:4
 msgid "Error:"
 msgstr "Erro:"
+
+#: templates/admin/login.html:15
+msgid "Catalog administration"
+msgstr "Administração do catálogo"
+
+#: templates/admin/login.html:16
+msgid "Sign in with your editor account to manage D&D Tools content."
+msgstr "Entre com sua conta editorial para gerenciar o conteúdo do D&D Tools."
+
+#: templates/admin/login.html:18
+msgid "Please correct the errors below."
+msgstr "Corrija os erros abaixo."
+
+#: templates/admin/login.html:22
+msgid ""
+"This account does not have access to the administration. Sign in with a "
+"staff account."
+msgstr ""
+"Esta conta não tem acesso à administração. Entre com uma conta autorizada."
+
+#: templates/admin/login.html:27
+msgid "Log in"
+msgstr "Entrar"
+
+#: templates/admin/login.html:29
+msgid ""
+"Too many attempts? Wait 15 minutes before trying again. Administrators can "
+"reset the lockout from the server."
+msgstr ""
+"Tentativas demais? Aguarde 15 minutos antes de tentar novamente. "
+"Administradores podem redefinir o bloqueio no servidor."
+
+#: templates/admin/login.html:30
+msgid "Back to the catalog"
+msgstr "Voltar ao catálogo"
 
 #: templates/dnd/character_classes/character_class_detail.html:21
 #: templates/dnd/deities/deity_detail.html:15
@@ -693,6 +2005,10 @@ msgstr "EDITAR"
 msgid "EDIT VARIANT"
 msgstr "EDITAR VARIANTE"
 
+#: templates/dnd/character_classes/character_class_detail.html:31
+msgid "variant"
+msgstr "variante"
+
 #: templates/dnd/character_classes/character_class_detail.html:46
 #: templates/dnd/feats/feat_detail.html:96
 #: templates/dnd/mobile/character_classes/character_class_detail.html:26
@@ -719,11 +2035,6 @@ msgstr "Magias para"
 msgid "Prestige"
 msgstr "Prestígio"
 
-#: templates/dnd/character_classes/character_class_variant_inner.html:5
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:5
-msgid "Requirements"
-msgstr "Requisitos"
-
 #: templates/dnd/character_classes/character_class_variant_inner.html:9
 #: templates/dnd/mobile/character_classes/character_class_variant_inner.html:9
 msgid "Base Attack Bonus:"
@@ -741,12 +2052,21 @@ msgstr "Tendência:"
 msgid "Race:"
 msgstr "Raça:"
 
+#: templates/dnd/character_classes/character_class_variant_inner.html:19
+msgid "or"
+msgstr "ou"
+
 #: templates/dnd/character_classes/character_class_variant_inner.html:30
 #: templates/dnd/mobile/character_classes/character_class_variant_inner.html:30
 #: templates/dnd/mobile/monsters/monster_detail.html:89
 #: templates/dnd/monsters/monster_detail.html:98
 msgid "Skills:"
 msgstr "Perícias:"
+
+#: templates/dnd/character_classes/character_class_variant_inner.html:36
+#: templates/dnd/feats/feat_detail.html:46
+msgid "ranks"
+msgstr "graduações"
 
 #: templates/dnd/character_classes/character_class_variant_inner.html:43
 #: templates/dnd/mobile/character_classes/character_class_variant_inner.html:43
@@ -759,42 +2079,26 @@ msgstr "Talentos:"
 msgid "Work in progress"
 msgstr "Em desenvolvimento"
 
-#: templates/dnd/character_classes/character_class_variant_inner.html:80
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:61
-msgid "Hit die"
-msgstr "Dado de vida"
+#: templates/dnd/character_classes/character_class_variant_inner.html:65
+msgid "This class entry is incomplete."
+msgstr "Esta ficha de classe está incompleta."
 
-#: templates/dnd/character_classes/character_class_variant_inner.html:86
-#: templates/dnd/deities/deity_detail.html:29
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:67
-#: templates/dnd/mobile/deities/deity_detail.html:18
-msgid "Alignment"
-msgstr "Tendência"
+#: templates/dnd/character_classes/character_class_variant_inner.html:66
+msgid ""
+"If you have the official source and page number, please report the missing "
+"information."
+msgstr ""
+"Se você tiver a fonte oficial e o número da página, informe o conteúdo "
+"ausente."
 
-#: templates/dnd/character_classes/character_class_variant_inner.html:91
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:72
-msgid "Starting gold"
-msgstr "Ouro inicial"
+#: templates/dnd/character_classes/character_class_variant_inner.html:66
+msgid "Report missing information"
+msgstr "Informar conteúdo ausente"
 
-#: templates/dnd/character_classes/character_class_variant_inner.html:96
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:77
-msgid "Skill points"
-msgstr "Pontos de perícia"
-
-#: templates/dnd/character_classes/character_class_variant_inner.html:102
+#: templates/dnd/character_classes/character_class_variant_inner.html:94
 #: templates/dnd/mobile/character_classes/character_class_variant_inner.html:83
 msgid "Class Features"
 msgstr "Características de classe"
-
-#: templates/dnd/character_classes/character_class_variant_inner.html:109
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:90
-msgid "Advancement"
-msgstr "Progressão"
-
-#: templates/dnd/character_classes/character_class_variant_inner.html:114
-#: templates/dnd/mobile/character_classes/character_class_variant_inner.html:95
-msgid "Class skills"
-msgstr "Perícias de classe"
 
 #: templates/dnd/character_classes/character_classes_in_rulebook.html:11
 #: templates/dnd/feats/feat_detail.html:9
@@ -832,8 +2136,14 @@ msgid "Questions, corrections and contributions are welcome."
 msgstr "Perguntas, correções e contribuições são bem-vindas."
 
 #: templates/dnd/contacts/contact.html:7
-msgid "Open an issue in the project repository to report a problem or ask for access to the private database. We will agree on a private channel for the file; please do not attach it to the issue."
-msgstr "Abra uma issue no repositório para informar um problema ou pedir acesso ao banco privado. Combinaremos um canal privado para enviar o arquivo; não o anexe à issue."
+msgid ""
+"Open an issue in the project repository to report a problem or ask for "
+"access to the private database. We will agree on a private channel for the "
+"file; please do not attach it to the issue."
+msgstr ""
+"Abra uma issue no repositório para informar um problema ou pedir acesso ao "
+"banco privado. Combinaremos um canal privado para enviar o arquivo; não o "
+"anexe à issue."
 
 #: templates/dnd/contacts/contact.html:8
 #: templates/dnd/inaccurate_content.html:9
@@ -871,8 +2181,14 @@ msgid "Ronassic currently maintains this fork."
 msgstr "Ronassic mantém este fork atualmente."
 
 #: templates/dnd/contacts/staff.html:7
-msgid "Ronassic has been part of Brazil's RPG community for 37 years and formerly administered SpellBrasil, once the country's largest RPG website. Today he runs a WhatsApp community of 270 members focused on D&D 3.5."
-msgstr "Ronassic tem 37 anos de trajetória na comunidade de RPG no Brasil e foi administrador do SpellBrasil, que já foi o maior site de RPG do país. Hoje mantém uma comunidade no WhatsApp com 270 membros, focada em D&D 3.5."
+msgid ""
+"Ronassic has been part of Brazil's RPG community for 37 years and formerly "
+"administered SpellBrasil, once the country's largest RPG website. Today he "
+"runs a WhatsApp community of 270 members focused on D&D 3.5."
+msgstr ""
+"Ronassic tem 37 anos de trajetória na comunidade de RPG no Brasil e foi "
+"administrador do SpellBrasil, que já foi o maior site de RPG do país. Hoje "
+"mantém uma comunidade no WhatsApp com 270 membros, focada em D&D 3.5."
 
 #: templates/dnd/contacts/staff.html:8
 msgid "Email:"
@@ -886,15 +2202,6 @@ msgstr "Para correções ou contribuições,"
 msgid "open a project issue"
 msgstr "abra uma issue do projeto"
 
-#: templates/dnd/creature_templates/detail.html:9
-#: templates/dnd/creature_templates/index.html:9
-msgid "Type"
-msgstr "Tipo"
-
-#: templates/dnd/creature_templates/detail.html:10
-msgid "Applicable creatures"
-msgstr "Criaturas aplicáveis"
-
 #: templates/dnd/creature_templates/detail.html:11
 msgid "Challenge Rating adjustment"
 msgstr "Ajuste do nível de desafio"
@@ -902,18 +2209,6 @@ msgstr "Ajuste do nível de desafio"
 #: templates/dnd/creature_templates/detail.html:12
 msgid "Level Adjustment"
 msgstr "Ajuste de nível"
-
-#: templates/dnd/creature_templates/detail.html:13
-msgid "Mechanical changes"
-msgstr "Alterações mecânicas"
-
-#: templates/dnd/creature_templates/detail.html:14
-#: templates/dnd/mobile/races/race_detail.html:135
-#: templates/dnd/races/race_detail.html:164
-#: templates/dnd/skills/skill_variant_inner.html:5
-#: templates/dnd/supplemental/detail.html:13
-msgid "Description"
-msgstr "Descrição"
 
 #: templates/dnd/creature_templates/index.html:8
 msgid "Search templates"
@@ -925,30 +2220,9 @@ msgstr "Buscar modelos"
 msgid "Search"
 msgstr "Buscar"
 
-#: templates/dnd/creature_templates/index.html:9
-#: templates/dnd/items/item_table.html:9
-#: templates/dnd/mobile/items/item_table.html:8
-#: templates/dnd/mobile/spells/spell_descriptor_list.html:16
-#: templates/dnd/mobile/spells/spell_domain_list.html:16
-#: templates/dnd/spells/spell_descriptor_list.html:25
-#: templates/dnd/spells/spell_domain_list.html:26
-#: templates/dnd/supplemental/index.html:10
-msgid "Name"
-msgstr "Nome"
-
 #: templates/dnd/creature_templates/index.html:11
 msgid "No creature templates found."
 msgstr "Nenhum modelo de criatura encontrado."
-
-#: templates/dnd/creature_templates/index.html:12 templates/dnd/search.html:26
-#: templates/dnd/supplemental/index.html:14
-msgid "Previous"
-msgstr "Anterior"
-
-#: templates/dnd/creature_templates/index.html:13 templates/dnd/search.html:28
-#: templates/dnd/supplemental/index.html:16
-msgid "Next"
-msgstr "Próxima"
 
 #: templates/dnd/deities/deity_detail.html:34
 #: templates/dnd/mobile/deities/deity_detail.html:23
@@ -1000,10 +2274,6 @@ msgstr "Categorias de talentos"
 msgid "Category name"
 msgstr "Nome da categoria"
 
-#: templates/dnd/feats/feat_detail.html:5
-msgid "Feat"
-msgstr "Talento"
-
 #: templates/dnd/feats/feat_detail.html:36
 #: templates/dnd/mobile/feats/feat_detail.html:28
 msgid "Prerequisite"
@@ -1013,19 +2283,6 @@ msgstr "Pré-requisito"
 #: templates/dnd/mobile/feats/feat_detail.html:49
 msgid "Required for"
 msgstr "Exigido para"
-
-#: templates/dnd/feats/feat_detail.html:68
-msgid "Benefit"
-msgstr "Benefício"
-
-#: templates/dnd/feats/feat_detail.html:77
-#: templates/dnd/skills/skill_variant_inner.html:25
-msgid "Special"
-msgstr "Especial"
-
-#: templates/dnd/feats/feat_detail.html:86
-msgid "Normal"
-msgstr "Normal"
 
 #: templates/dnd/feats/feat_index.html:18
 msgid "Experimental filter form"
@@ -1038,10 +2295,6 @@ msgstr "conte para nós"
 #: templates/dnd/feats/feat_index.html:18
 msgid "what you think about it!"
 msgstr "o que você achou!"
-
-#: templates/dnd/feats/feat_table.html:8
-msgid "Short description"
-msgstr "Descrição resumida"
 
 #: templates/dnd/feats/feats_in_rulebook.html:16
 msgid "Feats in"
@@ -1059,8 +2312,12 @@ msgstr[0] "%(count)s ativo"
 msgstr[1] "%(count)s ativos"
 
 #: templates/dnd/filter_form.html:6 templates/dnd/spells/spell_filters.html:6
-msgid "These filters could not be applied. Correct the highlighted fields; the list below is unfiltered."
-msgstr "Não foi possível aplicar os filtros. Corrija os campos destacados; a lista abaixo está sem filtros."
+msgid ""
+"These filters could not be applied. Correct the highlighted fields; the list "
+"below is unfiltered."
+msgstr ""
+"Não foi possível aplicar os filtros. Corrija os campos destacados; a lista "
+"abaixo está sem filtros."
 
 #: templates/dnd/filter_form.html:10 templates/dnd/spells/spell_filters.html:38
 msgid "Apply filters"
@@ -1104,8 +2361,14 @@ msgid "Page to mention in your report:"
 msgstr "Página para mencionar no seu relato:"
 
 #: templates/dnd/inaccurate_content.html:8
-msgid "Open a GitHub issue and describe what is wrong, the rulebook and page number if available, and your proposed correction. Do not upload the private database or copyrighted source scans."
-msgstr "Abra uma issue no GitHub e descreva o problema, o livro e a página, se disponíveis, além da correção proposta. Não envie o banco privado nem cópias digitalizadas de obras protegidas."
+msgid ""
+"Open a GitHub issue and describe what is wrong, the rulebook and page number "
+"if available, and your proposed correction. Do not upload the private "
+"database or copyrighted source scans."
+msgstr ""
+"Abra uma issue no GitHub e descreva o problema, o livro e a página, se "
+"disponíveis, além da correção proposta. Não envie o banco privado nem cópias "
+"digitalizadas de obras protegidas."
 
 #: templates/dnd/index.html:3
 msgid "Explore the library"
@@ -1120,8 +2383,12 @@ msgid "Every adventure starts with a discovery."
 msgstr "Toda aventura começa com uma descoberta."
 
 #: templates/dnd/index.html:8
-msgid "Browse spells, feats, classes and sourcebooks in a searchable catalog built for tabletop explorers."
-msgstr "Explore magias, talentos, classes e livros em um catálogo pesquisável para aventureiros de mesa."
+msgid ""
+"Browse spells, feats, classes and sourcebooks in a searchable catalog built "
+"for tabletop explorers."
+msgstr ""
+"Explore magias, talentos, classes e livros em um catálogo pesquisável para "
+"aventureiros de mesa."
 
 #: templates/dnd/index.html:9 templates/dnd/layout.html:30
 #: templates/dnd/search.html:6
@@ -1164,7 +2431,7 @@ msgstr "Equipamentos e tesouros"
 msgid "Checks and training"
 msgstr "Testes e treinamento"
 
-#: templates/dnd/index.html:23
+#: templates/dnd/index.html:23 templates/dnd/rulebooks/edition_detail.html:18
 msgid "Browse by edition"
 msgstr "Explore por edição"
 
@@ -1177,28 +2444,48 @@ msgid "The library is online again"
 msgstr "A biblioteca está no ar novamente"
 
 #: templates/dnd/index.html:30
-msgid "This community fork now runs on current Python, Django and MySQL. We can resume corrections and carefully reviewed D&D 3.5 additions."
-msgstr "Esta versão da comunidade usa versões atuais de Python, Django e MySQL. Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão."
+msgid ""
+"This community fork now runs on current Python, Django and MySQL. We can "
+"resume corrections and carefully reviewed D&D 3.5 additions."
+msgstr ""
+"Esta versão da comunidade usa versões atuais de Python, Django e MySQL. "
+"Podemos retomar as correções e incluir conteúdo de D&D 3.5 após revisão."
 
 #: templates/dnd/index.html:31
-msgid "The <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explains how to run and host a copy with MySQL. To contribute or request the private database, <a href=\"https://github.com/lagame/dndtools-1/issues\">open a project issue</a>; file transfer is arranged privately."
-msgstr "O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra uma issue</a>; a transferência do arquivo é combinada em particular."
+msgid ""
+"The <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> "
+"explains how to run and host a copy with MySQL. To contribute or request the "
+"private database, <a href=\"https://github.com/lagame/dndtools-1/"
+"issues\">open a project issue</a>; file transfer is arranged privately."
+msgstr ""
+"O <a href=\"https://github.com/lagame/dndtools-1#readme\">README</a> explica "
+"como executar e hospedar uma cópia com MySQL. Para colaborar ou solicitar o "
+"banco privado, <a href=\"https://github.com/lagame/dndtools-1/issues\">abra "
+"uma issue</a>; a transferência do arquivo é combinada em particular."
 
 #: templates/dnd/index.html:34
 msgid "Original project archive"
 msgstr "Arquivo do projeto original"
 
 #: templates/dnd/index.html:35
-msgid "These announcements are preserved from the original project. Their team and project status information may be outdated."
-msgstr "Estes avisos foram preservados do projeto original. As informações sobre a equipe e o estado do projeto podem estar desatualizadas."
+msgid ""
+"These announcements are preserved from the original project. Their team and "
+"project status information may be outdated."
+msgstr ""
+"Estes avisos foram preservados do projeto original. As informações sobre a "
+"equipe e o estado do projeto podem estar desatualizadas."
 
 #: templates/dnd/index.html:42
 msgid "About the sources"
 msgstr "Sobre as fontes"
 
 #: templates/dnd/index.html:43
-msgid "Pages identify their sourcebooks and editions. Consult the original books for authoritative rules and support their publishers."
-msgstr "As páginas identificam seus livros e edições. Consulte os livros originais para conferir as regras oficiais e apoiar seus editores."
+msgid ""
+"Pages identify their sourcebooks and editions. Consult the original books "
+"for authoritative rules and support their publishers."
+msgstr ""
+"As páginas identificam seus livros e edições. Consulte os livros originais "
+"para conferir as regras oficiais e apoiar seus editores."
 
 #: templates/dnd/items/item_detail.html:7
 msgid "Item"
@@ -1254,6 +2541,10 @@ msgstr "Aura:"
 msgid "Activation:"
 msgstr "Ativação:"
 
+#: templates/dnd/items/item_detail_enhancement.html:19
+msgid "Synergy Prerequisite:"
+msgstr "Pré-requisito de sinergia:"
+
 #: templates/dnd/items/item_detail_magic.html:4
 #: templates/dnd/items/item_detail_mundane.html:4
 #: templates/dnd/mobile/items/item_detail_magic.html:4
@@ -1295,16 +2586,9 @@ msgstr "Por livro"
 #: templates/dnd/monsters/monster_table.html:8
 #: templates/dnd/races/race_list_by_rulebook.html:23
 #: templates/dnd/races/race_table.html:8
-#: templates/dnd/rulebooks/edition_detail.html:24
-#: templates/dnd/rulebooks/rulebook_list.html:24
 #: templates/dnd/spells/spell_list_by_rulebook.html:23
 msgid "Rulebook name"
 msgstr "Nome do livro"
-
-#: templates/dnd/items/item_table.html:10
-#: templates/dnd/supplemental/detail.html:10
-msgid "Level"
-msgstr "Nível"
 
 #: templates/dnd/items/item_table.html:11
 msgid "Cost"
@@ -1342,6 +2626,14 @@ msgstr "Alternar menu do catálogo"
 msgid "Menu"
 msgstr "Menu"
 
+#: templates/dnd/layout.html:23
+msgid "D&D Tools home"
+msgstr "Página inicial do D&D Tools"
+
+#: templates/dnd/layout.html:25
+msgid "Explore the worlds of 3.5"
+msgstr "Explore os mundos da 3.5"
+
 #: templates/dnd/layout.html:27
 msgid "Language"
 msgstr "Idioma"
@@ -1363,8 +2655,12 @@ msgid "Browse catalog"
 msgstr "Explorar catálogo"
 
 #: templates/dnd/layout.html:45
-msgid "This page describes D&D 3.0 material. Check whether a 3.5 edition version exists."
-msgstr "Esta página descreve material de D&D 3.0. Verifique se existe uma versão da edição 3.5."
+msgid ""
+"This page describes D&D 3.0 material. Check whether a 3.5 edition version "
+"exists."
+msgstr ""
+"Esta página descreve material de D&D 3.0. Verifique se existe uma versão da "
+"edição 3.5."
 
 #: templates/dnd/layout.html:46
 msgid "Breadcrumbs"
@@ -1387,8 +2683,12 @@ msgid "Help improve the catalog"
 msgstr "Ajude a melhorar o catálogo"
 
 #: templates/dnd/layout.html:58
-msgid "Found an error or want to contribute? Open an issue in the project repository."
-msgstr "Encontrou um erro ou quer colaborar? Abra uma issue no repositório do projeto."
+msgid ""
+"Found an error or want to contribute? Open an issue in the project "
+"repository."
+msgstr ""
+"Encontrou um erro ou quer colaborar? Abra uma issue no repositório do "
+"projeto."
 
 #: templates/dnd/layout.html:59
 msgid "Visit project issues"
@@ -1396,7 +2696,8 @@ msgstr "Ver issues do projeto"
 
 #: templates/dnd/layout.html:67
 msgid "A community maintained reference for tabletop adventurers."
-msgstr "Uma referência mantida pela comunidade para aventureiros de RPG de mesa."
+msgstr ""
+"Uma referência mantida pela comunidade para aventureiros de RPG de mesa."
 
 #: templates/dnd/layout.html:68
 msgid "Footer"
@@ -1405,10 +2706,6 @@ msgstr "Rodapé"
 #: templates/dnd/layout.html:68
 msgid "Privacy and cookies"
 msgstr "Privacidade e cookies"
-
-#: dnd/navigation.py templates/dnd/layout.html
-msgid "Help"
-msgstr "Ajuda"
 
 #: templates/dnd/layout.html:68
 msgid "Source and setup"
@@ -1522,15 +2819,10 @@ msgstr "Progressão:"
 msgid "Level adjustment:"
 msgstr "Ajuste de nível:"
 
-#: templates/dnd/mobile/monsters/monster_detail.html:139
-#: templates/dnd/mobile/races/race_detail.html:139
-#: templates/dnd/monsters/monster_detail.html:148
-#: templates/dnd/races/race_detail.html:168
-msgid "Combat"
-msgstr "Combate"
-
 #: templates/dnd/mobile/races/race_type_index.html:8
 #: templates/dnd/mobile/races_monsters_layout.html:22
+#: templates/dnd/races/race_type_detail.html:7
+#: templates/dnd/races/race_type_index.html:6
 #: templates/dnd/races/race_type_index.html:15
 msgid "Race Types"
 msgstr "Tipos de raça"
@@ -1601,6 +2893,7 @@ msgstr "Resistência à magia:"
 
 #: templates/dnd/mobile/spells/spell_domain_list.html:8
 #: templates/dnd/spells/spell_domain_detail.html:17
+#: templates/dnd/spells/spell_domain_list.html:8
 #: templates/dnd/spells/spell_domain_list.html:18
 msgid "Spell Domains"
 msgstr "Domínios de magia"
@@ -1613,17 +2906,12 @@ msgstr "Domínios de magia"
 msgid "Spell Schools"
 msgstr "Escolas de magia"
 
-#: templates/dnd/monsters/monster_detail.html:7
-#: templates/dnd/monsters/monster_kind_list.html:4
-#: templates/dnd/monsters/monster_kind_list.html:7
-msgid "Monster"
-msgstr "Monstro"
-
 #: templates/dnd/monsters/monster_kind_list.html:10
 #, python-format
 msgid "No %(label)s available."
 msgstr "Não há %(label)s disponíveis."
 
+#: templates/dnd/monsters/monsters_in_rulebook.html:7
 #: templates/dnd/monsters/monsters_in_rulebook.html:16
 msgid "Monsters in"
 msgstr "Monstros em"
@@ -1636,6 +2924,14 @@ msgstr "Planejado"
 #, python-format
 msgid "Toggle %(label)s sections"
 msgstr "Alternar seções de %(label)s"
+
+#: templates/dnd/races/race_detail.html:24
+msgid "Illustration hidden in Simple"
+msgstr "Ilustração oculta no modo Simple"
+
+#: templates/dnd/races/race_detail.html:24
+msgid "Illustration unavailable"
+msgstr "Ilustração indisponível"
 
 #: templates/dnd/races/race_detail.html:33
 msgid "Attributes"
@@ -1721,9 +3017,33 @@ msgstr "Dado de Vida:"
 msgid "Base Attack:"
 msgstr "Ataque base:"
 
+#: templates/dnd/races/race_type_detail.html:32
+msgid "Fighter (as HD)"
+msgstr "Guerreiro (igual aos dados de vida)"
+
+#: templates/dnd/races/race_type_detail.html:35
+msgid "Cleric (HD x 3/4)"
+msgstr "Clérigo (dados de vida × 3/4)"
+
+#: templates/dnd/races/race_type_detail.html:38
+msgid "Wizard (HD x 1/2)"
+msgstr "Mago (dados de vida × 1/2)"
+
 #: templates/dnd/races/race_type_detail.html:43
 msgid "Fort Save:"
 msgstr "Salvaguarda de Fortitude:"
+
+#: templates/dnd/races/race_type_detail.html:45
+#: templates/dnd/races/race_type_detail.html:52
+#: templates/dnd/races/race_type_detail.html:59
+msgid "Bad"
+msgstr "Ruim"
+
+#: templates/dnd/races/race_type_detail.html:46
+#: templates/dnd/races/race_type_detail.html:53
+#: templates/dnd/races/race_type_detail.html:60
+msgid "Good"
+msgstr "Boa"
 
 #: templates/dnd/races/race_type_detail.html:50
 msgid "Reflex Save:"
@@ -1762,20 +3082,89 @@ msgid "Races in"
 msgstr "Raças em"
 
 #: templates/dnd/rulebooks/edition_detail.html:18
-msgid "Rulebooks in"
-msgstr "Livros em"
+msgid "Game material listed for this edition."
+msgstr "Material de jogo catalogado nesta edição."
+
+#: templates/dnd/rulebooks/edition_detail.html:24
+msgid "No rulebooks are listed for this edition."
+msgstr "Não há livros catalogados para esta edição."
 
 #: templates/dnd/rulebooks/edition_list.html:23
 msgid "Edition name"
 msgstr "Nome da edição"
 
+#: templates/dnd/rulebooks/rulebook_card.html:14
+msgid "Summary pending source verification."
+msgstr "Resumo aguardando verificação da fonte."
+
 #: templates/dnd/rulebooks/rulebook_detail.html:17
 msgid "In this rulebook"
 msgstr "Neste livro"
 
+#: templates/dnd/rulebooks/rulebook_detail.html:43
+msgid "About this book"
+msgstr "Sobre este livro"
+
+#: templates/dnd/rulebooks/rulebook_detail.html:46
+msgid ""
+"A verified summary is not available yet. You can still browse the catalog "
+"entries linked to this book."
+msgstr ""
+"Ainda não há resumo verificado. Você pode consultar os registros do catálogo "
+"ligados a este livro."
+
+#: templates/dnd/rulebooks/rulebook_detail.html:50
+msgid "Publication details"
+msgstr "Dados da publicação"
+
+#: templates/dnd/rulebooks/rulebook_detail.html:59
+msgid "Bibliographic source"
+msgstr "Fonte bibliográfica"
+
+#: templates/dnd/rulebooks/rulebook_detail.html:65
+#, python-format
+msgid "Cover of %(title)s"
+msgstr "Capa de %(title)s"
+
+#: templates/dnd/rulebooks/rulebook_detail.html:66
+msgid "Cover unavailable"
+msgstr "Capa indisponível"
+
+#: templates/dnd/rulebooks/rulebook_list.html:11
+msgid "D&D reference library"
+msgstr "Biblioteca de referência de D&D"
+
+#: templates/dnd/rulebooks/rulebook_list.html:13
+msgid ""
+"Browse game material by publication type or use the filters to find a "
+"specific book."
+msgstr ""
+"Explore o material de jogo por tipo de publicação ou use os filtros para "
+"encontrar um livro."
+
+#: templates/dnd/rulebooks/rulebook_list.html:17
+msgid "Publication types"
+msgstr "Tipos de publicação"
+
+#: templates/dnd/rulebooks/rulebook_list.html:27
+msgid "No rulebooks match these filters."
+msgstr "Nenhum livro corresponde a esses filtros."
+
+#: templates/dnd/rules/condition_detail.html:7
+msgid "Condition"
+msgstr "Condição"
+
 #: templates/dnd/rules/condition_list.html:7
 msgid "Rules reference"
 msgstr "Referência de regras"
+
+#: templates/dnd/rules/condition_list.html:10
+msgid "No conditions available."
+msgstr "Nenhuma condição disponível."
+
+#: templates/dnd/rules/rule_list.html:16
+msgid "Browse conditions"
+msgstr "Ver condições"
 
 #: templates/dnd/rules/rule_table.html:7
 msgid "Rule name"
@@ -1792,11 +3181,6 @@ msgstr "Encontre magias, talentos, classes, livros e muito mais."
 #: templates/dnd/search.html:9
 msgid "Search terms"
 msgstr "Termos de busca"
-
-#: templates/dnd/search.html:11 templates/dnd/supplemental/detail.html:9
-#: templates/dnd/supplemental/index.html:10
-msgid "Category"
-msgstr "Categoria"
 
 #: templates/dnd/search.html:12
 msgid "All categories"
@@ -1821,11 +3205,6 @@ msgstr "Ver todos os %(count)s resultados em %(label)s →"
 #: templates/dnd/search.html:25
 msgid "Search pages"
 msgstr "Páginas da busca"
-
-#: templates/dnd/search.html:27
-#, python-format
-msgid "Page %(number)s of %(total)s"
-msgstr "Página %(number)s de %(total)s"
 
 #: templates/dnd/search.html:32
 #, python-format
@@ -1852,45 +3231,29 @@ msgstr "Nome da perícia"
 msgid "Key ability"
 msgstr "Atributo-chave"
 
-#: templates/dnd/skills/skill_table_inner.html:10
-msgid "Trained only"
-msgstr "Somente treinado"
-
-#: templates/dnd/skills/skill_table_inner.html:11
-msgid "Armor check penalty"
-msgstr "Penalidade de armadura"
-
-#: templates/dnd/skills/skill_variant_inner.html:10
-msgid "Check"
-msgstr "Teste"
-
-#: templates/dnd/skills/skill_variant_inner.html:15
-msgid "Action"
-msgstr "Ação"
-
-#: templates/dnd/skills/skill_variant_inner.html:20
-msgid "Try again"
-msgstr "Tentar novamente"
-
-#: templates/dnd/skills/skill_variant_inner.html:30
-msgid "Synergy"
-msgstr "Sinergia"
-
-#: templates/dnd/skills/skill_variant_inner.html:35
-msgid "Restriction"
-msgstr "Restrição"
-
-#: templates/dnd/skills/skill_variant_inner.html:40
-msgid "Untrained"
-msgstr "Sem treinamento"
-
 #: templates/dnd/spells/spell_descriptor_detail.html:19
 msgid "Spells with"
 msgstr "Magias com"
 
-#: templates/dnd/spells/spell_detail.html:7
-msgid "Spell"
-msgstr "Magia"
+#: templates/dnd/spells/spell_detail.html:59
+msgid "Arcane Focus"
+msgstr "Foco arcano"
+
+#: templates/dnd/spells/spell_detail.html:60
+msgid "Divine Focus"
+msgstr "Foco divino"
+
+#: templates/dnd/spells/spell_detail.html:61
+msgid "Experience"
+msgstr "Experiência"
+
+#: templates/dnd/spells/spell_detail.html:62
+msgid "Meta Breath"
+msgstr "Metassopro"
+
+#: templates/dnd/spells/spell_detail.html:63
+msgid "True Name"
+msgstr "Nome verdadeiro"
 
 #: templates/dnd/spells/spell_domain_detail.html:36
 #: templates/dnd/spells/spell_domain_detail.html:44
@@ -1904,10 +3267,6 @@ msgstr "Outras divindades:"
 #: templates/dnd/spells/spell_domain_detail.html:58
 msgid "Requirement:"
 msgstr "Exigência:"
-
-#: templates/dnd/spells/spell_domain_detail.html:62
-msgid "Granted power"
-msgstr "Poder concedido"
 
 #: templates/dnd/spells/spell_domain_detail.html:78
 #: templates/dnd/spells/spell_school_detail.html:19
@@ -1943,18 +3302,6 @@ msgstr "Deslize a tabela para o lado para ver todos os detalhes das magias."
 msgid "Spell School"
 msgstr "Escola de magia"
 
-#: templates/dnd/spells/spell_table.html:13
-msgid "Effect"
-msgstr "Efeito"
-
-#: templates/dnd/spells/spell_table.html:14
-msgid "Duration"
-msgstr "Duração"
-
-#: templates/dnd/spells/spell_table.html:15
-msgid "Range"
-msgstr "Alcance"
-
 #: templates/dnd/spells/spell_table.html:16
 msgid "Components"
 msgstr "Componentes"
@@ -1962,6 +3309,15 @@ msgstr "Componentes"
 #: templates/dnd/spells/spell_table.html:17
 msgid "Casting Time"
 msgstr "Tempo de execução"
+
+#: templates/dnd/static/android.html:12
+msgid "The original Android page is not available in this catalog snapshot."
+msgstr ""
+"A página original do Android não está disponível nesta cópia do catálogo."
+
+#: templates/dnd/static/android.html:12
+msgid "Check project issues for updates."
+msgstr "Consulte as issues do projeto para novidades."
 
 #: templates/dnd/supplemental/detail.html:12
 msgid "Mechanics"
@@ -1978,89 +3334,6 @@ msgstr "Buscar nomes"
 #: templates/dnd/supplemental/index.html:12
 msgid "No published entries yet."
 msgstr "Ainda não há registros publicados."
-msgid "Title contains"
-msgstr "Título contém"
 
-msgid "Type of book"
-msgstr "Tipo de livro"
-
-msgid "Publication year"
-msgstr "Ano de publicação"
-
-msgid "Includes"
-msgstr "Inclui"
-
-msgid "All content"
-msgstr "Todo o conteúdo"
-
-msgid "Core rulebook"
-msgstr "Livro básico"
-
-msgid "Campaign setting"
-msgstr "Cenário de campanha"
-
-msgid "Setting guide"
-msgstr "Guia de cenário"
-
-msgid "Rules sourcebook"
-msgstr "Suplemento de regras"
-
-msgid "Adventure"
-msgstr "Aventura"
-
-msgid "Magazine or web article"
-msgstr "Revista ou artigo web"
-
-msgid "D&D reference library"
-msgstr "Biblioteca de referência de D&D"
-
-msgid "Browse game material by publication type or use the filters to find a specific book."
-msgstr "Explore o material de jogo por tipo de publicação ou use os filtros para encontrar um livro."
-
-msgid "Publication types"
-msgstr "Tipos de publicação"
-
-msgid "No rulebooks match these filters."
-msgstr "Nenhum livro corresponde a esses filtros."
-
-msgid "About this book"
-msgstr "Sobre este livro"
-
-msgid "Publication details"
-msgstr "Dados da publicação"
-
-msgid "Authors"
-msgstr "Autores"
-
-msgid "Cover artist"
-msgstr "Artista da capa"
-
-msgid "Publisher"
-msgstr "Editora"
-
-msgid "Pages"
-msgstr "Páginas"
-
-msgid "Format"
-msgstr "Formato"
-
-msgid "Bibliographic source"
-msgstr "Fonte bibliográfica"
-
-msgid "Summary pending source verification."
-msgstr "Resumo aguardando verificação da fonte."
-
-msgid "Cover unavailable"
-msgstr "Capa indisponível"
-
-msgid "A verified summary is not available yet. You can still browse the catalog entries linked to this book."
-msgstr "Ainda não há resumo verificado. Você pode consultar os registros do catálogo ligados a este livro."
-
-msgid "Game material listed for this edition."
-msgstr "Material de jogo catalogado nesta edição."
-
-msgid "No rulebooks are listed for this edition."
-msgstr "Não há livros catalogados para esta edição."
-
-msgid "Cover of %(title)s"
-msgstr "Capa de %(title)s"
+#~ msgid "Rulebooks in"
+#~ msgstr "Livros em"

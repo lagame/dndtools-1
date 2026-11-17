@@ -4,10 +4,10 @@
 
 {#{% block extra_link %}<link rel="canonical" href="{% url 'monsters_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}" />{% endblock %}#}
 
-{% block title %}Monsters in {% localized rulebook 'name' %}{% endblock %}
+{% block title %}{% translate 'Monsters in' %} {% localized rulebook 'name' %}{% endblock %}
 
 {% block breadcrumbs %}
-    &raquo; <a href="{% url 'monster_index' %}">monsters</a>
+    &raquo; <a href="{% url 'monster_index' %}">{% translate 'Monsters' %}</a>
     &raquo; <a href="{% url 'monsters_in_rulebook' rulebook_slug=rulebook.slug rulebook_id=rulebook.id  %}">{% localized rulebook 'name' %}</a> (<a href="{{ rulebook.get_absolute_url }}">{% translate 'book' %}</a>)
 {% endblock %}
 
