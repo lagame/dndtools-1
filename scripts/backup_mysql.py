@@ -3,6 +3,7 @@
 import argparse
 import gzip
 import hashlib
+import os
 import subprocess
 import tempfile
 from datetime import datetime
@@ -14,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', required=True, type=Path)
     args = parser.parse_args()
+    os.umask(0o077)
     output_dir = args.output_dir.resolve()
     repository = Path(__file__).resolve().parents[1]
     if output_dir == repository or repository in output_dir.parents:

@@ -9,8 +9,8 @@ from datetime import timedelta
 from django import forms
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
@@ -19,6 +19,7 @@ from django.db.models import F
 from django.db.models.functions import Collate
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -49,21 +50,18 @@ class InviteForm(forms.Form):
 
     def clean_email(self):
         email = self.cleaned_data['email'].casefold()
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError('This email already has a Django account. Review it before inviting.')
+        accounts = list(User.objects.filter(email__iexact=email).order_by('pk')[:2])
+        if len(accounts) > 1:
+            raise forms.ValidationError('Multiple Django accounts use this email. Resolve them before inviting.')
+        existing = accounts[0] if accounts else None
+        if existing and (existing.is_superuser or not hasattr(existing, 'editorial_invite') or
+                         existing.editorial_invite.access_state == 'active'):
+            raise forms.ValidationError('This email already has an active or unrelated Django account.')
         return email
 
 
 class ActivationForm(forms.Form):
     code = forms.CharField(max_length=100, widget=forms.PasswordInput)
-    password1 = forms.CharField(widget=forms.PasswordInput, label='New password')
-    password2 = forms.CharField(widget=forms.PasswordInput, label='Repeat password')
-
-    def clean(self):
-        data = super().clean()
-        if data.get('password1') != data.get('password2'):
-            raise forms.ValidationError('Passwords do not match.')
-        return data
 
 
 @staff_member_required
@@ -97,69 +95,96 @@ def invite(request):
     if request.method == 'POST' and form.is_valid():
         code = secrets.token_urlsafe(32)
         email = form.cleaned_data['email']
-        with transaction.atomic():
-            username = 'editor-' + secrets.token_hex(6)
-            user = User(username=username, email=email, is_staff=True, is_active=False)
-            user.set_unusable_password()
-            user.save()
-            for resource in form.cleaned_data['resources']:
-                EditorialGrant.objects.create(
-                    user=user, resource=resource,
-                    can_create='create' in form.cleaned_data['permissions'],
-                    can_correct='correct' in form.cleaned_data['permissions'],
-                    can_translate='translate' in form.cleaned_data['permissions'],
-                    can_delete='delete' in form.cleaned_data['permissions'])
-            CollaboratorInvite.objects.create(
-                user=user, token_hash=hashlib.sha256(code.encode()).hexdigest(),
-                expires_at=timezone.now() + timedelta(days=7))
-        response = render(request, 'admin/editorial/invite_code.html', {
-            'title': 'Invite created', 'email': email, 'code': code,
-        })
-        response['Cache-Control'] = 'no-store'
-        return response
+        try:
+            with transaction.atomic():
+                user = User.objects.select_for_update().filter(email__iexact=email).first()
+                if user:
+                    user.is_active = False
+                    user.is_staff = True
+                    user.set_unusable_password()
+                    user.save(update_fields=('is_active', 'is_staff', 'password'))
+                    record = user.editorial_invite
+                    record.token_hash = hashlib.sha256(code.encode()).hexdigest()
+                    record.expires_at = timezone.now() + timedelta(days=7)
+                    record.access_state = 'pending'
+                    record.activated_at = None
+                    record.save(update_fields=('token_hash', 'expires_at', 'access_state', 'activated_at'))
+                    EditorialGrant.objects.filter(user=user).delete()
+                else:
+                    user = User(username='editor-' + secrets.token_hex(6), email=email,
+                                is_staff=True, is_active=False)
+                    user.set_unusable_password()
+                    user.save()
+                    CollaboratorInvite.objects.create(
+                        user=user, token_hash=hashlib.sha256(code.encode()).hexdigest(),
+                        expires_at=timezone.now() + timedelta(days=7))
+                for resource in form.cleaned_data['resources']:
+                    EditorialGrant.objects.create(
+                        user=user, resource=resource,
+                        can_create='create' in form.cleaned_data['permissions'],
+                        can_correct='correct' in form.cleaned_data['permissions'],
+                        can_translate='translate' in form.cleaned_data['permissions'],
+                        can_delete='delete' in form.cleaned_data['permissions'])
+                sent = send_mail(
+                    'D&D Tools: convite para colaborar',
+                    'Abra https://%s%s após entrar no Cloudflare Access com seu e-mail e autenticador.\n'
+                    'Use o campo Email no Cloudflare; o botão Cloudflare é para administradores da conta.\n\n'
+                    'Código do convite (válido por 7 dias): %s\n\n'
+                    'O código do Cloudflare recebido por e-mail é diferente deste código do convite.\n'
+                    'Após a ativação, não é preciso criar outra senha.\n'
+                    'Suas propostas só serão publicadas após aprovação de Ronassic.\n'
+                    % (settings.PUBLIC_HOST, reverse('editorial_activate'), code),
+                    settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+                if sent != 1:
+                    raise smtplib.SMTPException('Invitation email was not accepted.')
+        except (OSError, smtplib.SMTPException) as error:
+            logger.warning('Editorial invitation email failed: %s', type(error).__name__)
+            form.add_error(None, 'The invitation could not be sent. Please try again; no account was changed.')
+        else:
+            messages.success(request, 'Invitation emailed. The collaborator must complete Cloudflare MFA and activation.')
+            return redirect('editorial_dashboard')
     return render(request, 'admin/editorial/invite.html', {
         'title': 'Invite collaborator', 'form': form,
     })
 
 
 def activate(request):
-    """Access-authenticated invitees set their own password via a one-time code."""
+    """Activate an Access-authenticated invitee with an emailed one-time code."""
     email = getattr(request, 'access_email', None)
     if not email:
         return HttpResponseForbidden('Cloudflare Access sign-in required.')
-    invite_record = CollaboratorInvite.objects.select_related('user').filter(
-        user__email__iexact=email, access_state='pending').first()
-    if not invite_record:
+    invitations = list(CollaboratorInvite.objects.select_related('user').filter(
+        user__email__iexact=email, access_state='pending').order_by('pk')[:2])
+    if len(invitations) != 1:
+        if request.user.is_authenticated:
+            return redirect('editorial_dashboard')
         return HttpResponseForbidden('No pending invitation for this Access identity.')
+    invite_record = invitations[0]
     form = ActivationForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         digest = hashlib.sha256(form.cleaned_data['code'].encode()).hexdigest()
         if (timezone.now() >= invite_record.expires_at or
                 not secrets.compare_digest(digest, invite_record.token_hash)):
             form.add_error('code', 'Code invalid or expired.')
-        else:
-            try:
-                validate_password(form.cleaned_data['password1'], user=invite_record.user)
-            except forms.ValidationError as error:
-                form.add_error('password1', error)
         if not form.errors:
             with transaction.atomic():
                 invite_record = CollaboratorInvite.objects.select_for_update().select_related('user').get(
                     pk=invite_record.pk)
-                if (invite_record.access_state != 'pending' or
+                if (invite_record.access_state != 'pending' or timezone.now() >= invite_record.expires_at or
                         not secrets.compare_digest(digest, invite_record.token_hash)):
                     return HttpResponseForbidden('Invitation no longer available.')
-                invite_record.user.set_password(form.cleaned_data['password1'])
                 invite_record.user.is_active = True
-                invite_record.user.save(update_fields=('password', 'is_active'))
+                invite_record.user.save(update_fields=('is_active',))
                 invite_record.access_state = 'active'
                 invite_record.token_hash = ''
                 invite_record.activated_at = timezone.now()
                 invite_record.save(update_fields=('access_state', 'token_hash', 'activated_at'))
-            messages.success(request, 'Account activated. Sign in with your new password.')
-            return redirect('admin:login')
+            login(request, invite_record.user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(request, 'Account activated. Your Cloudflare identity now signs you in.')
+            return redirect('editorial_dashboard')
     response = render(request, 'admin/editorial/activate.html', {
         'title': 'Activate editorial access', 'form': form, 'email': email,
+        'expired': timezone.now() >= invite_record.expires_at,
     })
     response['Cache-Control'] = 'no-store'
     return response

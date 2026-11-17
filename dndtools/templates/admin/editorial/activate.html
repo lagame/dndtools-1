@@ -1,6 +1,9 @@
 {% extends 'admin/base_site.html' %}
 {% block content %}
 <h1>Activate editorial access</h1>
-<p>Cloudflare Access identity: {{ email }}. Enter the private code supplied by the project owner and choose a unique password of at least 14 characters.</p>
+<p>Cloudflare Access identity: {{ email }}.</p>
+{% if expired %}<p>This invitation has expired. Ask the project owner to resend it.</p>{% else %}
+<p>Enter the one-time code sent by D&amp;D Tools to this email. The Cloudflare login code is separate. Future visits use your Cloudflare identity and MFA.</p>
 <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button default">Activate account</button></form>
+{% endif %}
 {% endblock %}

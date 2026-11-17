@@ -2,6 +2,7 @@
 
 import contextlib
 import io
+import json
 import unittest
 from unittest.mock import patch
 
@@ -41,6 +42,13 @@ class AccessGroupSyncTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'non-email rules'):
             sync_access_group.sync(True)
         self.assertEqual(request.call_count, 1)
+
+    @patch.dict('os.environ', CONFIG)
+    @patch('scripts.sync_access_group.subprocess.run')
+    def test_cloudflare_token_is_not_passed_to_docker_process(self, run):
+        run.return_value.stdout = json.dumps({'emails': ['owner@example.test']})
+        self.assertEqual(sync_access_group.desired_emails(), ['owner@example.test'])
+        self.assertNotIn('DND_CF_API_TOKEN', run.call_args.kwargs['env'])
 
 
 if __name__ == '__main__':

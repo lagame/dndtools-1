@@ -1,5 +1,8 @@
 from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
+import json
+import smtplib
+from io import StringIO
 
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -8,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Permission
 from django.core import mail
+from django.core.management import call_command
 from django.test import Client, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -396,6 +400,7 @@ class EditorialFlowTests(TestCase):
                 self.assertEqual(self.client.get(reverse('editorial_catalog', args=(resource,))).status_code, 200)
                 self.assertEqual(self.client.get(reverse('editorial_create', args=(resource,))).status_code, 200)
 
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_invitation_activation_and_revocation(self):
         self.client.force_login(self.editor)
         self.assertEqual(self.client.get(reverse('editorial_invite')).status_code, 403)
@@ -404,9 +409,11 @@ class EditorialFlowTests(TestCase):
             'email': 'friend@example.test', 'resources': ['Spell', 'CreatureTemplate'],
             'permissions': ['create', 'correct', 'translate'],
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Cache-Control'], 'no-store')
-        code = response.context['code']
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['friend@example.test'])
+        code = mail.outbox[0].body.split('Código do convite (válido por 7 dias): ')[1].splitlines()[0]
+        self.assertNotIn(code, response.content.decode())
         record = CollaboratorInvite.objects.get()
         self.assertFalse(record.user.is_active)
         self.assertFalse(record.user.has_usable_password())
@@ -415,16 +422,26 @@ class EditorialFlowTests(TestCase):
         self.client.logout()
         with override_settings(ACCESS_REQUIRED=True), patch(
                 'dnd.access.verified_email', return_value='friend@example.test'):
+            self.assertRedirects(self.client.get(reverse('admin:index')),
+                                 reverse('editorial_activate'), fetch_redirect_response=False)
             self.assertEqual(self.client.get(reverse('editorial_activate')).status_code, 200)
-            self.assertEqual(self.client.post(reverse('editorial_activate'), {
-                'code': code, 'password1': 'Unique-test-password-1234',
-                'password2': 'Unique-test-password-1234',
-            }).status_code, 302)
+            self.assertEqual(self.client.post(reverse('editorial_activate'),
+                                              {'code': 'incorrect'}).status_code, 200)
+            self.assertNotIn('_auth_user_id', self.client.session)
+            self.assertEqual(self.client.post(reverse('editorial_activate'), {'code': code}).status_code, 302)
+            self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 200)
         record.refresh_from_db()
         record.user.refresh_from_db()
         self.assertEqual(record.access_state, 'active')
         self.assertEqual(record.token_hash, '')
         self.assertTrue(record.user.is_active)
+        self.assertFalse(record.user.has_usable_password())
+
+        self.client.logout()
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value='friend@example.test'):
+            self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 200)
+            self.assertEqual(self.client.get(reverse('admin:index')).status_code, 200)
 
         self.client.force_login(self.owner)
         self.assertEqual(self.client.post(reverse('editorial_revoke', args=(record.pk,))).status_code, 302)
@@ -432,6 +449,97 @@ class EditorialFlowTests(TestCase):
         record.user.refresh_from_db()
         self.assertEqual(record.access_state, 'revoked')
         self.assertFalse(record.user.is_active)
+        self.client.logout()
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value='friend@example.test'):
+            self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 403)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_invitation_send_failure_rolls_back_and_pending_can_be_resent(self):
+        self.client.force_login(self.owner)
+        data = {'email': 'friend@example.test', 'resources': ['Spell'],
+                'permissions': ['create']}
+        with patch('dnd.editorial_views.send_mail', side_effect=smtplib.SMTPException('offline')):
+            response = self.client.post(reverse('editorial_invite'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(email='friend@example.test').exists())
+        self.assertFalse(CollaboratorInvite.objects.exists())
+
+        self.assertEqual(self.client.post(reverse('editorial_invite'), data).status_code, 302)
+        original = mail.outbox[-1].body
+        before = CollaboratorInvite.objects.get(user__email='friend@example.test')
+        digest = before.token_hash
+        data['resources'] = ['Feat']
+        with patch('dnd.editorial_views.send_mail', side_effect=smtplib.SMTPException('offline')):
+            self.assertEqual(self.client.post(reverse('editorial_invite'), data).status_code, 200)
+        before.refresh_from_db()
+        self.assertEqual(before.token_hash, digest)
+        self.assertEqual(list(EditorialGrant.objects.filter(user=before.user).values_list('resource', flat=True)),
+                         ['Spell'])
+        self.assertEqual(self.client.post(reverse('editorial_invite'), data).status_code, 302)
+        self.assertNotEqual(original, mail.outbox[-1].body)
+        record = CollaboratorInvite.objects.get(user__email='friend@example.test')
+        self.assertEqual(list(EditorialGrant.objects.filter(user=record.user).values_list('resource', flat=True)),
+                         ['Feat'])
+
+    def test_access_members_omit_expired_and_revoked_invitations(self):
+        from django.utils import timezone as django_timezone
+        person = User.objects.create_user('pending-editor', 'pending@example.test', is_staff=True,
+                                          is_active=False)
+        record = CollaboratorInvite.objects.create(
+            user=person, expires_at=django_timezone.now() - timedelta(seconds=1))
+        output = StringIO()
+        call_command('access_group_members', stdout=output)
+        self.assertNotIn(person.email, json.loads(output.getvalue())['emails'])
+        record.expires_at = django_timezone.now() + timedelta(days=1)
+        record.save(update_fields=('expires_at',))
+        output = StringIO()
+        call_command('access_group_members', stdout=output)
+        self.assertIn(person.email, json.loads(output.getvalue())['emails'])
+        record.access_state = 'revoked'
+        record.save(update_fields=('access_state',))
+        output = StringIO()
+        call_command('access_group_members', stdout=output)
+        self.assertNotIn(person.email, json.loads(output.getvalue())['emails'])
+
+    def test_expired_invitation_shows_recovery_instead_of_password_login(self):
+        from django.utils import timezone as django_timezone
+
+        person = User.objects.create_user('pending-editor', 'pending@example.test', is_staff=True,
+                                          is_active=False)
+        CollaboratorInvite.objects.create(user=person,
+                                          expires_at=django_timezone.now() - timedelta(seconds=1))
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value=person.email):
+            self.assertRedirects(self.client.get(reverse('admin:index')),
+                                 reverse('editorial_activate'), fetch_redirect_response=False)
+            response = self.client.get(reverse('editorial_activate'))
+        self.assertContains(response, 'This invitation has expired')
+        self.assertNotContains(response, 'name="code"')
+
+    def test_access_identity_does_not_sign_in_uninvited_staff(self):
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value=self.editor.email):
+            self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 403)
+
+    def test_access_identity_does_not_sign_in_ambiguous_email(self):
+        from django.utils import timezone as django_timezone
+
+        person = User.objects.create_user('invited-editor', 'shared@example.test', is_staff=True)
+        CollaboratorInvite.objects.create(user=person, access_state='active',
+                                          expires_at=django_timezone.now() + timedelta(days=1))
+        User.objects.create_user('other-editor', 'shared@example.test', is_staff=True)
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value='shared@example.test'):
+            self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 403)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_owner_still_uses_django_password_after_cloudflare_access(self):
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value=self.owner.email):
+            response = self.client.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('admin:login'), response['Location'])
 
     def test_admin_session_must_match_signed_access_identity(self):
         self.client.force_login(self.owner)

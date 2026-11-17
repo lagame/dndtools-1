@@ -28,7 +28,8 @@ def api_request(url, token, method='GET', body=None):
 def desired_emails():
     command = ['docker', 'compose', '-f', 'compose.yaml', '-f', 'compose.tunnel.yaml',
                'exec', '-T', 'app', 'python', 'manage.py', 'access_group_members']
-    run = subprocess.run(command, check=True, capture_output=True, text=True)
+    container_env = {key: value for key, value in os.environ.items() if key != 'DND_CF_API_TOKEN'}
+    run = subprocess.run(command, check=True, capture_output=True, text=True, env=container_env)
     result = json.loads(run.stdout)
     emails = result['emails']
     if not emails or any(not isinstance(email, str) or '@' not in email for email in emails):
@@ -50,9 +51,13 @@ def sync(apply):
     if group.get('name') != group_name:
         raise RuntimeError('The configured group ID does not match the dedicated D&D Tools group name.')
     includes = group.get('include', [])
-    if any(set(rule) != {'email'} or not isinstance(rule['email'], dict)
+    if not isinstance(includes, list) or any(
+            not isinstance(rule, dict) or set(rule) != {'email'} or
+            not isinstance(rule['email'], dict) or
+            not isinstance(rule['email'].get('email'), str) or
+            '@' not in rule['email']['email']
            for rule in includes):
-        raise RuntimeError('The dedicated group contains non-email rules; refusing to modify it.')
+        raise RuntimeError('The dedicated group contains invalid or non-email rules; refusing to modify it.')
     wanted = desired_emails()
     current = sorted(rule['email']['email'].casefold() for rule in includes)
     print('D&D Tools Access group: %d current, %d desired members.' % (len(current), len(wanted)))

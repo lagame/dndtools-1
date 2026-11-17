@@ -5,8 +5,10 @@ from urllib.parse import urlsplit
 
 import jwt
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import get_user_model, login, logout
 from django.http import HttpResponseForbidden
+from django.shortcuts import redirect
+from django.urls import reverse
 
 
 @lru_cache(maxsize=4)
@@ -48,6 +50,28 @@ class AccessIdentityMiddleware:
         if request.user.is_authenticated and request.user.email.casefold() != email:
             logout(request)
             return HttpResponseForbidden('Access account does not match this session.')
+        if email != settings.ADMINS[0][1].casefold():
+            from dnd.models import CollaboratorInvite
+            accounts = list(get_user_model().objects.filter(email__iexact=email).order_by('pk')[:2])
+            if len(accounts) != 1:
+                return HttpResponseForbidden('No editorial invitation for this Access identity.')
+            account = accounts[0]
+            invite = CollaboratorInvite.objects.filter(user=account).first()
+            if not invite or account.is_superuser:
+                return HttpResponseForbidden('No editorial invitation for this Access identity.')
+            if invite.access_state == 'pending':
+                if request.user.is_authenticated:
+                    logout(request)
+                if request.path_info != reverse('editorial_activate'):
+                    return redirect('editorial_activate')
+            elif (invite.access_state != 'active' or not account.is_active or
+                  not account.is_staff or
+                  (request.user.is_authenticated and request.user.pk != account.pk)):
+                if request.user.is_authenticated:
+                    logout(request)
+                return HttpResponseForbidden('Editorial access is not active.')
+            elif not request.user.is_authenticated and request.method in ('GET', 'HEAD'):
+                login(request, account, backend='django.contrib.auth.backends.ModelBackend')
         response = self.get_response(request)
         if request.user.is_authenticated and request.user.email.casefold() != email:
             logout(request)
