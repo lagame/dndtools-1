@@ -292,6 +292,22 @@ class CatalogSmokeTests(TestCase):
         self.assertEqual(self.client.post(reverse('contact')).status_code, 405)
         self.assertEqual(self.client.post(reverse('inaccurate_content')).status_code, 405)
 
+    def test_public_help_explains_catalog_access_and_collaborator_recovery(self):
+        english = self.client.get(reverse('help'))
+        self.assertContains(english, 'Help and FAQ')
+        self.assertContains(english, 'Public browsing, search and filters work without an account')
+        self.assertContains(english, 'collaborators have no additional Django password')
+        self.assertContains(english, 'lost Cloudflare authenticator')
+        self.assertContains(english, 'href="/help/"')
+        self.assertNotIn('sessionid', english.cookies)
+
+        portuguese = self.client.get('/pt-br/help/')
+        self.assertContains(portuguese, 'Ajuda e perguntas frequentes')
+        self.assertContains(portuguese, 'colaboradores não têm uma senha adicional do Django')
+        self.assertContains(portuguese, 'href="/pt-br/help/"')
+        self.assertContains(portuguese, 'aria-current="page"')
+        self.assertNotIn('sessionid', portuguese.cookies)
+
     def test_privacy_notice_and_legacy_news_cookie(self):
         NewsEntry.objects.create(published=date(2026, 11, 15), title='Catalog update', body='Updated catalog.')
         home = self.client.get('/', HTTP_ACCEPT_LANGUAGE='pt-BR,pt;q=0.9')

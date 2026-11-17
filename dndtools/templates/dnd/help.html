@@ -1,0 +1,52 @@
+{% extends "dnd/layout.html" %}
+{% load versioned_static %}
+{% block title %}{% if request.LANGUAGE_CODE == 'pt-br' %}Ajuda e perguntas frequentes{% else %}Help and FAQ{% endif %}{% endblock %}
+{% block extra_link %}<link rel="stylesheet" href="{% versioned_static 'css/help.css' %}">{% endblock %}
+{% block breadcrumbs %} » {% if request.LANGUAGE_CODE == 'pt-br' %}Ajuda{% else %}Help{% endif %}{% endblock %}
+{% block content %}
+<article class="help-page" lang="{% if request.LANGUAGE_CODE == 'pt-br' %}pt-BR{% else %}en{% endif %}">
+  {% if request.LANGUAGE_CODE == 'pt-br' %}
+  <header class="page-heading"><span class="eyebrow">Suporte</span><h1>Ajuda e perguntas frequentes</h1><p>Respostas para consultar o catálogo e colaborar com o D&amp;D Tools.</p></header>
+  <nav class="help-jump" aria-label="Nesta página"><a href="#catalogo">Uso do catálogo</a><a href="#colaboracao">Acesso de colaboradores</a><a href="#contato">Precisa de ajuda?</a></nav>
+
+  <section id="catalogo" aria-labelledby="catalogo-heading">
+    <h2 id="catalogo-heading">Uso do catálogo</h2>
+    <details><summary>Preciso criar uma conta para pesquisar?</summary><div class="help-answer"><p>Não. A consulta pública, a pesquisa e os filtros funcionam sem cadastro. Use o campo de busca no topo ou navegue pelas categorias do menu.</p></div></details>
+    <details><summary>Por que alguns textos estão em inglês?</summary><div class="help-answer"><p>O conteúdo original do catálogo é em inglês. A interface pode ser usada em português ou inglês; cada tradução de um registro só aparece depois de ser proposta e aprovada. Troque de idioma pelo seletor EN / PT-BR no topo.</p></div></details>
+    <details><summary>Como encontro livros, magias ou talentos de D&amp;D 3.5?</summary><div class="help-answer"><p>Pesquise pelo nome e refine os resultados com os filtros da seção. Confira o livro e a edição na ficha: o catálogo também contém material da versão 3.0, identificado com um aviso.</p></div></details>
+    <details><summary>Encontrei um erro ou um registro ausente. Como aviso?</summary><div class="help-answer"><p>Use “Informar um problema nesta página” na ficha, <a href="https://github.com/lagame/dndtools-1/issues/new">abra uma issue</a> ou escreva para <a href="mailto:ronassic@gmail.com">ronassic@gmail.com</a> se não usa GitHub. Informe o link, o livro e a página da fonte quando possível. Não envie senhas, códigos ou dados privados.</p></div></details>
+  </section>
+
+  <section id="colaboracao" aria-labelledby="colaboracao-heading">
+    <h2 id="colaboracao-heading">Acesso de colaboradores</h2>
+    <details open><summary>Recebi um convite. Como entro pela primeira vez?</summary><div class="help-answer"><ol><li>Abra o convite “D&amp;D Tools: convite para colaborar” enviado ao seu e-mail e siga o link indicado.</li><li>No Cloudflare Access, use o campo <strong>Email</strong> com o mesmo endereço do convite e confirme o código enviado pelo Cloudflare. O botão “Cloudflare” é reservado aos membros da conta de infraestrutura.</li><li>Se solicitado, conclua a verificação pelo aplicativo autenticador. Depois, na tela de ativação do D&amp;D Tools, informe o <strong>código do convite</strong> que veio no outro e-mail. São dois códigos diferentes.</li></ol><p>O convite vale sete dias. Após ativá-lo, seu e-mail e o autenticador bastam nas próximas visitas; colaboradores não têm uma senha adicional do Django.</p></div></details>
+    <details><summary>Não chegou um dos códigos ou apareceu “That account does not have access”. E agora?</summary><div class="help-answer"><p>Confira spam e o endereço exato do convite. O código do Cloudflare expira em 10 minutos; solicite outro na própria tela. Para a mensagem de acesso negado, escolha o campo Email em vez do botão Cloudflare. Se ainda falhar, <a href="mailto:ronassic@gmail.com">contate Ronassic</a> e informe o e-mail usado e a mensagem exibida, sem enviar códigos. Convites D&amp;D vencidos devem ser reenviados pelo responsável.</p></div></details>
+    <details><summary>Perdi meu celular ou o autenticador. Posso recuperar o acesso?</summary><div class="help-answer"><p>Sim, com ajuda do responsável. Por segurança, o e-mail sozinho não remove o segundo fator. <a href="mailto:ronassic@gmail.com">Peça a recuperação</a>; após confirmar sua identidade por outro canal, Ronassic pode remover o autenticador perdido no Cloudflare para que você cadastre um novo. Se também perdeu acesso ao e-mail, avise isso no pedido. Nunca envie seu código de verificação a outra pessoa.</p></div></details>
+    <details><summary>Como publico uma contribuição?</summary><div class="help-answer"><p>Depois da ativação, abra o espaço editorial pela administração. Você poderá propor inclusão, correção, tradução e remoção conforme suas permissões. Informe a fonte oficial e a página do livro quando houver. A proposta entra em revisão; só é publicada após aprovação de Ronassic.</p></div></details>
+  </section>
+
+  <section class="help-contact" id="contato" aria-labelledby="contato-heading"><h2 id="contato-heading">Precisa de ajuda?</h2><p>Escreva para <a href="mailto:ronassic@gmail.com">ronassic@gmail.com</a> ou <a href="{% url 'contact' %}">veja as formas de contato</a>. Para pedidos de privacidade, consulte também a <a href="{% url 'privacy' %}">política de privacidade</a>.</p></section>
+  {% else %}
+  <header class="page-heading"><span class="eyebrow">Support</span><h1>Help and FAQ</h1><p>Answers for browsing the catalog and contributing to D&amp;D Tools.</p></header>
+  <nav class="help-jump" aria-label="On this page"><a href="#catalog">Using the catalog</a><a href="#collaboration">Collaborator access</a><a href="#contact-help">Need help?</a></nav>
+
+  <section id="catalog" aria-labelledby="catalog-heading">
+    <h2 id="catalog-heading">Using the catalog</h2>
+    <details><summary>Do I need an account to search?</summary><div class="help-answer"><p>No. Public browsing, search and filters work without an account. Use the search field at the top or browse the categories in the menu.</p></div></details>
+    <details><summary>Why are some entries in English?</summary><div class="help-answer"><p>The original catalog content is in English. The interface is available in English and Brazilian Portuguese. A translated entry appears only after it has been proposed and approved. Use EN / PT-BR at the top to switch languages.</p></div></details>
+    <details><summary>How do I find D&amp;D 3.5 books, spells or feats?</summary><div class="help-answer"><p>Search by name and narrow the results with the section filters. Check the book and edition on each page: the catalog also contains D&amp;D 3.0 material, which displays a notice.</p></div></details>
+    <details><summary>How do I report an error or a missing entry?</summary><div class="help-answer"><p>Use “Report an issue with this page” on the entry, <a href="https://github.com/lagame/dndtools-1/issues/new">open an issue</a>, or email <a href="mailto:ronassic@gmail.com">ronassic@gmail.com</a> if you do not use GitHub. Include the URL, sourcebook and page number if available. Never send passwords, codes or private data.</p></div></details>
+  </section>
+
+  <section id="collaboration" aria-labelledby="collaboration-heading">
+    <h2 id="collaboration-heading">Collaborator access</h2>
+    <details open><summary>I received an invitation. How do I sign in for the first time?</summary><div class="help-answer"><ol><li>Open the “D&amp;D Tools: convite para colaborar” email and follow its link.</li><li>In Cloudflare Access, enter the <strong>same email address</strong> in the Email field and confirm the Cloudflare email code. The “Cloudflare” button is for infrastructure account members.</li><li>If prompted, verify with your authenticator app. On the D&amp;D Tools activation page, enter the <strong>invitation code</strong> from the other email. These are different codes.</li></ol><p>The invitation lasts seven days. After activation, your email and authenticator are enough on future visits; collaborators have no additional Django password.</p></div></details>
+    <details><summary>One code did not arrive, or I see “That account does not have access”. What should I do?</summary><div class="help-answer"><p>Check spam and the exact invitation address. The Cloudflare code expires after 10 minutes; request a new one on the sign-in page. If access is denied, use the Email field instead of the Cloudflare button. If it still fails, <a href="mailto:ronassic@gmail.com">contact Ronassic</a> with the email you used and the error message, without sharing codes. The maintainer can resend an expired D&amp;D invitation.</p></div></details>
+    <details><summary>I lost my phone or authenticator. Can I recover access?</summary><div class="help-answer"><p>Yes, with the maintainer's help. For security, email alone cannot remove the second factor. <a href="mailto:ronassic@gmail.com">Request recovery</a>; after confirming your identity through another channel, Ronassic can remove the lost Cloudflare authenticator so you can enroll a new one. Mention if you also lost access to your email. Never share verification codes.</p></div></details>
+    <details><summary>How do I publish a contribution?</summary><div class="help-answer"><p>After activation, open the editorial workspace through the administration area. You can propose additions, corrections, translations and removals according to your permissions. Cite the official source and page number where applicable. Proposals enter a review queue and are published only after Ronassic approves them.</p></div></details>
+  </section>
+
+  <section class="help-contact" id="contact-help" aria-labelledby="contact-heading"><h2 id="contact-heading">Need help?</h2><p>Email <a href="mailto:ronassic@gmail.com">ronassic@gmail.com</a> or <a href="{% url 'contact' %}">see the contact options</a>. For data requests, see our <a href="{% url 'privacy' %}">privacy policy</a>.</p></section>
+  {% endif %}
+</article>
+{% endblock %}

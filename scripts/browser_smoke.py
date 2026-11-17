@@ -198,6 +198,16 @@ def main():
                 assert visit(page, '/contacts/').status == 200
                 assert page.get_by_text('Open a project issue').count() >= 1
                 if width in (390, 1440):
+                    assert visit(page, '/help/').status == 200
+                    expect(page.get_by_role('heading', name='Help and FAQ')).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    page.get_by_text('I lost my phone or authenticator. Can I recover access?').click()
+                    expect(page.get_by_text("Ronassic can remove the lost Cloudflare authenticator", exact=False)).to_be_visible()
+                    screenshot(page, f'help-{width}.png')
+                    assert visit(page, '/pt-br/help/').status == 200
+                    expect(page.get_by_role('heading', name='Ajuda e perguntas frequentes')).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    screenshot(page, f'help-pt-{width}.png')
                     assert visit(page, '/privacy/').status == 200
                     expect(page.get_by_role('heading', name='Privacy at D&D Tools')).to_be_visible()
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')

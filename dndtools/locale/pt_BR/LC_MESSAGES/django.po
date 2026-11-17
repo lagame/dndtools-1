@@ -1406,6 +1406,10 @@ msgstr "Rodapé"
 msgid "Privacy and cookies"
 msgstr "Privacidade e cookies"
 
+#: dnd/navigation.py templates/dnd/layout.html
+msgid "Help"
+msgstr "Ajuda"
+
 #: templates/dnd/layout.html:68
 msgid "Source and setup"
 msgstr "Código e instalação"

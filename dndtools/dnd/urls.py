@@ -21,6 +21,7 @@ urlpatterns = patterns(
     url(r'^search/$', search, name='search'),
     url(r'^search/suggest/$', search_suggest, name='search_suggest'),
     url(r'^privacy/$', TemplateView.as_view(template_name='dnd/privacy.html'), name='privacy'),
+    url(r'^help/$', TemplateView.as_view(template_name='dnd/help.html'), name='help'),
 
 
     # Rulebooks

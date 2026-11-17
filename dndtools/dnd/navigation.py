@@ -27,6 +27,7 @@ LABELS = {
     'Items by rulebook': _('Items by rulebook'),
     'Mundane / alchemical': _('Mundane / alchemical'),
     'Contacts': _('Contacts'), 'News': _('News'), 'Contact us': _('Contact us'),
+    'Help': _('Help'),
     'Maintainer': _('Maintainer'), 'Android': _('Android'), 'My D&D': _('My D&D'),
 }
 
@@ -106,6 +107,7 @@ def catalog_navigation(request):
         ]),
         _link('Contacts', 'contact', children=[
             _link('News', 'index'),
+            _link('Help', 'help'),
             _link('Contact us', 'contact'),
             _link('Maintainer', 'staff'),
             _link('Android', 'android'),
