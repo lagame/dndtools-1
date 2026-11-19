@@ -28,6 +28,7 @@ from dnd.editorial import (RESOURCE_GROUPS, RESOURCE_LABELS, KIND_LABELS, GRANT_
                            model_for, owner, serialize_form, source_digest,
                            translation_form, validate_new_edition, detect_duplicate)
 from dnd.models import CollaboratorInvite, EditorialGrant, EditorialProposal, SupplementalEntry
+from dnd.supplemental.catalog import detail_for
 
 
 logger = logging.getLogger(__name__)
@@ -273,7 +274,9 @@ def propose(request, resource, action, target_pk=None):
     if (action == 'create') != (target_pk is None):
         raise Http404
     target = get_object_or_404(model, pk=target_pk) if target_pk else None
-    kind = request.GET.get('kind', '') if resource == 'SupplementalEntry' else ''
+    query_kind = request.GET.get('kind', '') if resource == 'SupplementalEntry' else ''
+    kind = (query_kind or (request.POST.get('kind', '') if request.method == 'POST' else '')
+            or (target.kind if target else '')) if resource == 'SupplementalEntry' else ''
     if kind:
         if kind not in dict(SupplementalEntry.KINDS) or (target and target.kind != kind):
             raise Http404
@@ -283,8 +286,12 @@ def propose(request, resource, action, target_pk=None):
         return HttpResponseForbidden(_('Select a catalog type from the editorial workspace.'))
     original_digest = (source_digest(target, translation=action == 'translate')
                        if target and request.method == 'POST' else '')
+    structured = request.GET.get('structured') == '1'
+    legacy_supplemental = (resource == 'SupplementalEntry' and action == 'correct'
+                           and target is not None and detail_for(target) is None)
     Form = (translation_form(target) if action == 'translate' else
-            editable_form(resource) if action != 'delete' else None)
+            editable_form(resource, kind=kind if action == 'create' or target else None,
+                          target=target, structured=structured) if action != 'delete' else None)
     form = (Form(request.POST or None, instance=target) if action not in ('translate', 'delete') else
             Form(request.POST or None) if action == 'translate' else None)
     if action == 'create' and kind:
@@ -294,7 +301,7 @@ def propose(request, resource, action, target_pk=None):
     if request.method == 'POST' and (form is None or form.is_valid()) and source_form.is_valid():
         if action == 'create':
             try:
-                if kind and form.cleaned_data.get('kind') != kind:
+                if query_kind and form.cleaned_data.get('kind') != query_kind:
                     raise forms.ValidationError(_('The selected catalog type changed. Reload the form.'))
                 validate_new_edition(resource, form)
                 detect_duplicate(resource, form)
@@ -330,7 +337,7 @@ def propose(request, resource, action, target_pk=None):
                              RESOURCE_LABELS[resource]),
         'resource': resource,
         'action': action, 'target': target, 'form': form, 'source_form': source_form,
-        'kind': kind,
+        'kind': kind, 'legacy_supplemental': legacy_supplemental, 'structured': structured,
     })
 
 
@@ -339,11 +346,39 @@ def review(request, proposal_id):
     if not owner(request.user):
         return HttpResponseForbidden()
     proposal = get_object_or_404(EditorialProposal.objects.select_related('author', 'reviewer'), pk=proposal_id)
+    original = (model_for(proposal.resource).objects.filter(pk=proposal.target_pk).first()
+                if proposal.target_pk else None)
+    review_rows = []
+    if proposal.resource == 'SupplementalEntry' and proposal.action in ('create', 'correct'):
+        from dnd.supplemental.catalog import detail_for
+        typed = any(name.startswith('detail_') for name in proposal.payload)
+        form = editable_form(proposal.resource,
+                             kind=proposal.payload.get('kind') if typed else None,
+                             target=original, structured=typed)()
+        detail = detail_for(original) if original else None
+        for name, value in proposal.payload.items():
+            field = form.fields.get(name)
+            before = ''
+            if original:
+                if name.startswith('detail_') and detail:
+                    if name == 'detail_class_levels':
+                        before = '\n'.join('%s | %s' % (row.character_class.name, row.level)
+                                           for row in detail.class_levels.select_related('character_class'))
+                    else:
+                        before = getattr(detail, name[7:], '')
+                elif not name.startswith('detail_'):
+                    before = getattr(original, name, '')
+            if isinstance(field, forms.ModelMultipleChoiceField):
+                value = ', '.join(str(item) for item in field.queryset.filter(pk__in=value or []))
+                if detail and name == 'detail_monsters':
+                    before = ', '.join(str(item) for item in detail.monsters.all())
+            elif isinstance(field, forms.ModelChoiceField):
+                value = (field.queryset.filter(pk=value).first() or value) if value else ''
+            review_rows.append((field.label if field else name, before, value))
     return render(request, 'admin/editorial/review.html', {
         'title': _('Review proposal'), 'proposal': proposal,
         'resource_label': RESOURCE_LABELS[proposal.resource],
-        'original': (model_for(proposal.resource).objects.filter(pk=proposal.target_pk).first()
-                     if proposal.target_pk else None),
+        'original': original, 'review_rows': review_rows,
     })
 
 

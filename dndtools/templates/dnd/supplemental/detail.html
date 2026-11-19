@@ -6,8 +6,9 @@
 {% block content %}
 <h1>{% localized entry 'name' %}</h1>{% if entry.original_english_name %}<p class="original-name">{% translate 'Original EN' %}: {{ entry.original_english_name }}</p>{% endif %}
 <p><a href="{{ entry.rulebook.get_absolute_url }}">{% localized entry.rulebook 'name' %}</a>{% if entry.page %}, p. {{ entry.page }}{% endif %}</p>
+{% if typed_details %}<dl class="typed-detail-list">{% for name, value in typed_details %}<dt>{{ name }}</dt><dd>{{ value|linebreaksbr }}</dd>{% endfor %}</dl>{% else %}
 {% if entry.category %}<p><strong>{% translate 'Category' %}:</strong> {{ entry.category }}</p>{% endif %}
-{% if entry.level %}<p><strong>{% translate 'Level' %}:</strong> {{ entry.level }}</p>{% endif %}
+{% if entry.level %}<p><strong>{% translate 'Level' %}:</strong> {{ entry.level }}</p>{% endif %}{% endif %}
 {% if entry.prerequisites %}<h2>{% translate 'Prerequisites' %}</h2><p>{{ entry.prerequisites|linebreaksbr }}</p>{% endif %}
 <h2>{% translate 'Mechanics' %}</h2><div class="nice-textile">{{ entry.mechanics_html|safe_catalog_html }}</div>
 {% if entry.description %}<h2>{% translate 'Description' %}</h2><div class="nice-textile">{{ entry.description_html|safe_catalog_html }}</div>{% endif %}

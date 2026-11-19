@@ -233,6 +233,16 @@ textarea { width: min(100%, 40rem); min-height: 8rem; }
 .advanced-filters { margin-top: .8rem; }
 .advanced-filters summary { cursor: pointer; font-size: .88rem; font-weight: 700; }
 .image-placeholder { display: grid; place-items: center; width: 180px; min-height: 220px; padding: 1rem; border: 1px dashed #aebfc9; border-radius: 6px; background: #f2f6f8; color: var(--muted); font-size: .82rem; text-align: center; }
+.typed-filter-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); align-items: end; gap: .55rem 1rem; margin: 1rem 0; }
+.typed-filter-form label { display: block; grid-column: auto; font-weight: 700; font-size: .85rem; }
+.typed-filter-form input, .typed-filter-form select { min-width: 0; width: 100%; }
+.typed-filter-form button, .typed-filter-form a { justify-self: start; }
+.typed-filter-form button { min-height: 44px; padding: .55rem .9rem; border: 0; border-radius: 6px; background: var(--gold); color: #1b2e3f; font-weight: 700; }
+.typed-results { max-width: 100%; overflow-x: auto; }
+.main-content .typed-results table { display: table; width: 100%; min-width: 560px; }
+.typed-detail-list { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 3fr); gap: .35rem 1rem; margin: 1rem 0; }
+.typed-detail-list dt { font-weight: 700; }
+.typed-detail-list dd { margin: 0; overflow-wrap: anywhere; }
 
 @media (max-width: 900px) {
   .site-frame { display: block; padding: 0 .7rem; }

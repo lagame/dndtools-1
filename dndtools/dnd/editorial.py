@@ -205,7 +205,12 @@ def can_propose(user, resource, action, *, kind=None):
         user=user, resource__in=choices, **{field: True}).exists()
 
 
-def editable_form(resource):
+def editable_form(resource, *, kind=None, target=None, structured=False):
+    if resource == 'SupplementalEntry' and kind:
+        from dnd.supplemental.catalog import detail_for
+        from dnd.supplemental.forms import typed_form
+        if target is None or detail_for(target) is not None or structured:
+            return typed_form(kind)
     model = model_for(resource)
     fields = [field.name for field in model._meta.get_fields()
               if field.concrete and field.editable and not field.auto_created
@@ -230,6 +235,16 @@ def translatable_fields(obj):
             value = getattr(obj, field.name)
             if value:
                 result[field.name] = value
+    if isinstance(obj, SupplementalEntry):
+        from dnd.supplemental.catalog import detail_for
+        detail = detail_for(obj)
+        if detail:
+            for field in detail._meta.concrete_fields:
+                if (isinstance(field, (models.CharField, models.TextField))
+                        and not field.choices and field.name not in ('id', 'entry')):
+                    value = getattr(detail, field.name)
+                    if value:
+                        result['detail_' + field.name] = value
     return result
 
 
@@ -246,6 +261,19 @@ def source_digest(obj, *, translation=False):
             elif isinstance(value, models.Model):
                 value = value.pk
             values[name] = value
+    if isinstance(obj, SupplementalEntry) and not translation:
+        from dnd.supplemental.catalog import detail_for
+        detail = detail_for(obj)
+        if detail:
+            for field in detail._meta.concrete_fields:
+                if field.name in ('id', 'entry'):
+                    continue
+                values['detail_' + field.name] = getattr(detail, field.attname)
+            if obj.kind == 'monstrous-traits':
+                values['detail_monsters'] = sorted(detail.monsters.values_list('pk', flat=True))
+            if obj.kind == 'psionics':
+                values['detail_class_levels'] = sorted(detail.class_levels.values_list(
+                    'character_class_id', 'level'))
     return hashlib.sha256(json.dumps(values, sort_keys=True, default=str,
                                      ensure_ascii=False).encode('utf-8')).hexdigest()
 
@@ -253,7 +281,11 @@ def source_digest(obj, *, translation=False):
 def translation_form(obj):
     fields = {}
     for name, value in translatable_fields(obj).items():
-        model_field = obj._meta.get_field(name)
+        if name.startswith('detail_') and isinstance(obj, SupplementalEntry):
+            from dnd.supplemental.catalog import detail_for
+            model_field = detail_for(obj)._meta.get_field(name[7:])
+        else:
+            model_field = obj._meta.get_field(name)
         fields[name] = forms.CharField(
             label=FIELD_LABELS.get(name, model_field.verbose_name), required=True,
             max_length=getattr(model_field, 'max_length', None),
@@ -316,11 +348,18 @@ def delete_without_cascading_catalog(target):
         collector.collect([target])
     except (ProtectedError, RestrictedError) as error:
         raise forms.ValidationError('Remove dependent records or links before approving removal.') from error
+    allowed = {type(target)}
+    if isinstance(target, SupplementalEntry):
+        from dnd.supplemental.catalog import DETAILS
+        from dnd.models import PsionicClassLevel
+        allowed.update(model for _, model in DETAILS.values())
+        allowed.add(PsionicClassLevel)
     for model, entries in collector.data.items():
-        if not model._meta.auto_created and (model != type(target) or len(entries) != 1):
+        if not model._meta.auto_created and (model not in allowed or
+                (model == type(target) and len(entries) != 1)):
             raise forms.ValidationError('Remove dependent records or links before approving removal.')
     for queryset in collector.fast_deletes:
-        if not queryset.model._meta.auto_created and queryset.exists():
+        if not queryset.model._meta.auto_created and queryset.model not in allowed and queryset.exists():
             raise forms.ValidationError('Remove dependent records or links before approving removal.')
     collector.delete()
 
@@ -352,7 +391,10 @@ def approve(proposal, reviewer):
                       'author': proposal.author, 'reviewer': reviewer},
         )
     else:
-        form = editable_form(proposal.resource)(proposal.payload, instance=target)
+        kind = proposal.payload.get('kind') if proposal.resource == 'SupplementalEntry' else None
+        typed = any(name.startswith('detail_') for name in proposal.payload)
+        form = editable_form(proposal.resource, kind=kind if typed else None,
+                             target=target, structured=typed)(proposal.payload, instance=target)
         if not form.is_valid():
             raise forms.ValidationError('The proposed catalog values are no longer valid: %s' % form.errors)
         if proposal.action == 'create':
@@ -377,6 +419,8 @@ def approve(proposal, reviewer):
         entry.full_clean()
         entry.save()
         form.save_m2m()
+        if hasattr(form, 'save_details'):
+            form.save_details(entry)
         proposal.target_pk = entry.pk
     proposal.status = 'approved'
     proposal.reviewer = reviewer

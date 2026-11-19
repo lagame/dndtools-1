@@ -2,6 +2,7 @@
 
 from dnd.editorial import source_digest, translatable_fields
 from dnd.models import PublishedTranslation
+from dnd.models import SupplementalEntry
 from dnd.utilities import update_html_cache_attributes
 
 
@@ -21,8 +22,12 @@ def localize_record(request, obj):
     allowed = translatable_fields(obj)
     for field, value in row.payload.items():
         if field in allowed:
-            setattr(obj, field, value)
-            if hasattr(obj, field + '_html'):
-                update_html_cache_attributes(obj, field)
+            if field.startswith('detail_') and isinstance(obj, SupplementalEntry):
+                from dnd.supplemental.catalog import detail_for
+                setattr(detail_for(obj), field[7:], value)
+            else:
+                setattr(obj, field, value)
+                if hasattr(obj, field + '_html'):
+                    update_html_cache_attributes(obj, field)
     obj._dnd_locale_fallback = False
     return False

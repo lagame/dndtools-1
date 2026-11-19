@@ -18,8 +18,9 @@ from django.urls import reverse
 
 from dnd.editorial import RESOURCES, RESOURCE_LABELS, FIELD_LABELS, editable_form, approve
 from dnd.access import verified_email
-from dnd.models import (CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
-                        EditorialProposal, Feat, FeatCategory, FeatRequiresFeat, Monster, MonsterType, PublishedTranslation,
+from dnd.supplemental.catalog import detail_for
+from dnd.models import (CharacterClass, CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
+                        EditorialProposal, Feat, FeatCategory, FeatRequiresFeat, Monster, MonsterType, MysteryDetail, PublishedTranslation,
                         RaceSize, Rulebook, Spell, SpellSchool, SupplementalEntry)
 
 
@@ -35,8 +36,36 @@ class EditorialFlowTests(TestCase):
         cls.old_edition = DndEdition.objects.create(name='Core 3.0', slug='core-30', system='DnD 3.0', core=True)
         cls.old_book = Rulebook.objects.create(name='Old Source', slug='old-source', abbr='OS',
                                                 dnd_edition=cls.old_edition)
+        cls.test_class = CharacterClass.objects.create(name='Test Class', slug='test-class', prestige=False)
         EditorialGrant.objects.create(user=cls.editor, resource='SupplementalEntry',
                                       can_create=True, can_correct=True, can_translate=True)
+
+    def _typed_data(self, kind):
+        values = {
+            'mysteries': {'detail_path': 'Ebon Whispers', 'detail_grade': 'apprentice',
+                          'detail_mystery_level': 1},
+            'invocations': {'detail_grade': 'least', 'detail_invocation_type': 'other',
+                            'detail_equivalent_level': 1, 'detail_character_class': self.test_class.pk},
+            'psionics': {'detail_discipline': 'Clairsentience', 'detail_power_points': 1,
+                         'detail_class_levels': 'Test Class | 1'},
+            'auras': {'detail_character_class': self.test_class.pk, 'detail_radius': '30 ft.'},
+            'maneuvers': {'detail_discipline': 'Desert Wind', 'detail_maneuver_level': 1,
+                          'detail_maneuver_type': 'strike'},
+            'monstrous-traits': {'detail_ability_type': 'Ex', 'detail_role': 'attack'},
+        }[kind]
+        if kind == 'monstrous-traits':
+            monster = Monster.objects.filter(name='Typed Test Monster').first()
+            if monster is None:
+                monster_type = MonsterType.objects.create(name='Test type', slug='test-type')
+                monster = Monster.objects.create(
+                    rulebook=self.book, name='Typed Test Monster', slug='typed-test-monster',
+                    type=monster_type, hit_dice='1d8 (4 hp)', initiative=0,
+                    armor_class='10', base_attack=0, grapple=0, attack='Claw +0 (1d4)',
+                    full_attack='Claw +0 (1d4)', space=5, reach=5,
+                    fort_save=0, reflex_save=0, will_save=0, str=10, dex=10, con=10,
+                    int=10, wis=10, cha=10, challenge_rating=1)
+            values['detail_monsters'] = [monster.pk]
+        return values
 
     def test_permission_and_review_gate_for_missing_crud(self):
         url = reverse('editorial_create', args=('SupplementalEntry',))
@@ -49,7 +78,8 @@ class EditorialFlowTests(TestCase):
         data = {'kind': 'invocations', 'rulebook': self.book.pk, 'page': 42,
                 'name': 'Test Invocation', 'category': 'Least', 'level': '1',
                 'prerequisites': '', 'mechanics': 'A verified test effect.',
-                'description': '', 'source_reference': 'Test Source p. 42, D&D 3.5'}
+                'description': '', 'source_reference': 'Test Source p. 42, D&D 3.5',
+                **self._typed_data('invocations')}
         self.assertEqual(self.client.post(url, data).status_code, 302)
         proposal = EditorialProposal.objects.get()
         self.assertEqual(proposal.status, 'pending')
@@ -93,6 +123,7 @@ class EditorialFlowTests(TestCase):
             'kind': 'auras', 'rulebook': self.book.pk, 'name': 'Test Aura',
             'mechanics': 'A verified effect',
             'source_reference': 'Test Source p. 15, D&D 3.5',
+            **self._typed_data('auras'),
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(len(mail.outbox), 1)
@@ -105,6 +136,7 @@ class EditorialFlowTests(TestCase):
         response = self.client.post(reverse('editorial_create', args=('SupplementalEntry',)), {
             'kind': 'psionics', 'rulebook': self.old_book.pk, 'name': 'Old Power',
             'mechanics': 'Old rules', 'source_reference': 'Old Source p. 1',
+            **self._typed_data('psionics'),
         })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'confirmed D&amp;D 3.5 rulebook')
@@ -184,6 +216,7 @@ class EditorialFlowTests(TestCase):
                     'name': 'Sample ' + kind, 'category': 'Published category',
                     'level': '1', 'mechanics': 'Verified 3.5 mechanics',
                     'source_reference': 'Test Source p. 12, D&D 3.5',
+                    **self._typed_data(kind),
                 })
                 self.assertEqual(response.status_code, 302)
                 self.assertFalse(SupplementalEntry.objects.filter(kind=kind).exists())
@@ -191,7 +224,26 @@ class EditorialFlowTests(TestCase):
                 self.assertEqual(self.client.post(reverse('editorial_decide', args=(proposal.pk,)),
                                                   {'decision': 'approve'}).status_code, 302)
                 entry = SupplementalEntry.objects.get(kind=kind)
+                self.assertIsNotNone(detail_for(entry))
                 self.assertContains(self.client.get(entry.get_absolute_url()), entry.name)
+                facet = {
+                    'mysteries': ('grade', 'apprentice'),
+                    'invocations': ('grade', 'least'),
+                    'psionics': ('discipline', 'Clairsentience'),
+                    'auras': ('character_class', self.test_class.pk),
+                    'maneuvers': ('maneuver_type', 'strike'),
+                    'monstrous-traits': ('ability_type', 'Ex'),
+                }[kind]
+                self.assertContains(self.client.get(reverse('supplemental_index', args=(kind,)),
+                                                    {facet[0]: facet[1]}), entry.name)
+                if kind == 'psionics':
+                    self.assertContains(self.client.get(reverse('supplemental_index', args=(kind,)),
+                                                        {'power_points': '1'}),
+                                        '<option value="1" selected>1</option>', html=True)
+                self.assertNotContains(self.client.get(reverse('supplemental_index', args=(kind,)),
+                                                       {'q': 'No such record'}), entry.name)
+
+        self.assertContains(self.client.get('/search/?q=Sample+psionics'), 'Psionic powers')
 
         tampered = self.client.post(reverse('editorial_create', args=('SupplementalEntry',)) +
                                     '?kind=maneuvers', {
@@ -201,6 +253,153 @@ class EditorialFlowTests(TestCase):
         self.assertEqual(tampered.status_code, 200)
         self.assertContains(tampered, 'selected catalog type changed')
         self.assertFalse(EditorialProposal.objects.filter(payload__name='Wrong section').exists())
+
+    def test_typed_form_requires_source_specific_fields_before_proposal(self):
+        self.client.force_login(self.editor)
+        for kind, _ in SupplementalEntry.KINDS:
+            with self.subTest(kind=kind):
+                response = self.client.post(reverse('editorial_create', args=('SupplementalEntry',)) +
+                                            '?kind=' + kind, {
+                    'kind': kind, 'rulebook': self.book.pk, 'name': 'Incomplete ' + kind,
+                    'mechanics': 'Rule text', 'source_reference': 'Test Source p. 1, D&D 3.5',
+                })
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, 'Required for this catalog type')
+                self.assertFalse(EditorialProposal.objects.filter(payload__name='Incomplete ' + kind).exists())
+
+    def test_typed_links_require_confirmed_35_monsters(self):
+        from dnd.supplemental.forms import typed_form
+        monster_pk = self._typed_data('monstrous-traits')['detail_monsters'][0]
+        monster = Monster.objects.get(pk=monster_pk)
+        monster.pk = None
+        monster.name = 'Old Monster'
+        monster.slug = 'old-monster'
+        monster.rulebook = self.old_book
+        monster.save()
+        common = {'rulebook': self.book.pk, 'name': 'Invalid source', 'mechanics': 'Effect'}
+        for kind, linked in (('auras', {'detail_monster': monster.pk}),
+                             ('monstrous-traits', {'detail_monsters': [monster.pk]})):
+            with self.subTest(kind=kind):
+                data = common | {'kind': kind} | self._typed_data(kind) | linked
+                form = typed_form(kind)(data)
+                self.assertFalse(form.is_valid())
+                self.assertIn('Linked monsters must come from confirmed D&D 3.5 rulebooks.',
+                              [message for errors in form.errors.as_data().values()
+                               for error in errors for message in error.messages])
+
+    def test_typed_correction_staleness_and_reviewed_removal(self):
+        self.client.force_login(self.editor)
+        base = {'kind': 'maneuvers', 'rulebook': self.book.pk, 'name': 'Steel Step',
+                'mechanics': 'Original maneuver', 'source_reference': 'Test Source p. 10, D&D 3.5',
+                **self._typed_data('maneuvers')}
+        create_url = reverse('editorial_create', args=('SupplementalEntry',)) + '?kind=maneuvers'
+        self.assertEqual(self.client.post(create_url, base).status_code, 302)
+        self.client.force_login(self.owner)
+        self.client.post(reverse('editorial_decide', args=(EditorialProposal.objects.get().pk,)),
+                         {'decision': 'approve'})
+        entry = SupplementalEntry.objects.get()
+        original_url = entry.get_absolute_url()
+        correction_url = reverse('editorial_correct', args=('SupplementalEntry', entry.pk))
+        self.client.force_login(self.editor)
+        changed = base | {'mechanics': 'Revised maneuver', 'detail_maneuver_level': 2}
+        self.assertEqual(self.client.post(correction_url, changed).status_code, 302)
+        correction = EditorialProposal.objects.get(action='correct')
+        self.assertEqual(entry.maneuver_detail.maneuver_level, 1)
+        self.client.force_login(self.owner)
+        self.client.post(reverse('editorial_decide', args=(correction.pk,)), {'decision': 'approve'})
+        entry.refresh_from_db()
+        self.assertEqual(entry.maneuver_detail.maneuver_level, 2)
+        self.assertEqual(entry.get_absolute_url(), original_url)
+        self.assertContains(self.client.get(original_url), 'Revised maneuver')
+        self.client.force_login(self.editor)
+        self.client.post(correction_url, changed | {'detail_maneuver_level': 3})
+        stale = EditorialProposal.objects.filter(action='correct', status='pending').get()
+        entry.maneuver_detail.maneuver_level = 4
+        entry.maneuver_detail.save()
+        self.client.force_login(self.owner)
+        self.client.post(reverse('editorial_decide', args=(stale.pk,)), {'decision': 'approve'})
+        stale.refresh_from_db()
+        self.assertEqual(stale.status, 'pending')
+        self.client.post(reverse('editorial_delete', args=('SupplementalEntry', entry.pk)),
+                         {'source_reference': 'Test Source p. 10, retraction'})
+        removal = EditorialProposal.objects.get(action='delete')
+        self.assertTrue(SupplementalEntry.objects.filter(pk=entry.pk).exists())
+        result = self.client.post(reverse('editorial_decide', args=(removal.pk,)), {'decision': 'approve'})
+        self.assertFalse(SupplementalEntry.objects.filter(pk=entry.pk).exists(),
+                         [str(message) for message in result.wsgi_request._messages])
+        self.assertEqual(self.client.get(original_url).status_code, 404)
+
+    def test_legacy_entry_can_gain_reviewed_structured_details(self):
+        entry = SupplementalEntry.objects.create(
+            kind='mysteries', rulebook=self.book, name='Old Mystery',
+            slug='old-mystery', category='Old category', mechanics='Existing rule')
+        original_url = entry.get_absolute_url()
+        self.client.force_login(self.editor)
+        correction_url = reverse('editorial_correct', args=('SupplementalEntry', entry.pk))
+        self.assertContains(self.client.get(correction_url), 'Add source-specific details')
+        structured_url = correction_url + '?kind=mysteries&structured=1'
+        self.assertContains(self.client.get(structured_url), 'name="detail_mystery_level"')
+        response = self.client.post(structured_url, {
+            'kind': 'mysteries', 'rulebook': self.book.pk, 'name': entry.name,
+            'mechanics': entry.mechanics, 'source_reference': 'Test Source p. 12, D&D 3.5',
+            **self._typed_data('mysteries'),
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(MysteryDetail.objects.filter(entry=entry).exists())
+        proposal = EditorialProposal.objects.get(action='correct')
+        self.client.force_login(self.owner)
+        self.assertContains(self.client.get(reverse('editorial_review', args=(proposal.pk,))),
+                            'Mystery level')
+        self.client.post(reverse('editorial_decide', args=(proposal.pk,)), {'decision': 'approve'})
+        entry.refresh_from_db()
+        self.assertEqual(entry.get_absolute_url(), original_url)
+        self.assertEqual(entry.category, 'Old category')
+        self.assertEqual(entry.mystery_detail.mystery_level, 1)
+
+    def test_psionic_class_levels_filter_review_and_translation(self):
+        self.client.force_login(self.editor)
+        url = reverse('editorial_create', args=('SupplementalEntry',)) + '?kind=psionics'
+        data = {'kind': 'psionics', 'rulebook': self.book.pk, 'name': 'Mind Eye',
+                'mechanics': 'A verified effect', 'detail_range': 'Close',
+                'source_reference': 'Test Source p. 10, D&D 3.5',
+                **self._typed_data('psionics')}
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        proposal = EditorialProposal.objects.get()
+        self.assertEqual(proposal.status, 'pending')
+        self.assertFalse(SupplementalEntry.objects.exists())
+        self.client.force_login(self.owner)
+        review = self.client.get(reverse('editorial_review', args=(proposal.pk,)))
+        self.assertContains(review, 'Discipline')
+        self.assertContains(review, 'Test Class | 1')
+        self.client.post(reverse('editorial_decide', args=(proposal.pk,)), {'decision': 'approve'})
+        entry = SupplementalEntry.objects.get()
+        self.assertEqual(list(entry.psionic_detail.class_levels.values_list('character_class_id', 'level')),
+                         [(self.test_class.pk, 1)])
+        self.assertContains(self.client.get(entry.get_absolute_url()), 'Clairsentience')
+        self.assertContains(self.client.get(reverse('supplemental_index', args=('psionics',)),
+                                            {'discipline': 'Clairsentience'}), 'Mind Eye')
+        self.assertNotContains(self.client.get(reverse('supplemental_index', args=('psionics',)),
+                                               {'discipline': 'Telepathy'}), 'Mind Eye')
+        self.assertContains(self.client.get(reverse('supplemental_index', args=('psionics',)),
+                                            {'class_levels': self.test_class.pk, 'page_size': 5000}), 'Mind Eye')
+        self.assertContains(self.client.get('/pt-br' + entry.get_absolute_url()),
+                            'Este registro ainda está disponível apenas na versão original em inglês.')
+        from dnd.editorial import source_digest, translatable_fields
+        translations = {name: 'PT ' + str(value) for name, value in translatable_fields(entry).items()}
+        self.client.force_login(self.editor)
+        self.assertEqual(self.client.post(reverse('editorial_translate', args=('SupplementalEntry', entry.pk)),
+                                          translations | {'source_reference': 'Reviewed translation'}).status_code, 302)
+        translation_proposal = EditorialProposal.objects.get(action='translate')
+        self.client.force_login(self.owner)
+        self.client.post(reverse('editorial_decide', args=(translation_proposal.pk,)),
+                         {'decision': 'approve'})
+        self.assertContains(self.client.get('/pt-br' + entry.get_absolute_url()), 'PT Close')
+        digest = source_digest(entry)
+        entry.psionic_detail.range = 'Medium'
+        entry.psionic_detail.save()
+        self.assertNotEqual(source_digest(entry), digest)
+        self.assertContains(self.client.get('/pt-br' + entry.get_absolute_url()),
+                            'Este registro ainda está disponível apenas na versão original em inglês.')
 
     def test_core_spell_feat_and_monster_can_be_added_through_review(self):
         school = SpellSchool.objects.create(name='Evocation', slug='evocation')
@@ -387,6 +586,7 @@ class EditorialFlowTests(TestCase):
             'kind': 'auras', 'rulebook': self.book.pk, 'name': 'Granted Aura',
             'mechanics': 'Official 3.5 effect',
             'source_reference': 'Test Source p. 18, D&D 3.5',
+            **self._typed_data('auras'),
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(EditorialProposal.objects.get().payload['kind'], 'auras')
@@ -399,6 +599,7 @@ class EditorialFlowTests(TestCase):
                 'kind': kind, 'rulebook': self.book.pk, 'name': 'Shared Effect',
                 'mechanics': 'Official 3.5 effect',
                 'source_reference': 'Test Source p. 18, D&D 3.5',
+                **self._typed_data(kind),
             })
             self.assertEqual(response.status_code, 302)
             proposal = EditorialProposal.objects.latest('pk')

@@ -197,6 +197,14 @@ def main():
                 assert not page.context.cookies(BASE)
                 assert visit(page, '/contacts/').status == 200
                 assert page.get_by_text('Open a project issue').count() >= 1
+                if width in (360, 1440):
+                    for family in ('mysteries', 'invocations', 'psionics', 'auras',
+                                   'maneuvers', 'monstrous-traits'):
+                        assert visit(page, '/reference/' + family + '/').status == 200
+                        assert page.locator('form.typed-filter-form select').count() >= 3
+                        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), family
+                        if family == 'psionics':
+                            screenshot(page, f'psionics-{width}.png')
                 if width in (390, 1440):
                     assert visit(page, '/help/').status == 200
                     expect(page.get_by_role('heading', name='Help and FAQ')).to_be_visible()

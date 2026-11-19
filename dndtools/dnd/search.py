@@ -95,6 +95,8 @@ def _matches(source, query, names_only=False, translated_ids=()):
 
 def _result(source, obj, translated=None):
     key, label = source[:2]
+    if key == 'reference':
+        label = dict(SupplementalEntry.KINDS).get(obj.kind, label)
     title = obj.character_class.name if key == 'classes' else obj.name
     original_title = title
     payload = (translated or {}).get((obj._meta.object_name, obj.pk))

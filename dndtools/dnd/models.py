@@ -2467,6 +2467,97 @@ class SupplementalEntry(models.Model):
                                                       'slug': self.slug, 'entry_id': self.pk})
 
 
+class MysteryDetail(models.Model):
+    entry = models.OneToOneField(SupplementalEntry, on_delete=models.CASCADE, related_name='mystery_detail')
+    PATHS = (('apprentice', _('Apprentice')), ('initiate', _('Initiate')), ('master', _('Master')))
+    path = models.CharField(max_length=32, blank=True)
+    grade = models.CharField(max_length=16, choices=PATHS, blank=True)
+    mystery_level = models.PositiveSmallIntegerField(null=True, blank=True)
+    casting_time = models.CharField(max_length=100, blank=True)
+    range = models.CharField(max_length=100, blank=True)
+    duration = models.CharField(max_length=100, blank=True)
+    saving_throw = models.CharField(max_length=100, blank=True)
+    spell_resistance = models.CharField(max_length=100, blank=True)
+
+
+class InvocationDetail(models.Model):
+    entry = models.OneToOneField(SupplementalEntry, on_delete=models.CASCADE, related_name='invocation_detail')
+    GRADES = (('least', _('Least')), ('lesser', _('Lesser')),
+              ('greater', _('Greater')), ('dark', _('Dark')))
+    TYPES = (('blast', _('Eldritch blast')), ('essence', _('Eldritch essence')),
+             ('shape', _('Blast shape')), ('other', _('Other invocation')))
+    grade = models.CharField(max_length=16, choices=GRADES, blank=True)
+    invocation_type = models.CharField(max_length=16, choices=TYPES, blank=True)
+    equivalent_level = models.PositiveSmallIntegerField(null=True, blank=True)
+    character_class = models.ForeignKey(CharacterClass, on_delete=models.PROTECT, null=True, blank=True)
+    activation = models.CharField(max_length=100, blank=True)
+    range = models.CharField(max_length=100, blank=True)
+    duration = models.CharField(max_length=100, blank=True)
+
+
+class PsionicPowerDetail(models.Model):
+    entry = models.OneToOneField(SupplementalEntry, on_delete=models.CASCADE, related_name='psionic_detail')
+    DISCIPLINES = tuple((name, name) for name in (
+        'Clairsentience', 'Metacreativity', 'Psychokinesis',
+        'Psychometabolism', 'Psychoportation', 'Telepathy'))
+    discipline = models.CharField(max_length=32, choices=DISCIPLINES, blank=True)
+    power_points = models.PositiveSmallIntegerField(null=True, blank=True)
+    manifestation_time = models.CharField(max_length=100, blank=True)
+    range = models.CharField(max_length=100, blank=True)
+    duration = models.CharField(max_length=100, blank=True)
+    saving_throw = models.CharField(max_length=100, blank=True)
+    power_resistance = models.CharField(max_length=100, blank=True)
+    augment = models.TextField(blank=True)
+
+
+class PsionicClassLevel(models.Model):
+    power = models.ForeignKey(PsionicPowerDetail, on_delete=models.CASCADE, related_name='class_levels')
+    character_class = models.ForeignKey(CharacterClass, on_delete=models.PROTECT)
+    level = models.PositiveSmallIntegerField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('power', 'character_class'),
+                                               name='unique_psionic_class_level')]
+
+
+class AuraDetail(models.Model):
+    entry = models.OneToOneField(SupplementalEntry, on_delete=models.CASCADE, related_name='aura_detail')
+    character_class = models.ForeignKey(CharacterClass, on_delete=models.PROTECT, null=True, blank=True)
+    monster = models.ForeignKey(Monster, on_delete=models.PROTECT, null=True, blank=True)
+    radius = models.CharField(max_length=100, blank=True)
+    activation = models.CharField(max_length=100, blank=True)
+    targets = models.CharField(max_length=200, blank=True)
+    duration = models.CharField(max_length=100, blank=True)
+
+
+class ManeuverDetail(models.Model):
+    entry = models.OneToOneField(SupplementalEntry, on_delete=models.CASCADE, related_name='maneuver_detail')
+    DISCIPLINES = tuple((name, name) for name in (
+        'Desert Wind', 'Devoted Spirit', 'Diamond Mind', 'Iron Heart',
+        'Setting Sun', 'Shadow Hand', 'Stone Dragon', 'Tiger Claw', 'White Raven'))
+    TYPES = (('strike', _('Strike')), ('boost', _('Boost')),
+             ('counter', _('Counter')), ('stance', _('Stance')))
+    discipline = models.CharField(max_length=32, choices=DISCIPLINES, blank=True)
+    maneuver_level = models.PositiveSmallIntegerField(null=True, blank=True)
+    maneuver_type = models.CharField(max_length=16, choices=TYPES, blank=True)
+    initiation_action = models.CharField(max_length=100, blank=True)
+    range = models.CharField(max_length=100, blank=True)
+    target = models.CharField(max_length=200, blank=True)
+    duration = models.CharField(max_length=100, blank=True)
+
+
+class MonstrousTraitDetail(models.Model):
+    entry = models.OneToOneField(SupplementalEntry, on_delete=models.CASCADE, related_name='trait_detail')
+    TYPES = (('Ex', _('Extraordinary')), ('Su', _('Supernatural')), ('Sp', _('Spell-like')))
+    ROLES = (('attack', _('Special attack')), ('quality', _('Special quality')))
+    ability_type = models.CharField(max_length=2, choices=TYPES, blank=True)
+    role = models.CharField(max_length=8, choices=ROLES, blank=True)
+    monsters = models.ManyToManyField(Monster, blank=True, related_name='supplemental_traits')
+    activation = models.CharField(max_length=100, blank=True)
+    uses = models.CharField(max_length=100, blank=True)
+    save_dc = models.CharField(max_length=100, blank=True)
+
+
 class EditorialGrant(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='editorial_grants')
     resource = models.CharField(max_length=64)

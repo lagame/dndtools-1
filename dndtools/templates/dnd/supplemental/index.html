@@ -5,13 +5,40 @@
 {% block breadcrumbs %} » {{ label }}{% endblock %}
 {% block content %}
 <h1>{{ label }}</h1>
-<p>{% translate 'Entries are published after source and edition review.' %}</p>
-<form method="get"><label for="supplemental-query">{% translate 'Search names' %}</label> <input id="supplemental-query" type="search" name="q" value="{{ query }}"><button type="submit">{% translate 'Search' %}</button></form>
-<table><thead><tr><th>{% translate 'Name' %}</th><th>{% translate 'Category' %}</th><th>{% translate 'Rulebook' %}</th></tr></thead><tbody>
-{% for entry in entries %}<tr><td><a href="{{ entry.get_absolute_url }}">{% localized entry 'name' %}</a></td><td>{{ entry.category }}</td><td>{% localized entry.rulebook 'name' %}</td></tr>
+<p>{% translate 'Source-backed D&D 3.5 entries reviewed before publication.' %}</p>
+<details class="catalog-filters" open><summary>{% translate 'Filters' %}</summary>
+<form method="get" class="typed-filter-form">
+  <div class="filter-field"><label for="supplemental-query">{% translate 'Name' %}</label>
+  <input id="supplemental-query" type="search" name="q" value="{{ query }}"></div>
+  <div class="filter-field"><label for="supplemental-book">{% translate 'Rulebook' %}</label>
+  <select id="supplemental-book" name="book"><option value="">{% translate 'All' %}</option>
+    {% for book in books %}<option value="{{ book.pk }}" {% if selected_book == book.pk|stringformat:'s' %}selected{% endif %}>{% localized book 'name' %}</option>{% endfor %}
+  </select></div>
+  {% for facet in facets %}<div class="filter-field"><label for="facet-{{ facet.name }}">{{ facet.label }}</label>
+  <select id="facet-{{ facet.name }}" name="{{ facet.name }}"><option value="">{% translate 'All' %}</option>
+    {% for value, label in facet.options %}<option value="{{ value }}" {% if facet.selected == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select></div>{% endfor %}
+  <div class="filter-field"><label for="supplemental-page-size">{% translate 'Items per page' %}</label>
+  <select id="supplemental-page-size" name="page_size">
+    <option value="20" {% if page_size == 20 %}selected{% endif %}>20</option>
+    <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+    <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+    <option value="1000" {% if page_size == 1000 %}selected{% endif %}>1000</option>
+    <option value="5000" {% if page_size == 5000 %}selected{% endif %}>5000</option>
+  </select></div>
+  <button type="submit">{% translate 'Apply filters' %}</button>
+  <a href="{% url 'supplemental_index' kind %}">{% translate 'Clear all' %}</a>
+</form></details>
+<p>{{ entries.paginator.count }} {% translate 'results found.' %}</p>
+<div class="typed-results"><table><thead><tr><th>{% translate 'Name' %}</th><th>{% translate 'Details' %}</th><th>{% translate 'Rulebook' %}</th></tr></thead><tbody>
+{% for entry in entries %}<tr><td><a href="{{ entry.get_absolute_url }}">{% localized entry 'name' %}</a></td>
+<td>{% for label, value in entry.summary %}<span><strong>{{ label }}:</strong> {{ value }}{% if not forloop.last %} · {% endif %}</span>{% empty %}{{ entry.category }}{% endfor %}</td>
+<td>{% localized entry.rulebook 'name' %}</td></tr>
 {% empty %}<tr><td colspan="3">{% translate 'No published entries yet.' %}</td></tr>{% endfor %}
-</tbody></table>
-{% if entries.has_previous %}<a href="?q={{ query|urlencode }}&page={{ entries.previous_page_number }}">{% translate 'Previous' %}</a>{% endif %}
+</tbody></table></div>
+<nav aria-label="{% translate 'Pagination' %}">
+{% if entries.has_previous %}<a href="?{{ querystring }}&page={{ entries.previous_page_number }}">{% translate 'Previous' %}</a>{% endif %}
 {{ entries.number }} / {{ entries.paginator.num_pages }}
-{% if entries.has_next %}<a href="?q={{ query|urlencode }}&page={{ entries.next_page_number }}">{% translate 'Next' %}</a>{% endif %}
+{% if entries.has_next %}<a href="?{{ querystring }}&page={{ entries.next_page_number }}">{% translate 'Next' %}</a>{% endif %}
+</nav>
 {% endblock %}

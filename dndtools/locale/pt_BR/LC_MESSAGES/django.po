@@ -3337,3 +3337,167 @@ msgstr "Ainda não há registros publicados."
 
 #~ msgid "Rulebooks in"
 #~ msgstr "Livros em"
+
+#: dnd/supplemental/catalog.py
+msgid "Path"
+msgstr "Caminho"
+
+msgid "Grade"
+msgstr "Grau"
+
+msgid "Mystery level"
+msgstr "Nível do mistério"
+
+msgid "Invocation type"
+msgstr "Tipo de invocação"
+
+msgid "Equivalent spell level"
+msgstr "Nível de magia equivalente"
+
+msgid "Class levels"
+msgstr "Níveis por classe"
+
+msgid "Power points"
+msgstr "Pontos de poder"
+
+msgid "Manifestation time"
+msgstr "Tempo de manifestação"
+
+msgid "Power resistance"
+msgstr "Resistência a poder"
+
+msgid "Augment"
+msgstr "Aumento"
+
+msgid "Radius"
+msgstr "Raio"
+
+msgid "Targets"
+msgstr "Alvos"
+
+msgid "Maneuver level"
+msgstr "Nível da manobra"
+
+msgid "Maneuver type"
+msgstr "Tipo de manobra"
+
+msgid "Initiation action"
+msgstr "Ação de iniciação"
+
+msgid "Ability type"
+msgstr "Tipo de habilidade"
+
+msgid "Role"
+msgstr "Função"
+
+msgid "Uses"
+msgstr "Usos"
+
+msgid "Save DC"
+msgstr "CD de resistência"
+
+#: dnd/supplemental/forms.py
+msgid "One class per line: Class name | Level. Use the printed class and level."
+msgstr "Uma classe por linha: Nome da classe | Nível. Use a classe e o nível impressos na fonte."
+
+msgid "Use one class per line: Class name | Level."
+msgstr "Use uma classe por linha: Nome da classe | Nível."
+
+msgid "Choose an existing class and a unique level from 0 to 9."
+msgstr "Escolha uma classe existente e um nível único de 0 a 9."
+
+msgid "Too many class levels."
+msgstr "Há níveis de classe demais."
+
+msgid "Required for this catalog type."
+msgstr "Obrigatório para este tipo de catálogo."
+
+msgid "Choose a class or monster source."
+msgstr "Escolha uma classe ou criatura como origem."
+
+#: templates/dnd/supplemental/index.html
+msgid "Source-backed D&D 3.5 entries reviewed before publication."
+msgstr "Registros de D&D 3.5 com fonte verificada antes da publicação."
+
+msgid "Details"
+msgstr "Detalhes"
+
+msgid "results found."
+msgstr "resultados encontrados."
+
+msgid "Pagination"
+msgstr "Paginação"
+
+#: templates/admin/editorial/review.html
+msgid "Current value"
+msgstr "Valor atual"
+
+msgid "Proposed value"
+msgstr "Valor proposto"
+
+#: dnd/models.py
+msgid "Apprentice"
+msgstr "Aprendiz"
+
+msgid "Initiate"
+msgstr "Iniciado"
+
+msgid "Master"
+msgstr "Mestre"
+
+msgid "Least"
+msgstr "Menor"
+
+msgid "Lesser"
+msgstr "Inferior"
+
+msgid "Greater"
+msgstr "Maior"
+
+msgid "Dark"
+msgstr "Sombria"
+
+msgid "Eldritch blast"
+msgstr "Rajada mística"
+
+msgid "Eldritch essence"
+msgstr "Essência mística"
+
+msgid "Blast shape"
+msgstr "Forma da rajada"
+
+msgid "Other invocation"
+msgstr "Outra invocação"
+
+msgid "Strike"
+msgstr "Golpe"
+
+msgid "Boost"
+msgstr "Impulso"
+
+msgid "Counter"
+msgstr "Contramedida"
+
+msgid "Stance"
+msgstr "Postura"
+
+msgid "Extraordinary"
+msgstr "Extraordinária"
+
+msgid "Supernatural"
+msgstr "Sobrenatural"
+
+msgid "Spell-like"
+msgstr "Similar a magia"
+
+msgid "Special attack"
+msgstr "Ataque especial"
+
+msgid "Special quality"
+msgstr "Qualidade especial"
+
+msgid "Linked monsters must come from confirmed D&D 3.5 rulebooks."
+msgstr "Monstros vinculados precisam vir de livros confirmados de D&D 3.5."
+
+msgid "Add source-specific details"
+msgstr "Adicionar detalhes específicos da fonte"

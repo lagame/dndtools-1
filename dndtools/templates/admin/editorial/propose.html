@@ -4,6 +4,7 @@
 <p><a href="{% url 'editorial_catalog' resource %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">← {{ resource }}</a></p>
 <h1>{{ title }}</h1>
 {% if target %}<p>{% translate "Original" %}: {{ target }} (ID {{ target.pk }})</p>{% endif %}
+{% if legacy_supplemental and not structured %}<p><a href="?kind={{ kind|urlencode }}&structured=1">{% translate "Add source-specific details" %}</a></p>{% endif %}
 <p>{% if action == 'delete' %}{% translate "The record will stay public until Ronassic approves removal. Records with dependent catalog links cannot be removed until those links are resolved." %}{% else %}{% translate "Changes will appear in the public catalog only after Ronassic approves them." %}{% endif %}</p>
 <form method="post">{% csrf_token %}
 {% if form %}{{ form.as_p }}{% endif %}
