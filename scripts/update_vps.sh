@@ -6,6 +6,7 @@ target_sha="$1"
 [[ "$target_sha" =~ ^[0-9a-f]{40}$ ]]
 cd /opt/dndtools
 test -f .env
+grep -Fxq 'DND_PUBLIC_HOST=dndtools.quest' .env || { echo 'Set DND_PUBLIC_HOST=dndtools.quest in the private .env before updating.' >&2; exit 1; }
 grep -Eq '^DJANGO_ADMIN_URL=[a-zA-Z0-9_-]{16,64}$' .env || { echo 'Set a private DJANGO_ADMIN_URL in .env and protect its path with Cloudflare Access before updating.' >&2; exit 1; }
 grep -Eq '^DND_ACCESS_TEAM_DOMAIN=https://[a-z0-9-]+\.cloudflareaccess\.com$' .env || { echo 'Set DND_ACCESS_TEAM_DOMAIN in the private .env before updating.' >&2; exit 1; }
 grep -Eq '^DND_ACCESS_AUD=[^[:space:]]+$' .env || { echo 'Set DND_ACCESS_AUD in the private .env before updating.' >&2; exit 1; }
@@ -42,5 +43,8 @@ compose=(docker compose -f compose.yaml -f compose.tunnel.yaml)
 "${compose[@]}" up -d --wait app tunnel_proxy
 curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/
 curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null http://127.0.0.1:8766/static/css/modern.css
+test "$(curl --silent --show-error --output /dev/null --write-out '%{redirect_url}' --header 'Host: www.dndtools.quest' http://127.0.0.1:8766/spells/)" = 'https://dndtools.quest/spells/'
+curl --fail --silent --show-error --header 'Host: dndtools.quest' http://127.0.0.1:8766/sitemap.xml |
+  python3 -c 'import sys, xml.etree.ElementTree as ET; root=ET.parse(sys.stdin).getroot(); urls=[el.text for el in root.iter() if el.tag.endswith("}loc")]; assert urls and all(url.startswith("https://dndtools.quest/") for url in urls), "Sitemap contains a foreign or insecure URL"'
 test "$(git rev-parse HEAD)" = "$target_sha"
 printf 'Deployed %s; verified MySQL backup: %s\n' "$target_sha" "$backup_file"

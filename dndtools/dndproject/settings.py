@@ -117,6 +117,7 @@ TEMPLATES = (
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
                 'dnd.context_processors.privacy_language',
+                'dnd.context_processors.public_seo',
                 'dnd.context_processors.is_mobile',
                 'dnd.context_processors.is_admin',
                 'dnd.context_processors.menu_constants',

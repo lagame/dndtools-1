@@ -4,6 +4,7 @@
 {% load catalog_html %}
 
 {% block title %}{% localized character_class 'name' %} &ndash; {% translate 'Class' %}{% endblock %}
+{% block meta_description %}{% localized character_class 'name' %} · {% translate 'Class' %} · D&amp;D Tools{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'character_class_list'  %}">{% translate 'Classes' %}</a>
@@ -12,8 +13,8 @@
 
 {% block extra_link %}
   {{ block.super }}
-  {% if use_canonical_link %}
-  <link rel="canonical" href="{% url 'character_class_detail' character_class_slug=character_class.slug %}" />
+  {% if use_canonical_link and not translation_fallback %}
+  <link rel="canonical" href="{{ seo_origin }}{% url 'character_class_detail' character_class_slug=character_class.slug %}" />
   {% endif %}
 {% endblock %}
 

@@ -1,4 +1,6 @@
 from io import BytesIO
+import json
+import re
 from datetime import date
 from hashlib import sha256
 from pathlib import Path
@@ -130,6 +132,59 @@ class AdminSecurityTests(TestCase):
 
 
 class CatalogSmokeTests(TestCase):
+    @override_settings(PUBLIC_HOST='dndtools.quest')
+    def test_sitemap_uses_public_domain_and_contains_catalog_entries(self):
+        response = self.client.get('/sitemap.xml')
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('<loc>https://dndtools.quest/</loc>', content)
+        self.assertIn('<loc>https://dndtools.quest/spells/</loc>', content)
+        self.assertIn('<loc>https://dndtools.quest%s</loc>' % self.spell.get_absolute_url(), content)
+        self.assertNotIn('example.com', content)
+
+    @override_settings(PUBLIC_HOST='dndtools.quest')
+    def test_catalog_listing_is_indexable_but_filtered_view_and_search_are_not(self):
+        listing = self.client.get('/spells/')
+        self.assertEqual(listing.status_code, 200)
+        self.assertContains(listing, '<link rel="canonical" href="https://dndtools.quest/spells/">', html=True)
+        self.assertNotIn('name="robots" content="noindex', listing.content.decode())
+        self.assertContains(listing, 'hreflang="pt-BR"')
+        filtered = self.client.get('/spells/', {'name': 'Ember'})
+        self.assertContains(filtered, '<meta name="robots" content="noindex, follow">', html=True)
+        search = self.client.get('/search/', {'q': 'Ember'})
+        self.assertContains(search, '<meta name="robots" content="noindex, follow">', html=True)
+
+    @override_settings(PUBLIC_HOST='dndtools.quest')
+    def test_detail_has_absolute_canonical_and_breadcrumb_data(self):
+        response = self.client.get(self.spell.get_absolute_url())
+        self.assertContains(response, 'href="https://dndtools.quest%s"' % self.spell.get_absolute_url())
+        scripts = re.findall(r'<script type="application/ld\+json">(.*?)</script>',
+                             response.content.decode(), re.DOTALL)
+        breadcrumbs = [json.loads(script) for script in scripts if json.loads(script)['@type'] == 'BreadcrumbList']
+        self.assertEqual(len(breadcrumbs), 1)
+        self.assertEqual(breadcrumbs[0]['itemListElement'][-1]['item'],
+                         'https://dndtools.quest' + self.spell.get_absolute_url())
+
+    @override_settings(PUBLIC_HOST='dndtools.quest')
+    def test_untranslated_portuguese_detail_points_to_english(self):
+        response = self.client.get('/pt-br' + self.spell.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta name="robots" content="noindex, follow">', html=True)
+        self.assertContains(response, '<link rel="canonical" href="https://dndtools.quest%s">' %
+                            self.spell.get_absolute_url(), html=True)
+
+    @override_settings(PUBLIC_HOST='dndtools.quest')
+    def test_book_data_escapes_script_markup(self):
+        Rulebook.objects.filter(pk=self.spell.rulebook_id).update(
+            name='</script><script>alert(1)</script>')
+        response = self.client.get(self.spell.rulebook.get_absolute_url())
+        content = response.content.decode()
+        scripts = re.findall(r'<script type="application/ld\+json">(.*?)</script>', content, re.DOTALL)
+        books = [json.loads(script) for script in scripts if json.loads(script)['@type'] == 'Book']
+        self.assertEqual(len(books), 1)
+        self.assertEqual(books[0]['name'], '</script><script>alert(1)</script>')
+        self.assertNotIn('<script>alert(1)</script>', content)
+
     def test_crawlers_can_discover_catalog_without_legacy_feed(self):
         robots = self.client.get('/robots.txt')
         self.assertEqual(robots.status_code, 200)

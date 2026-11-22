@@ -5,6 +5,7 @@
 {% load custom_filters %}
 
 {% block title %}{% localized item 'name' %} &ndash; {% translate 'Item' %}{% endblock %}
+{% block meta_description %}{% localized item 'name' %} · {% translate 'Item' %} · {% localized rulebook 'name' %} · D&amp;D Tools{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'item_index'  %}">{% translate 'Items' %}</a>

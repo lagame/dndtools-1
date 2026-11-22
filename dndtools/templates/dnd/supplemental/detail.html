@@ -2,6 +2,7 @@
 {% load catalog_i18n %}
 {% load i18n catalog_html %}
 {% block title %}{% localized entry 'name' %}{% endblock %}
+{% block meta_description %}{% localized entry 'name' %} · {{ label }} · {% localized entry.rulebook 'name' %}{% endblock %}
 {% block breadcrumbs %} » <a href="{% url 'supplemental_index' entry.kind %}">{{ label }}</a> » {% localized entry 'name' %}{% endblock %}
 {% block content %}
 <h1>{% localized entry 'name' %}</h1>{% if entry.original_english_name %}<p class="original-name">{% translate 'Original EN' %}: {{ entry.original_english_name }}</p>{% endif %}

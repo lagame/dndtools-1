@@ -5,6 +5,7 @@
 {% load custom_filters %}
 
 {% block title %}{% localized spell 'name' %} &ndash; {% translate 'Spell' %}{% endblock %}
+{% block meta_description %}{% localized spell 'name' %} · {% translate 'Spell' %} · {% localized rulebook 'name' %} · D&amp;D Tools{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'spell_index' %}">{% translate 'Spells' %}</a>

@@ -1,5 +1,6 @@
 {% extends "dnd/layout.html" %}
 {% load i18n %}
+{% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
 {% block title %}{% translate 'Search' %}{% endblock %}
 {% block breadcrumbs %} &raquo; {% translate 'Search' %}{% endblock %}
 {% block content %}

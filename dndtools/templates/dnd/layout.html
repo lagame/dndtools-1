@@ -1,9 +1,13 @@
-{% load static versioned_static i18n %}<!doctype html>
+{% load static versioned_static i18n seo_tags %}<!doctype html>
 <html lang="{% if request.LANGUAGE_CODE == 'pt-br' %}pt-BR{% else %}en{% endif %}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{% translate 'Browse D&D spells, feats, classes, creatures, items and rulebooks.' %}">
+  <meta name="description" content="{% block meta_description %}{% translate 'Browse D&D spells, feats, classes, creatures, items and rulebooks.' %}{% endblock %}">
+  {% if request.GET or translation_fallback %}<meta name="robots" content="noindex, follow">{% endif %}
+  {% if translation_fallback %}<link rel="canonical" href="{{ seo_english_url }}">
+  {% elif not use_canonical_link %}<link rel="canonical" href="{{ seo_canonical_url }}">{% endif %}
+  {% if seo_bilingual and not request.GET %}<link rel="alternate" hreflang="en" href="{{ seo_english_url }}"><link rel="alternate" hreflang="pt-BR" href="{{ seo_portuguese_url }}">{% endif %}
   <title>{% block title %}{% translate 'Home' %}{% endblock %} | D&amp;D Tools</title>
   <link id="site-icon" rel="icon" href="data:," data-href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% versioned_static 'css/modern.css' %}">
@@ -14,6 +18,7 @@
   <link rel="stylesheet" href="{% versioned_static 'css/themes.css' %}">
   {% block extra_meta %}{% endblock %}
   {% block extra_link %}{% endblock %}
+  {% catalog_breadcrumb_json_ld %}
 </head>
 <body>
   <a class="skip-link" href="#content">{% translate 'Skip to content' %}</a>

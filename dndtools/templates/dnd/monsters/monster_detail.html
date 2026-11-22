@@ -5,6 +5,7 @@
 {% load custom_filters %}
 
 {% block title %}{% localized monster 'name' %} &ndash; {% translate 'Monster' %}{% endblock %}
+{% block meta_description %}{% localized monster 'name' %} · {% translate 'Monster' %} · {% localized rulebook 'name' %} · D&amp;D Tools{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'monster_index'  %}">{% translate 'Monsters' %}</a>

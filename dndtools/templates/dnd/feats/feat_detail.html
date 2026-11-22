@@ -3,6 +3,7 @@
 {% load catalog_html i18n %}
 
 {% block title %}{% localized feat 'name' %} &ndash; {% translate 'Feat' %}{% endblock %}
+{% block meta_description %}{% localized feat 'name' %} · {% translate 'Feat' %} · {% localized rulebook 'name' %} · D&amp;D Tools{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'feat_index' %}">{% translate 'Feats' %}</a>

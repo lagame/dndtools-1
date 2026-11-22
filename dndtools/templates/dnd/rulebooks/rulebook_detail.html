@@ -3,8 +3,11 @@
 {% load catalog_i18n %}
 
 {% load custom_tags %}
+{% load seo_tags %}
 
 {% block title %}{% localized rulebook 'name' %} &ndash; Rulebooks{% endblock %}
+{% block meta_description %}{% localized rulebook 'description' as seo_summary %}{% if seo_summary %}{{ seo_summary|striptags|truncatechars:155 }}{% else %}{% localized rulebook 'name' %} · {% localized dnd_edition 'name' %} · D&amp;D Tools{% endif %}{% endblock %}
+{% block extra_meta %}{% if not translation_fallback %}{% catalog_book_json_ld rulebook seo_canonical_url %}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'rulebook_list' %}">{% translate 'Rulebooks' %}</a>

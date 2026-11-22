@@ -1,4 +1,6 @@
 :80 {
+    @www host www.dndtools.quest
+    redir @www https://dndtools.quest{uri} permanent
     encode zstd gzip
     handle_path /static/media/* {
         root * /var/www/media

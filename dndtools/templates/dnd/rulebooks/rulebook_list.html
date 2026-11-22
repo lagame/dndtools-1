@@ -2,7 +2,7 @@
 {% load i18n catalog_i18n %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
-{% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
+{% block meta_description %}{% translate 'Browse game material by publication type or use the filters to find a specific book.' %}{% endblock %}
 {% block title %}{% translate 'Rulebooks' %}{% endblock %}
 {% block breadcrumbs %}&raquo; <a href="{% url 'rulebook_list' %}">{% translate 'Rulebooks' %}</a>{% endblock %}
 

@@ -5,8 +5,8 @@
 
 {% block extra_link %}
   {{ block.super }}
-  {% if use_canonical_link %}
-  <link rel="canonical" href="{% url 'spell_domain_detail' spell_domain_slug=spell_domain.slug %}" />
+  {% if use_canonical_link and not translation_fallback %}
+  <link rel="canonical" href="{{ seo_origin }}{% url 'spell_domain_detail' spell_domain_slug=spell_domain.slug %}" />
   {% endif %}
 {% endblock %}
 

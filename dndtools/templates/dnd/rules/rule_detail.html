@@ -4,8 +4,8 @@
 {% load catalog_html %}
 
 {% block extra_link %}
-    {% if use_canonical_link %}
-        <link rel="canonical" href="{% url 'rule_detail' rule_slug=rule.slug %}" />
+    {% if use_canonical_link and not translation_fallback %}
+        <link rel="canonical" href="{{ seo_origin }}{% url 'rule_detail' rule_slug=rule.slug %}" />
     {% endif %}
     {{ feat_paginator.print_rel_prev_next }}
     {{ block.super }}
