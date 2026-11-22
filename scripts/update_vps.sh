@@ -41,8 +41,10 @@ compose=(docker compose -f compose.yaml -f compose.tunnel.yaml)
 "${compose[@]}" run --rm app python manage.py migrate --noinput
 "${compose[@]}" run --rm app python manage.py curate_rulebooks --apply
 "${compose[@]}" up -d --wait app tunnel_proxy
-curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/
-curl --retry 15 --retry-delay 2 --retry-connrefused --fail --silent --show-error --output /dev/null http://127.0.0.1:8766/static/css/modern.css
+# Compose does not recreate a service when only a bind-mounted Caddyfile changes.
+"${compose[@]}" up -d --no-deps --force-recreate --wait tunnel_proxy
+curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/
+curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --output /dev/null http://127.0.0.1:8766/static/css/modern.css
 test "$(curl --silent --show-error --output /dev/null --write-out '%{redirect_url}' --header 'Host: www.dndtools.quest' http://127.0.0.1:8766/spells/)" = 'https://dndtools.quest/spells/'
 curl --fail --silent --show-error --header 'Host: dndtools.quest' http://127.0.0.1:8766/sitemap.xml |
   python3 -c 'import sys, xml.etree.ElementTree as ET; root=ET.parse(sys.stdin).getroot(); urls=[el.text for el in root.iter() if el.tag.endswith("}loc")]; assert urls and all(url.startswith("https://dndtools.quest/") for url in urls), "Sitemap contains a foreign or insecure URL"'
