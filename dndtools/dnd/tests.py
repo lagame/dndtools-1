@@ -134,12 +134,17 @@ class AdminSecurityTests(TestCase):
 class CatalogSmokeTests(TestCase):
     @override_settings(PUBLIC_HOST='dndtools.quest')
     def test_sitemap_uses_public_domain_and_contains_catalog_entries(self):
+        character_class = CharacterClass.objects.create(name='Test Wizard', slug='test-wizard', prestige=False)
+        variant = CharacterClassVariant.objects.create(
+            character_class=character_class, rulebook=self.spell.rulebook)
         response = self.client.get('/sitemap.xml')
         self.assertEqual(response.status_code, 200)
         content = response.content.decode()
         self.assertIn('<loc>https://dndtools.quest/</loc>', content)
         self.assertIn('<loc>https://dndtools.quest/spells/</loc>', content)
         self.assertIn('<loc>https://dndtools.quest%s</loc>' % self.spell.get_absolute_url(), content)
+        self.assertIn('<loc>https://dndtools.quest%s</loc>' % character_class.get_absolute_url(), content)
+        self.assertNotIn('<loc>https://dndtools.quest%s</loc>' % variant.get_absolute_url(), content)
         self.assertNotIn('example.com', content)
 
     @override_settings(PUBLIC_HOST='dndtools.quest')

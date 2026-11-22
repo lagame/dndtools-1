@@ -3,7 +3,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from dnd.models import (
     Spell, DndEdition, Rulebook, CharacterClass, Domain, SpellDescriptor,
-    SpellSchool, SpellSubSchool, FeatCategory, Feat, CharacterClassVariant,
+    SpellSchool, SpellSubSchool, FeatCategory, Feat,
     Skill, Monster, Item, Race, CreatureTemplate, SupplementalEntry)
 
 
@@ -35,11 +35,6 @@ class RulebookSitemap(CatalogSitemap):
 class CharacterClassSitemap(CatalogSitemap):
     def items(self):
         return CharacterClass.objects.all()
-
-
-class CharacterClassVariantSitemap(CatalogSitemap):
-    def items(self):
-        return CharacterClassVariant.objects.select_related('rulebook').all()
 
 
 class DomainSitemap(CatalogSitemap):
@@ -113,7 +108,6 @@ sitemaps = {
     'DndEdition': DndEditionSitemap,
     'Rulebook': RulebookSitemap,
     'CharacterClass': CharacterClassSitemap,
-    'CharacterClassVariant': CharacterClassVariantSitemap,
     'Domain': DomainSitemap,
     'SpellDescriptor': SpellDescriptorSitemap,
     'SpellSchool': SpellSchoolSitemap,
