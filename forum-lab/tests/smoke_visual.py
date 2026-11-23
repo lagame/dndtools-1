@@ -37,6 +37,15 @@ def main():
                         page.screenshot(path=str(output / f"forum-{theme}-{width}.png"))
             page.set_viewport_size({"width": 390, "height": 844})
             page.get_by_role("link", name="Apresentações e ajuda").click()
+            page.get_by_role("link", name="Regras do fórum D&D Tools").click()
+            expect(page.get_by_text("1. Respeite as pessoas")).to_be_visible()
+            expect(page.get_by_text("4. Organize o assunto para que outras pessoas o encontrem")).to_be_visible()
+            expect(page.get_by_text("9. Ajude a moderação")).to_be_visible()
+            assert page.evaluate(
+                "document.documentElement.scrollWidth <= window.innerWidth + 1"
+            ), "Forum rules topic has horizontal overflow at 390px"
+            page.goto(BASE, wait_until="domcontentloaded")
+            page.get_by_role("link", name="Apresentações e ajuda").click()
             page.get_by_role("link", name="Bem-vindo ao fórum D&D Tools").click()
             expect(page.get_by_text("Começando por mim:")).to_be_visible()
             expect(page.get_by_text("ex-administrador do SpellBrasil")).to_be_visible()
@@ -56,7 +65,7 @@ def main():
             assert page.evaluate(
                 "document.documentElement.scrollWidth <= window.innerWidth + 1"
             ), "Encounter guide has horizontal overflow at 390px"
-            print("Nine forums, revised guides, signature, links and five responsive themes passed.")
+            print("Nine forums, rules, revised guides, signature, links and five responsive themes passed.")
         finally:
             browser.close()
 

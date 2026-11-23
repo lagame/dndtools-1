@@ -10,8 +10,10 @@ O fórum usa phpBB 3.3.19 e Ajax LiteChat 2.1.0 junto ao catálogo. O código e 
 - O proprietário entra no fórum como `Ronassic`, com a senha que definiu localmente. A senha não está no repositório.
 - Uma pessoa nova clica em **Registrar**, aceita os termos, preenche nome, e-mail e senha, resolve o código de confirmação e abre a mensagem de ativação no Mailpit. Depois faz login no fórum. **Redefinir senha** fica na tela de login e também envia um link ao Mailpit.
 - Visitantes podem ler os tópicos. O chat exige uma conta ativa. Conversas que precisam continuar consultáveis devem virar tópicos: o chat elimina mensagens antigas após o prazo configurado.
-- Visitantes não podem criar tópicos nem responder. Novas contas precisam ativar o e-mail e seus três primeiros posts passam por moderação. Novos membros podem ler o chat, mas só enviam mensagens após sair do grupo de moderação inicial. Essas barreiras reduzem spam, mas não garantem bloquear todo bot com IA.
+- Visitantes não podem criar tópicos, responder ou enviar mensagens no chat. Novas contas precisam ativar o e-mail; depois disso podem conversar no chat, com intervalo mínimo de 15 segundos entre mensagens. Seus três primeiros posts no fórum passam por moderação. Essas barreiras reduzem spam, mas não garantem bloquear todo bot com IA.
+- As regras da comunidade ficam em um tópico fixo em **Comece aqui → Apresentações e ajuda**. O deploy cria o tópico uma vez, assinado por Ronassic; alterações posteriores podem ser feitas pelo próprio fórum.
 - Avatares aceitam arquivos GIF, JPEG, PNG, WebP e AVIF de até **512 KiB**. O upload é decodificado, reduzido proporcionalmente para caber em **300 × 300 px** e regravado como WebP sem metadados nem bytes originais anexados. Animações viram imagem estática. A imagem aparece nos posts com no máximo 128 px de lado. A regravação reduz a superfície de ataque dos arquivos servidos, mas não substitui atualização do PHP e das bibliotecas de imagem.
+- No primeiro acesso, o fórum gera e guarda uma miniatura WebP de **64 × 64 px** para o chat, o topo e a lista de membros. A página de avatar continua oferecendo a imagem original regravada. Uma troca de avatar usa o novo identificador de versão e gera outra miniatura automaticamente.
 - Os botões EN/PT-BR trocam a interface do fórum e do catálogo. A preferência de idioma alterada no painel do usuário do phpBB também se reflete no catálogo. O seletor de tema usa a mesma preferência do navegador nos dois. Textos publicados por membros continuam no idioma em que foram escritos.
 
 ## Rodar e conferir
@@ -35,7 +37,7 @@ O Dockerfile verifica o SHA-256 do ZIP do LiteChat (`22e4af7c297b256a6caf56127b1
 
 Depois de inicializar um laboratório novo, aplique uma vez os limites de avatar com `docker cp forum-lab/configure-avatar.php dndtools-forum_lab-1:/tmp/dndtools-configure-avatar.php` e `docker exec -e DND_FORUM_LAB=1 -u www-data dndtools-forum_lab-1 php /tmp/dndtools-configure-avatar.php`. Não execute isso a cada inicialização: ajustes posteriores feitos no ACP devem ser preservados.
 
-Após instalar o LiteChat em um laboratório novo, restrinja o envio por contas recém-criadas com `docker cp forum-lab/restrict-new-member-chat.php dndtools-forum_lab-1:/tmp/dndtools-restrict-new-member-chat.php` e `docker exec -e DND_FORUM_LAB=1 -u www-data dndtools-forum_lab-1 php /tmp/dndtools-restrict-new-member-chat.php`. O script preserva as permissões existentes e pode ser repetido. Antes de qualquer alteração no banco, salve e verifique um backup privado.
+Após instalar o LiteChat em um laboratório novo, habilite o chat para contas ativadas com `docker cp forum-lab/configure-chat.php dndtools-forum_lab-1:/tmp/dndtools-configure-chat.php` e `docker exec -e DND_FORUM_LAB=1 -u www-data dndtools-forum_lab-1 php /tmp/dndtools-configure-chat.php`. O script preserva a moderação inicial e pode ser repetido. Antes de qualquer alteração no banco, salve e verifique um backup privado. Em produção, o workflow executa esse ajuste automaticamente.
 
 ## Atualizar a produção
 

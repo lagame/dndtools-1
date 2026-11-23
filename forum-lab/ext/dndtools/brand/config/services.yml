@@ -4,3 +4,8 @@ services:
         arguments: ['@request']
         tags:
             - { name: event.listener }
+    dndtools.brand.avatar_listener:
+        class: dndtools\brand\event\avatar_listener
+        arguments: ['@template', '@user']
+        tags:
+            - { name: event.listener }

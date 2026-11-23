@@ -85,9 +85,17 @@ $sql = 'SELECT ag.auth_setting FROM ' . ACL_GROUPS_TABLE . ' ag JOIN ' . ACL_OPT
 $result = $db->sql_query($sql);
 $chat_setting = $db->sql_fetchfield('auth_setting');
 $db->sql_freeresult($result);
-if ($chat_setting === false || (int) $chat_setting !== ACL_NEVER)
+if ($chat_setting === false || (int) $chat_setting !== ACL_YES)
 {
-    throw new RuntimeException('New members can send chat messages before moderation.');
+    throw new RuntimeException('Activated new members cannot use the chat.');
+}
+if ($auth->acl_get('u_stoker_chat_use'))
+{
+    throw new RuntimeException('Guests can send chat messages.');
+}
+if ((int) $config['stoker_chat_flood_interval'] < 15)
+{
+    throw new RuntimeException('Chat flood interval is too short.');
 }
 
-echo "Avatar limits, e-mail activation, CAPTCHA, guest restrictions, moderated posts and chat restriction checked in $forum_count forums.\n";
+echo "Avatar limits, e-mail activation, CAPTCHA, guest restrictions, moderated posts and chat pacing checked in $forum_count forums.\n";

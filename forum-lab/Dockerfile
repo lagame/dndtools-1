@@ -22,6 +22,12 @@ RUN cd /var/www/html \
     && git apply /tmp/avatar-reencode.patch \
     && rm /tmp/avatar-reencode.patch
 
+COPY patches/avatar-thumbnail.patch /tmp/avatar-thumbnail.patch
+RUN cd /var/www/html \
+    && git apply --check /tmp/avatar-thumbnail.patch \
+    && git apply /tmp/avatar-thumbnail.patch \
+    && rm /tmp/avatar-thumbnail.patch
+
 COPY vendor/brazilian_portuguese_3_3_19.zip /tmp/phpbb-pt-br.zip
 COPY patches/pt-br-avatar.php /tmp/pt-br-avatar.php
 RUN echo '378abe4e6055a5bcfb6fec45a4b0a530cb760da0418a611426f32adc859b57ba  /tmp/phpbb-pt-br.zip' | sha256sum -c - \
@@ -41,6 +47,8 @@ RUN echo '22e4af7c297b256a6caf56127b18203be5b5e03f944d87b4efa0c52e75182503  /tmp
     && rm /tmp/ajax-litechat.zip
 COPY chat-pt-br /var/www/html/ext/stoker/chat/language/pt_br
 COPY install-language.php /usr/local/bin/dndtools-install-language.php
+COPY configure-chat.php /usr/local/bin/dndtools-configure-chat.php
+COPY publish-rules.php /usr/local/bin/dndtools-publish-rules.php
 COPY entrypoint.sh /usr/local/bin/dndtools-forum-entrypoint
 RUN chmod 755 /usr/local/bin/dndtools-forum-entrypoint
 

@@ -50,6 +50,12 @@ li.row { border-top-color: var(--forum-line); }
 ul.forums li.row, ul.topics li.row { border-bottom-color: var(--forum-line); }
 li.row:hover, .bg1:hover, .bg2:hover { background: var(--forum-accent-soft); }
 .forabg .header dd, .forumbg .header dd { font-size: .72rem; white-space: nowrap; }
+.forumbg table.table1 thead th, .forumbg table.table1 thead th a { color: #fff; }
+html[data-theme="dark"] .forumbg table.table1 thead th, html[data-theme="dark"] .forumbg table.table1 thead th a { color: #0b1920; }
+html[data-theme="oled"] .forumbg table.table1 thead th, html[data-theme="oled"] .forumbg table.table1 thead th a { color: var(--forum-accent); }
+.forumbg table.table1 tbody td { color: var(--forum-ink); border-top-color: var(--forum-line); }
+.forumbg table.table1 tbody td a:not(.username-coloured) { color: var(--forum-link); }
+.forumbg table.table1 tbody tr:hover { background: var(--forum-accent-soft); color: var(--forum-ink); }
 .forumtitle, .topictitle, h2, h3 { color: var(--forum-ink) !important; }
 .forumdesc, .responsive-hide, .pagination, .postprofile, .content { color: var(--forum-muted); }
 .forabg .list-inner, .forumbg .list-inner, .panel, .postbody, .postprofile, .postprofile dt, .postprofile dd, .content, .forumdesc { color: var(--forum-muted); }
@@ -68,6 +74,9 @@ html[data-theme="oled"] form.headerspace fieldset.quick-login .button2 { color: 
 html[data-theme="oled"] .stat-block, html[data-theme="oled"] .stat-block p, html[data-theme="oled"] .stat-block h3 { color: var(--forum-ink); }
 .post { border: 1px solid var(--forum-line); border-radius: 9px; }
 .postprofile .avatar img { max-width: 128px; max-height: 128px; object-fit: contain; }
+.header-avatar img { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; }
+.member-avatar-thumb { display: inline-flex; width: 32px; height: 32px; margin-right: .45rem; vertical-align: middle; align-items: center; flex: none; }
+.member-avatar-thumb img { display: block; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 
 /* Keep LiteChat on the same palette as the catalog, including its mobile controls. */
 html[data-theme] .stoker-chat-messages,
@@ -119,6 +128,13 @@ html[data-theme] .stoker-chat-emoji-picker[hidden] { display: none; }
   form.headerspace fieldset.quick-login label { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
   form.headerspace fieldset.quick-login input.inputbox { width: min(65%, 240px); margin-left: 0; }
   #wrap { margin: .5rem; padding: .65rem; border-radius: 10px; }
+  #memberlist tbody tr, #memberlist tbody td { background: var(--forum-surface); color: var(--forum-ink); }
+  #memberlist tbody td { border-top: 1px solid var(--forum-line); }
+  #memberlist tbody td:first-child > dfn { display: block !important; font-size: .75rem; }
+  #memberlist tbody td:first-child .rank-img { float: right; font-size: .75rem; }
+  #memberlist tbody td:first-child .member-avatar-thumb { float: left; margin: .15rem .6rem .15rem 0; }
+  #memberlist tbody td:first-child::after { content: ""; display: block; clear: both; }
+  #memberlist tbody td dfn { color: var(--forum-muted); }
   .stoker-chat-input { flex-wrap: wrap; }
   .stoker-chat-input-wrap { min-width: 0; }
   .stoker-chat-standalone .stoker-chat-messages { height: min(45vh, 360px); }

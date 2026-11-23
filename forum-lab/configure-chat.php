@@ -1,8 +1,8 @@
 <?php
-// New users can read chat, but must complete moderated forum posts before sending.
-if (PHP_SAPI !== 'cli' || getenv('DND_FORUM_LAB') !== '1')
+// Activated members can chat; their first forum posts remain moderated.
+if (PHP_SAPI !== 'cli' || (getenv('DND_FORUM_LAB') !== '1' && getenv('DND_FORUM_PRODUCTION') !== '1'))
 {
-    fwrite(STDERR, "Local forum lab only.\n");
+    fwrite(STDERR, "Forum container only.\n");
     exit(1);
 }
 
@@ -10,6 +10,10 @@ define('IN_PHPBB', true);
 $phpbb_root_path = '/var/www/html/';
 $phpEx = 'php';
 require $phpbb_root_path . 'common.' . $phpEx;
+if ((int) $config['require_activation'] !== 1 || (int) $config['new_member_post_limit'] < 3)
+{
+    throw new RuntimeException('Email activation and moderation must remain enabled.');
+}
 
 $result = $db->sql_query('SELECT group_id FROM ' . GROUPS_TABLE . " WHERE group_name = 'NEWLY_REGISTERED'");
 $group_id = (int) $db->sql_fetchfield('group_id');
@@ -34,15 +38,16 @@ if ($current === false)
         'group_id' => $group_id,
         'forum_id' => 0,
         'auth_option_id' => $option_id,
-        'auth_setting' => ACL_NEVER,
+        'auth_setting' => ACL_YES,
         'auth_role_id' => 0,
     ]));
 }
-elseif ((int) $current !== ACL_NEVER)
+elseif ((int) $current !== ACL_YES)
 {
-    $db->sql_query('UPDATE ' . ACL_GROUPS_TABLE . ' SET auth_setting = ' . ACL_NEVER
+    $db->sql_query('UPDATE ' . ACL_GROUPS_TABLE . ' SET auth_setting = ' . ACL_YES
         . ' WHERE ' . $where);
 }
 
+$config->set('stoker_chat_flood_interval', 15);
 $auth->acl_clear_prefetch();
-echo "New members cannot send chat messages until their initial posts are approved.\n";
+echo "Activated members can chat; first forum posts remain moderated; chat flood interval is 15 seconds.\n";

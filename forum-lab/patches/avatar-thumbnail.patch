@@ -1,0 +1,88 @@
+diff --git a/download/file.php b/download/file.php
+--- a/download/file.php
++++ b/download/file.php
+@@ -140,7 +140,7 @@
+ 		}
+ 		else
+ 		{
+-			send_avatar_to_browser(($avatar_group ? 'g' : '') . $filename . '.' . $ext, $browser);
++			send_avatar_to_browser(($avatar_group ? 'g' : '') . $filename . '.' . $ext, $browser, $request->variable('thumb', false), $stamp);
+ 		}
+ 	}
+ 	file_gc();
+diff --git a/includes/functions_download.php b/includes/functions_download.php
+--- a/includes/functions_download.php
++++ b/includes/functions_download.php
+@@ -27,7 +27,7 @@
+ * A simplified function to deliver avatars
+ * The argument needs to be checked before calling this function.
+ */
+-function send_avatar_to_browser($file, $browser)
++function send_avatar_to_browser($file, $browser, $thumbnail = false, $stamp = 0)
+ {
+ 	global $config, $phpbb_root_path;
+ 
+@@ -49,6 +49,16 @@
+ 	}
+ 	$file_path = $phpbb_root_path . $image_dir . '/' . $prefix . $file;
+ 
++	if ($thumbnail && substr($file, -5) === '.webp' && @is_file($file_path))
++	{
++		$thumb_dir = $phpbb_root_path . $image_dir . '/thumbs';
++		$thumb_path = $thumb_dir . '/' . $prefix . substr($file, 0, -5) . '-' . (int) $stamp . '.webp';
++		if (@is_file($thumb_path) || dndtools_make_avatar_thumb($file_path, $thumb_path))
++		{
++			$file_path = $thumb_path;
++		}
++	}
++
+ 	if ((@file_exists($file_path) && @is_readable($file_path)) && !headers_sent())
+ 	{
+ 		header('Cache-Control: public');
+@@ -99,4 +109,46 @@
+ }
+ 
++/** Cache a small, freshly encoded avatar for lists and navigation. */
++function dndtools_make_avatar_thumb($source, $target)
++{
++	$info = @getimagesize($source);
++	if (!$info || $info[2] !== IMAGETYPE_WEBP || $info[0] < 1 || $info[1] < 1 ||
++		$info[0] > 2048 || $info[1] > 2048 || $info[0] * $info[1] > 4194304 ||
++		@filesize($source) > 524288)
++	{
++		return false;
++	}
++
++	$image = @imagecreatefromwebp($source);
++	if (!$image)
++	{
++		return false;
++	}
++
++	$side = min($info[0], $info[1]);
++	$thumb = imagecreatetruecolor(64, 64);
++	imagealphablending($thumb, false);
++	imagesavealpha($thumb, true);
++	imagecopyresampled($thumb, $image, 0, 0,
++		(int) (($info[0] - $side) / 2), (int) (($info[1] - $side) / 2),
++		64, 64, $side, $side);
++	imagedestroy($image);
++
++	$directory = dirname($target);
++	if (!is_dir($directory) && !@mkdir($directory, 0750, true))
++	{
++		imagedestroy($thumb);
++		return false;
++	}
++	$temp = @tempnam($directory, 'thumb_');
++	$written = $temp && @imagewebp($thumb, $temp, 82) && @rename($temp, $target);
++	imagedestroy($thumb);
++	if ($temp && !$written)
++	{
++		@unlink($temp);
++	}
++	return $written;
++}
++
+ /**
+ * Wraps an url into a simple html page. Used to display attachments in IE.

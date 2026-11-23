@@ -19,7 +19,7 @@ if (!preg_match('/^chatqa_[a-f0-9]{8}$/', $username))
     throw new RuntimeException('Invalid temporary username.');
 }
 
-if ($action === 'create')
+if ($action === 'create' || $action === 'create_new')
 {
     $password = rtrim(stream_get_contents(STDIN), "\r\n");
     if (strlen($password) < 12)
@@ -41,6 +41,7 @@ if ($action === 'create')
         'user_type' => USER_NORMAL,
         'user_lang' => 'pt_br',
         'user_ip' => '127.0.0.1',
+        'user_new' => $action === 'create_new' ? 1 : 0,
     ]);
     unset($password);
     if (!is_int($user_id))
@@ -62,5 +63,5 @@ elseif ($action === 'delete')
 }
 else
 {
-    throw new RuntimeException('Use create or delete.');
+    throw new RuntimeException('Use create, create_new or delete.');
 }
