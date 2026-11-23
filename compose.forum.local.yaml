@@ -1,0 +1,33 @@
+services:
+  app:
+    environment:
+      DND_FORUM_ENABLED: "1"
+
+  forum_lab:
+    build: ./forum-lab
+    ports:
+      - "127.0.0.1:18767:80"
+    volumes:
+      - ./forum-lab/ext/dndtools/brand:/var/www/html/ext/dndtools/brand:ro
+      - forum_lab_data:/var/lib/phpbb
+
+  forum_gateway:
+    image: caddy:2
+    volumes:
+      - ./Caddyfile.forum.local:/etc/caddy/Caddyfile:ro
+      - static_data:/var/www/static:ro
+      - media_data:/var/www/media:ro
+      - ./dndtools/static/css/forum.css:/var/www/forum-assets/forum.css:ro
+    ports:
+      - "127.0.0.1:18766:80"
+    depends_on:
+      - app
+      - forum_lab
+
+  forum_mail:
+    image: axllent/mailpit:v1.28.4
+    ports:
+      - "127.0.0.1:18025:8025"
+
+volumes:
+  forum_lab_data:

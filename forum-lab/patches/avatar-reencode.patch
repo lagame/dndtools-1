@@ -1,0 +1,139 @@
+diff --git a/phpbb/avatar/driver/driver.php b/phpbb/avatar/driver/driver.php
+--- a/phpbb/avatar/driver/driver.php
++++ b/phpbb/avatar/driver/driver.php
+@@ -72,6 +72,8 @@
+ 		'jpg',
+ 		'jpeg',
+ 		'png',
++		'webp',
++		'avif',
+ 	);
+ 
+ 	/**
+diff --git a/phpbb/avatar/driver/upload.php b/phpbb/avatar/driver/upload.php
+--- a/phpbb/avatar/driver/upload.php
++++ b/phpbb/avatar/driver/upload.php
+@@ -113,6 +113,11 @@
+ 		$upload_file = $request->file('avatar_upload_file');
+ 
+ 		if (!empty($upload_file['name']))
+ 		{
++			if (!$this->reencode_avatar($request, $user, $upload_file, $error))
++			{
++				return false;
++			}
++
+ 			$file = $upload->handle_upload('files.types.form', 'avatar_upload_file');
+ 		}
+@@ -245,7 +250,100 @@
+ 		);
+ 	}
+ 
++	/** Decode a local upload and store only freshly encoded WebP pixels. */
++	private function reencode_avatar($request, $user, $upload_file, &$error)
++	{
++		$path = $upload_file['tmp_name'] ?? '';
++		$size = $upload_file['size'] ?? 0;
++		if ((int) ($upload_file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK ||
++			!is_uploaded_file($path) || !$size || $size > $this->config['avatar_filesize'])
++		{
++			$error[] = $user->lang('AVATAR_NOT_UPLOADED');
++			return false;
++		}
++
++		$extension = strtolower(pathinfo($upload_file['name'], PATHINFO_EXTENSION));
++		$types = array(
++			'gif' => IMAGETYPE_GIF,
++			'jpg' => IMAGETYPE_JPEG,
++			'jpeg' => IMAGETYPE_JPEG,
++			'png' => IMAGETYPE_PNG,
++			'webp' => IMAGETYPE_WEBP,
++			'avif' => IMAGETYPE_AVIF,
++		);
++		$info = @getimagesize($path);
++		if (!isset($types[$extension]) || !$info || $info[2] !== $types[$extension] ||
++			$info[0] < 1 || $info[1] < 1 || $info[0] > 2048 || $info[1] > 2048 ||
++			$info[0] * $info[1] > 4194304)
++		{
++			$error[] = $user->lang('AVATAR_DISALLOWED_CONTENT');
++			return false;
++		}
++
++		$image = @imagecreatefromstring(file_get_contents($path));
++		if (!$image || imagesx($image) !== $info[0] || imagesy($image) !== $info[1])
++		{
++			$error[] = $user->lang('AVATAR_DISALLOWED_CONTENT');
++			return false;
++		}
++
++		if (!imageistruecolor($image))
++		{
++			if (!imagepalettetotruecolor($image))
++			{
++				imagedestroy($image);
++				$error[] = $user->lang('AVATAR_DISALLOWED_CONTENT');
++				return false;
++			}
++		}
++
++		$scale = min(1, $this->config['avatar_max_width'] / $info[0],
++			$this->config['avatar_max_height'] / $info[1]);
++		$width = max(1, (int) round($info[0] * $scale));
++		$height = max(1, (int) round($info[1] * $scale));
++		if ($scale < 1)
++		{
++			$resized = imagecreatetruecolor($width, $height);
++			imagealphablending($resized, false);
++			imagesavealpha($resized, true);
++			imagecopyresampled($resized, $image, 0, 0, 0, 0, $width, $height,
++				$info[0], $info[1]);
++			imagedestroy($image);
++			$image = $resized;
++		}
++
++		$converted = tempnam(sys_get_temp_dir(), 'avatar_');
++		try
++		{
++			if (!$converted || !@imagewebp($image, $converted, 85) ||
++				!is_file($converted) || !filesize($converted) ||
++				filesize($converted) > $this->config['avatar_filesize'] ||
++				($result = @getimagesize($converted)) === false ||
++				$result[2] !== IMAGETYPE_WEBP ||
++				$result[0] !== $width || $result[1] !== $height ||
++				!copy($converted, $path))
++			{
++				$error[] = $user->lang('AVATAR_DISALLOWED_CONTENT');
++				return false;
++			}
++		}
++		finally
++		{
++			imagedestroy($image);
++			if ($converted)
++			{
++				@unlink($converted);
++			}
++		}
++
++		$upload_file['name'] = pathinfo($upload_file['name'], PATHINFO_FILENAME) . '.webp';
++		$upload_file['type'] = 'image/webp';
++		$upload_file['size'] = filesize($path);
++		$request->overwrite('avatar_upload_file', $upload_file, \phpbb\request\request_interface::FILES);
++		return true;
++	}
++
+ 	/**
+ 	* {@inheritdoc}
+ 	*/
+ 	public function prepare_form_acp($user)
+diff --git a/download/file.php b/download/file.php
+--- a/download/file.php
++++ b/download/file.php
+@@ -125,6 +125,6 @@
+ 		$exit = set_modified_headers($stamp, $browser);
+ 	}
+-	if (!$exit && !in_array($ext, array('png', 'gif', 'jpg', 'jpeg')))
++	if (!$exit && !in_array($ext, array('png', 'gif', 'jpg', 'jpeg', 'webp')))
+ 	{
+ 		// no way such an avatar could exist. They are not following the rules, stop the show.
+ 		send_status_line(403, 'Forbidden');

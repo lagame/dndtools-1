@@ -1,0 +1,45 @@
+<?php
+// Brazilian Portuguese strings for Ajax LiteChat 2.1.0 (GPL-2.0-only).
+if (!defined('IN_PHPBB')) { exit; }
+if (empty($lang) || !is_array($lang)) { $lang = []; }
+$lang = array_merge($lang, [
+    'STOKER_CHAT_TITLE' => 'Chat',
+    'STOKER_CHAT_SEND' => 'Enviar',
+    'STOKER_CHAT_EMOJI' => 'Emoji',
+    'STOKER_CHAT_PLACEHOLDER' => 'Digite uma mensagem…',
+    'STOKER_CHAT_EMPTY' => 'Digite uma mensagem.',
+    'STOKER_CHAT_TOO_LONG' => 'Sua mensagem é muito longa.',
+    'STOKER_CHAT_NO_MESSAGES' => 'Ainda não há mensagens. Seja a primeira pessoa a escrever!',
+    'STOKER_CHAT_LOAD_OLDER' => 'Carregar mensagens anteriores',
+    'STOKER_CHAT_LOAD_OLDER_LOADING' => 'Carregando…',
+    'STOKER_CHAT_EDIT' => 'Editar',
+    'STOKER_CHAT_EDIT_SAVE' => 'Salvar',
+    'STOKER_CHAT_EDIT_CANCEL' => 'Cancelar',
+    'STOKER_CHAT_EDITED' => 'editada',
+    'STOKER_CHAT_DELETE' => 'Excluir',
+    'STOKER_CHAT_DELETE_CONFIRM' => 'Excluir esta mensagem?',
+    'STOKER_CHAT_QUOTE' => 'Citar',
+    'STOKER_CHAT_LIKE' => 'Curtir',
+    'STOKER_CHAT_MENU' => 'Ações',
+    'STOKER_CHAT_OPEN' => 'Abrir o chat em tela inteira',
+    'STOKER_CHAT_ERROR' => 'Ocorreu um erro. Tente novamente.',
+    'STOKER_CHAT_LOGIN' => 'Entre na sua conta para usar o chat.',
+    'STOKER_CHAT_NOT_AUTHORISED' => 'Você não tem permissão para fazer isso.',
+    'STOKER_CHAT_NO_USE' => 'Você não tem permissão para enviar mensagens no chat.',
+    'STOKER_CHAT_NOT_FOUND' => 'Esta mensagem não existe mais.',
+    'STOKER_CHAT_INVALID_ID' => 'Identificador de mensagem inválido.',
+    'STOKER_CHAT_FLOOD' => [
+        1 => 'Aguarde mais %d segundo antes de enviar outra mensagem.',
+        2 => 'Aguarde mais %d segundos antes de enviar outra mensagem.',
+    ],
+    'STOKER_CHAT_BBCODE_NOT_ALLOWED' => 'O BBCode [%s] não é permitido.',
+    'STOKER_CHAT_PAUSED' => 'Chat pausado',
+    'STOKER_CHAT_RESUME' => 'Clique para continuar',
+    'STOKER_CHAT_JS_REQUIRED' => 'É necessário ativar o JavaScript para usar o chat.<br>Ative-o no navegador.',
+    'STOKER_CHAT_CREDIT' => 'LiteChat © PhpBB3 BBCodes',
+    'VIEWONLINE_STOKER_CHAT' => 'Acessando o chat',
+    'STOKER_CHAT_COLLAPSIBLE_TITLE' => [
+        0 => 'Ocultar chat',
+        1 => 'Mostrar chat',
+    ],
+]);

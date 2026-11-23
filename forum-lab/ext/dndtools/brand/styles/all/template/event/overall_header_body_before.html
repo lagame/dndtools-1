@@ -1,0 +1,15 @@
+<header class="dnd-forum-header">
+  <div class="dnd-forum-header-inner">
+    {% if S_USER_LANG == 'pt-br' %}
+    <a class="dnd-forum-brand" href="/pt-br/" aria-label="Início do D&amp;D Tools"><span class="dnd-forum-brand-symbol" aria-hidden="true">D20</span><span><strong>D&amp;D<span>tools</span></strong><small>Explore os mundos do 3.5</small></span></a>
+    <nav class="dnd-forum-links" aria-label="Site"><a href="/pt-br/">Catálogo</a><a href="/forum/" aria-current="page">Fórum</a></nav>
+    <nav class="dnd-forum-language" aria-label="Idioma"><a href="/language/?language=en-us&amp;next=/forum/">EN</a><a href="/language/?language=pt-br&amp;next=/forum/" aria-current="page">PT-BR</a></nav>
+    <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">Tema</span><select id="theme-select" aria-label="Tema do site"><option value="standard">Standard</option><option value="modern">Modern</option><option value="simple">Simple</option><option value="dark">Petroleo</option><option value="oled">Dark</option></select></label>
+    {% else %}
+    <a class="dnd-forum-brand" href="/" aria-label="D&amp;D Tools home"><span class="dnd-forum-brand-symbol" aria-hidden="true">D20</span><span><strong>D&amp;D<span>tools</span></strong><small>Explore the worlds of 3.5</small></span></a>
+    <nav class="dnd-forum-links" aria-label="Site"><a href="/">Catalog</a><a href="/forum/" aria-current="page">Forum</a></nav>
+    <nav class="dnd-forum-language" aria-label="Language"><a href="/language/?language=en-us&amp;next=/forum/" aria-current="page">EN</a><a href="/language/?language=pt-br&amp;next=/forum/">PT-BR</a></nav>
+    <label class="theme-picker" for="theme-select" hidden><span class="theme-picker-label">Theme</span><select id="theme-select" aria-label="Site theme"><option value="standard">Standard</option><option value="modern">Modern</option><option value="simple">Simple</option><option value="dark">Petroleo</option><option value="oled">Dark</option></select></label>
+    {% endif %}
+  </div>
+</header>

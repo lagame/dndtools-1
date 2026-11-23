@@ -1,0 +1,13 @@
+{
+  "name": "dndtools/brand",
+  "type": "phpbb-extension",
+  "description": "Shared D&D Tools branding for the local forum prototype",
+  "version": "0.1.0",
+  "license": "GPL-2.0-only",
+  "authors": [{ "name": "D&D Tools" }],
+  "require": { "php": ">=8.3" },
+  "extra": {
+    "display-name": "D&D Tools brand",
+    "soft-require": { "phpbb/phpbb": ">=3.3.19" }
+  }
+}

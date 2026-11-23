@@ -52,9 +52,10 @@ def switch_language(request):
     elif path == '/pt-br':
         path = '/'
     is_admin = path.startswith('/' + settings.ADMIN_URL)
+    is_forum = path == '/forum' or path.startswith('/forum/')
     if path.startswith('/language/'):
         path = '/'
-    if language == 'pt-br' and not is_admin:
+    if language == 'pt-br' and not is_admin and not is_forum:
         path = '/pt-br' + path
     response = HttpResponseRedirect(urlunsplit(('', '', path, parsed.query, '')))
     response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=31536000,

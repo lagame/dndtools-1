@@ -154,6 +154,7 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DND_ALLOWED_HOSTS', ''
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get('DND_CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
 MEDIA_ROOT = os.environ.get('DND_MEDIA_ROOT', MEDIA_ROOT)
 PUBLIC_HOST = os.environ.get('DND_PUBLIC_HOST', 'localhost')
+FORUM_ENABLED = os.environ.get('DND_FORUM_ENABLED') == '1'
 FORCE_HTTPS = not DEBUG and os.environ.get('DND_FORCE_HTTPS', '1') == '1'
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured('DND_ALLOWED_HOSTS is required in production.')

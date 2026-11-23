@@ -3501,3 +3501,7 @@ msgstr "Monstros vinculados precisam vir de livros confirmados de D&D 3.5."
 
 msgid "Add source-specific details"
 msgstr "Adicionar detalhes específicos da fonte"
+
+#: templates/dnd/layout.html
+msgid "Forum"
+msgstr "Fórum"

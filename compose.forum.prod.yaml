@@ -1,0 +1,24 @@
+services:
+  app:
+    environment:
+      DND_FORUM_ENABLED: "1"
+
+  forum:
+    build: ./forum-lab
+    image: dndtools-forum:3.3.19
+    restart: unless-stopped
+    environment:
+      DND_FORUM_PRODUCTION: "1"
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/dndtools/forum/config.php:/var/www/html/config.php:ro
+      - /var/lib/dndtools/forum:/var/lib/phpbb
+      - /var/lib/dndtools/forum/files:/var/www/html/files
+      - /var/lib/dndtools/forum/store:/var/www/html/store
+      - /var/lib/dndtools/forum/avatars:/var/www/html/images/avatars/upload
+
+  tunnel_proxy:
+    depends_on:
+      - app
+      - forum

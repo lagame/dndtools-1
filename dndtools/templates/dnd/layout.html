@@ -25,6 +25,7 @@
   <header class="site-header" id="header">
     <div class="header-inner">
       <button id="navigation-toggle" class="navigation-toggle" type="button" aria-label="{% translate 'Toggle catalog menu' %}" aria-controls="catalog-sidebar" aria-expanded="true"><span aria-hidden="true">☰</span><span class="navigation-toggle-label">{% translate 'Menu' %}</span></button>
+      {% if forum_enabled %}<a class="forum-nav-link" href="/forum/">{% translate 'Forum' %}</a>{% endif %}
       <a class="brand" href="{% url 'index' %}" aria-label="{% translate 'D&D Tools home' %}">
         <span class="brand-symbol" aria-hidden="true">D20</span>
         <span><strong>D&amp;D<span>tools</span></strong><small>{% translate 'Explore the worlds of 3.5' %}</small></span>

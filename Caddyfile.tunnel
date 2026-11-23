@@ -2,6 +2,12 @@
     @www host www.dndtools.quest
     redir @www https://dndtools.quest{uri} permanent
     encode zstd gzip
+    redir /forum /forum/ 308
+    handle_path /forum/* {
+        @private path /config.php /store/* /files/* /cache/* /install/*
+        respond @private 404
+        reverse_proxy forum:80
+    }
     handle_path /static/media/* {
         root * /var/www/media
         file_server

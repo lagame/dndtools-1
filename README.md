@@ -1,8 +1,10 @@
 # D&D Tools
 
-A community fork of the original D&D Tools catalog, modernized for Python 3.14, Django 5.2 and MySQL 8.4. The public pages keep the original catalog URLs and now use a responsive layout and first-party search. The source code is MIT licensed; rights to individual book content must be assessed separately.
+A community fork of the original D&D Tools catalog, modernized for Python 3.14, Django 5.2 and MySQL 8.4. The public pages keep the original catalog URLs and now use a responsive layout and first-party search. The catalog source code is MIT licensed; bundled third-party forum packages retain their own licenses, and rights to individual book content must be assessed separately.
 
 The site is available at [dndtools.quest](https://dndtools.quest/). It uses the HeroForge visual family with a self-hosted Inter font. `/privacy/` explains the site's technical cookies, the browser preference used to dismiss the notice, and how to contact the maintainer. No optional advertising or analytics cookies are active, so the notice is informational; adding such services requires a real choice before they run.
+
+O [fórum phpBB integrado](forum-lab/README.md) funciona em [dndtools.quest/forum](https://dndtools.quest/forum/), com chat, cadastro e temas compartilhados.
 
 **The database is not in this repository.** To request the private SQLite snapshot, [open an issue](https://github.com/lagame/dndtools-1/issues). We will arrange a private transfer. Never attach the database, a dump, or source scans to an issue or commit.
 

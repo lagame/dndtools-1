@@ -1,0 +1,125 @@
+/* Align phpBB's palette and header with the D&D Tools catalog. */
+@font-face { font-family: Inter; src: url('/static/fonts/InterVariable.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
+
+html { --forum-bg: #fef7ff; --forum-surface: #fff; --forum-ink: #1c1b1f; --forum-muted: #625b71; --forum-line: #e8dff0; --forum-accent: #6750a4; --forum-accent-soft: #f2ebf9; --forum-link: #53389e; }
+html[data-theme="modern"] { --forum-bg: #edf1f3; --forum-surface: #fffefb; --forum-ink: #203044; --forum-muted: #607085; --forum-line: #dce2e7; --forum-accent: #18678a; --forum-accent-soft: #e1e9ed; --forum-link: #0b5273; }
+html[data-theme="simple"] { --forum-bg: #fff; --forum-surface: #fff; --forum-ink: #111; --forum-muted: #444; --forum-line: #ccc; --forum-accent: #000099; --forum-accent-soft: #f4f4f4; --forum-link: #000099; }
+html[data-theme="dark"] { --forum-bg: #101a23; --forum-surface: #182631; --forum-ink: #edf3f7; --forum-muted: #bfccd6; --forum-line: #40515e; --forum-accent: #83d7f5; --forum-accent-soft: #243744; --forum-link: #8edfff; color-scheme: dark; }
+html[data-theme="oled"] { --forum-bg: #000; --forum-surface: #0a0a0a; --forum-ink: #fff; --forum-muted: #b3b3b3; --forum-line: #222; --forum-accent: #f0c777; --forum-accent-soft: #111; --forum-link: #f0c777; color-scheme: dark; }
+
+html, body { background: var(--forum-bg); color: var(--forum-ink); }
+body { font: 15px/1.55 Inter, system-ui, sans-serif; }
+a, a:link, a:visited { color: var(--forum-link); }
+a:hover, a:focus { color: var(--forum-accent); }
+.dnd-forum-header { position: sticky; top: 0; z-index: 20; background: var(--forum-bg); border-bottom: 1px solid var(--forum-line); color: var(--forum-ink); }
+.dnd-forum-header-inner { box-sizing: border-box; max-width: 1320px; min-height: 72px; margin: auto; padding: .8rem 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.5rem; }
+.dnd-forum-brand { display: inline-flex; align-items: center; gap: .75rem; text-decoration: none; color: var(--forum-ink) !important; white-space: nowrap; }
+.dnd-forum-brand strong { display: block; font-size: 1.4rem; line-height: 1.1; letter-spacing: -.04em; }
+.dnd-forum-brand strong span { color: var(--forum-accent); }
+.dnd-forum-brand small { display: block; margin-top: .2rem; color: var(--forum-muted); font-size: .72rem; }
+.dnd-forum-brand-symbol { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 10px; background: var(--forum-accent); color: #fff; font-weight: 800; font-size: .72rem; }
+html[data-theme="oled"] .dnd-forum-brand-symbol { color: #000; }
+.dnd-forum-links { display: flex; align-items: center; gap: .8rem; font-weight: 700; }
+.dnd-forum-links a { padding: .45rem .65rem; text-decoration: none; border-radius: 8px; }
+.dnd-forum-links a[aria-current="page"] { background: var(--forum-accent-soft); }
+.dnd-forum-language { display: inline-flex; gap: .25rem; }
+.dnd-forum-language a { padding: .4rem .55rem; border: 1px solid var(--forum-line); border-radius: 7px; text-decoration: none; font-size: .8rem; font-weight: 700; }
+.dnd-forum-language a[aria-current="page"] { border-color: var(--forum-accent); background: var(--forum-accent-soft); }
+.theme-picker { display: inline-flex; align-items: center; gap: .45rem; color: var(--forum-ink); font-size: .82rem; font-weight: 700; }
+.theme-picker[hidden] { display: none; }
+.theme-picker select { min-height: 40px; padding: .35rem .65rem; border: 1px solid var(--forum-line); border-radius: 999px; background: var(--forum-surface); color: var(--forum-ink); font: inherit; }
+.dnd-forum-header a:focus-visible, .dnd-forum-header select:focus-visible { outline: 3px solid var(--forum-accent); outline-offset: 2px; }
+
+#wrap { box-sizing: border-box; max-width: 1320px; margin: 1.2rem auto; padding: 1.2rem; background: var(--forum-surface); border: 1px solid var(--forum-line); border-radius: 16px; box-shadow: none; }
+#page-header .headerbar { min-height: 0; background: var(--forum-surface); color: var(--forum-ink); border: 0; }
+#site-description { display: none; }
+#search-box.search-header { float: none; width: min(100%, 420px); margin: .4rem 0 1rem auto; }
+#search-box { box-sizing: border-box; width: 100%; border: 1px solid var(--forum-line); border-radius: 9px; background: var(--forum-surface); box-shadow: none; }
+#search-box fieldset { display: flex; align-items: center; }
+#search-box input { box-sizing: border-box; flex: 1; min-width: 0; background: var(--forum-surface); color: var(--forum-ink); border: 0; }
+#search-box input::placeholder { color: var(--forum-muted); opacity: 1; }
+#search-box a, #search-box button { color: var(--forum-link); }
+.navbar, .forabg, .forumbg { border-radius: 10px; background: var(--forum-accent); }
+.navbar { background: var(--forum-accent-soft); color: var(--forum-ink); }
+.navbar a, .navbar a:link, .navbar a:visited { color: var(--forum-link); }
+.forabg .header, .forumbg .header { color: #fff; }
+html[data-theme="oled"] .forabg, html[data-theme="oled"] .forumbg { background: #111; border: 1px solid var(--forum-line); }
+html[data-theme="oled"] .forabg .header, html[data-theme="oled"] .forumbg .header { color: var(--forum-accent); }
+ul.forums, ul.topics, .bg1, .bg2, .bg3, .panel, .post { background: var(--forum-surface); color: var(--forum-ink); }
+li.row { border-top-color: var(--forum-line); }
+ul.forums li.row, ul.topics li.row { border-bottom-color: var(--forum-line); }
+li.row:hover, .bg1:hover, .bg2:hover { background: var(--forum-accent-soft); }
+.forabg .header dd, .forumbg .header dd { font-size: .72rem; white-space: nowrap; }
+.forumtitle, .topictitle, h2, h3 { color: var(--forum-ink) !important; }
+.forumdesc, .responsive-hide, .pagination, .postprofile, .content { color: var(--forum-muted); }
+.forabg .list-inner, .forumbg .list-inner, .panel, .postbody, .postprofile, .postprofile dt, .postprofile dd, .content, .forumdesc { color: var(--forum-muted); }
+ul.forums dd, ul.topics dd, ul.forums .lastpost span, ul.topics .lastpost span, .copyright { color: var(--forum-muted); }
+html:is([data-theme="dark"], [data-theme="oled"]) .username-coloured { color: var(--forum-link) !important; }
+input.inputbox, textarea.inputbox, select, .button, .button2 { background: var(--forum-surface); color: var(--forum-ink); border: 1px solid var(--forum-line); border-radius: 7px; }
+html[data-theme] input.inputbox, html[data-theme] textarea.inputbox { background: var(--forum-surface); color: var(--forum-ink); }
+input.inputbox:focus-visible, textarea.inputbox:focus-visible, select:focus-visible, .button:focus-visible, .button2:focus-visible { outline: 2px solid var(--forum-accent); outline-offset: 1px; }
+.button:hover { border-color: var(--forum-accent); }
+form.headerspace { padding: 1rem 0; border-top: 1px solid var(--forum-line); }
+form.headerspace fieldset.quick-login { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+form.headerspace fieldset.quick-login label { color: var(--forum-ink); }
+form.headerspace fieldset.quick-login input.inputbox { width: 175px; min-height: 36px; margin-left: .35rem; padding: .35rem .5rem; }
+form.headerspace fieldset.quick-login .button2 { min-height: 36px; padding: .35rem .8rem; background: var(--forum-accent); color: #fff; cursor: pointer; }
+html[data-theme="oled"] form.headerspace fieldset.quick-login .button2 { color: #000; }
+html[data-theme="oled"] .stat-block, html[data-theme="oled"] .stat-block p, html[data-theme="oled"] .stat-block h3 { color: var(--forum-ink); }
+.post { border: 1px solid var(--forum-line); border-radius: 9px; }
+.postprofile .avatar img { max-width: 128px; max-height: 128px; object-fit: contain; }
+
+/* Keep LiteChat on the same palette as the catalog, including its mobile controls. */
+html[data-theme] .stoker-chat-messages,
+html[data-theme] .stoker-chat-input,
+html[data-theme] .stoker-chat-login,
+html[data-theme] .stoker-chat-input-wrap,
+html[data-theme] .stoker-chat-emoji-picker,
+html[data-theme] .stoker-chat-menu,
+html[data-theme] .stoker-chat-counter {
+  background: var(--forum-surface);
+  color: var(--forum-ink);
+  border-color: var(--forum-line);
+}
+html[data-theme] .stoker-chat-msg,
+html[data-theme] .stoker-chat-load-older { border-color: var(--forum-line); }
+html[data-theme] .stoker-chat-empty,
+html[data-theme] .stoker-chat-time,
+html[data-theme] .stoker-chat-edited,
+html[data-theme] .stoker-chat-lockdown-hint { color: var(--forum-muted); }
+html[data-theme] .stoker-chat-input input[type="text"],
+html[data-theme] .stoker-chat-edit-input { color: var(--forum-ink); background: var(--forum-surface); }
+html[data-theme] input#stoker-chat-text { font-size: 1rem; line-height: 1.4; height: 2.2rem; }
+html[data-theme] .stoker-chat-input input[type="text"]::placeholder { color: var(--forum-muted); opacity: 1; }
+html[data-theme] .stoker-chat-input button,
+html[data-theme] .stoker-chat-edit-save,
+html[data-theme] .stoker-chat-edit-cancel {
+  background: var(--forum-accent-soft);
+  color: var(--forum-link);
+  border-color: var(--forum-line);
+  box-shadow: none;
+}
+html[data-theme] .stoker-chat-menu-toggle,
+html[data-theme] .stoker-chat-menu-item { color: var(--forum-link); }
+html[data-theme] .stoker-chat-lockdown { background: var(--forum-bg); opacity: .92; }
+html[data-theme] .stoker-chat-lockdown-inner { color: var(--forum-ink); }
+html[data-theme] .stoker-chat.has-emoji-picker .stoker-chat-input .stoker-chat-emoji-btn { display: flex; }
+html[data-theme] .stoker-chat-emoji-picker[hidden] { display: none; }
+
+@media (max-width: 700px) {
+  .dnd-forum-header-inner { padding: .65rem 1rem; gap: .55rem; }
+  .dnd-forum-brand strong { font-size: 1.1rem; }
+  .dnd-forum-brand small { font-size: .6rem; }
+  .dnd-forum-brand-symbol { width: 2.2rem; height: 2.2rem; }
+  .theme-picker-label { display: none; }
+  .theme-picker select { min-height: 36px; }
+  .dnd-forum-links { order: 3; width: 100%; justify-content: flex-start; }
+  #search-box.search-header { width: 100%; }
+  form.headerspace fieldset.quick-login { display: grid; gap: .75rem; }
+  form.headerspace fieldset.quick-login label { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  form.headerspace fieldset.quick-login input.inputbox { width: min(65%, 240px); margin-left: 0; }
+  #wrap { margin: .5rem; padding: .65rem; border-radius: 10px; }
+  .stoker-chat-input { flex-wrap: wrap; }
+  .stoker-chat-input-wrap { min-width: 0; }
+  .stoker-chat-standalone .stoker-chat-messages { height: min(45vh, 360px); }
+}

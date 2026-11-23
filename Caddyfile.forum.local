@@ -1,0 +1,34 @@
+:80 {
+    encode zstd gzip
+
+    redir /forum /forum/ 308
+
+    handle_path /forum/* {
+        reverse_proxy forum_lab:80
+    }
+
+    handle_path /static/media/* {
+        root * /var/www/media
+        file_server
+    }
+
+    handle /static/css/forum.css {
+        rewrite * /forum.css
+        root * /var/www/forum-assets
+        file_server
+    }
+
+    handle_path /static/* {
+        root * /var/www/static
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /var/www/media
+        file_server
+    }
+
+    handle {
+        reverse_proxy app:8765
+    }
+}

@@ -14,6 +14,8 @@
 .language-picker a:hover { border-color: var(--gold); }
 .theme-picker[hidden] { display: none; }
 .navigation-toggle .navigation-toggle-label { font-size: .82rem; font-weight: 700; }
+.forum-nav-link { order: 1; display: inline-flex; align-items: center; min-height: 40px; padding: .35rem .65rem; border: 1px solid var(--line); border-radius: 8px; color: var(--blue); background: var(--paper); font-size: .82rem; font-weight: 700; text-decoration: none; }
+.forum-nav-link:hover, .forum-nav-link:focus-visible { border-color: var(--gold); text-decoration: underline; }
 .site-header .brand { order: 0; }
 .site-header .navigation-toggle { order: 1; }
 .theme-picker select {

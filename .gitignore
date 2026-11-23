@@ -30,3 +30,10 @@ env
 /dndtools/dndproject/local.py
 .env
 /dndtools/collected_static/
+
+# Private phpBB runtime files (the public extension ZIPs live in forum-lab/vendor).
+/forum-lab/config.php
+/forum-lab/store/
+/forum-lab/files/
+/forum-lab/cache/
+/forum-lab/images/avatars/upload/

@@ -828,6 +828,11 @@ class EditorialFlowTests(TestCase):
         })
         self.assertEqual(response['Location'], '/pt-br/reference/mysteries/?q=arcane')
         self.assertEqual(response.cookies[settings.LANGUAGE_COOKIE_NAME].value, 'pt-br')
+        forum_language = self.client.get(reverse('switch_language'), {
+            'language': 'pt-br', 'next': '/forum/viewtopic.php?t=3',
+        })
+        self.assertEqual(forum_language['Location'], '/forum/viewtopic.php?t=3')
+        self.assertEqual(forum_language.cookies[settings.LANGUAGE_COOKIE_NAME].value, 'pt-br')
         self.assertEqual(self.client.get(reverse('switch_language'), {
             'language': 'en-us', 'next': 'https://evil.example/',
         })['Location'], '/')

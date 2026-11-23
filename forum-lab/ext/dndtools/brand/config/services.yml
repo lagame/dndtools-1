@@ -1,0 +1,6 @@
+services:
+    dndtools.brand.language_listener:
+        class: dndtools\brand\event\language_listener
+        arguments: ['@request']
+        tags:
+            - { name: event.listener }

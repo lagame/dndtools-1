@@ -52,6 +52,7 @@ def menu_constants(request):
     return {
         'MenuItem': MenuItem,
         'catalog_navigation': catalog_navigation(request),
+        'forum_enabled': settings.FORUM_ENABLED,
     }
 
 

@@ -31,6 +31,17 @@ from dnd.templatetags.catalog_html import safe_catalog_html
 from dndproject import settings as project_settings
 
 
+class ForumNavigationTests(TestCase):
+    @override_settings(FORUM_ENABLED=False)
+    def test_forum_link_is_hidden_without_local_forum(self):
+        self.assertNotContains(self.client.get('/'), 'class="forum-nav-link"')
+
+    @override_settings(FORUM_ENABLED=True)
+    def test_forum_link_uses_local_gateway_in_both_languages(self):
+        self.assertContains(self.client.get('/'), 'class="forum-nav-link" href="/forum/">Forum</a>')
+        self.assertContains(self.client.get('/pt-br/'), 'class="forum-nav-link" href="/forum/">Fórum</a>')
+
+
 class AdminSecurityTests(TestCase):
     def test_custom_route_and_report_only_csp(self):
         login = reverse('admin:login')

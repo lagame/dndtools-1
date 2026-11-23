@@ -1,0 +1,15 @@
+diff --git a/ext/stoker/chat/controller/main_controller.php b/ext/stoker/chat/controller/main_controller.php
+--- a/ext/stoker/chat/controller/main_controller.php
++++ b/ext/stoker/chat/controller/main_controller.php
+@@ -994,10 +994,8 @@
+ 		$avatar = phpbb_get_user_avatar($row);
+ 		if ($avatar === '')
+ 		{
+ 			if ($this->default_avatar_html === null)
+ 			{
+-				$src = $this->path_helper->update_web_root_path(
+-					$this->root_path . 'ext/stoker/chat/styles/prosilver/theme/images/default_avatar.png'
+-				);
++				$src = '/forum/ext/stoker/chat/styles/prosilver/theme/images/default_avatar.png';
+ 				$this->default_avatar_html = '<img class="avatar" src="' . $src . '" width="32" height="32" alt="">';
+ 			}
