@@ -1,0 +1,10 @@
+{
+  "name": "dndtools/discussions",
+  "type": "phpbb-extension",
+  "description": "Catalog record discussions using phpBB topics",
+  "version": "0.1.0",
+  "license": "GPL-2.0-only",
+  "authors": [{ "name": "D&D Tools" }],
+  "require": { "php": ">=8.3" },
+  "extra": { "display-name": "D&D Tools record discussions", "soft-require": { "phpbb/phpbb": ">=3.3.19" } }
+}

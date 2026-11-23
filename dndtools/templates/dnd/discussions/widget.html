@@ -1,0 +1,13 @@
+{% load i18n %}
+{% if discussion_kind %}
+<section class="record-discussions" aria-labelledby="record-discussions-heading">
+  <div class="record-discussions-heading">
+    <div>
+      <h2 id="record-discussions-heading">{% translate 'Discuss this record' %}</h2>
+      <p>{% translate 'Questions, interpretations and corrections stay connected to this catalog entry.' %}</p>
+    </div>
+    <a href="/forum/">{% translate 'Open the forum' %} →</a>
+  </div>
+  <iframe class="record-discussions-frame" title="{% translate 'Discussions for this record' %}" src="/forum/app.php/record/{{ discussion_kind }}/{{ discussion_id }}" loading="lazy"></iframe>
+</section>
+{% endif %}

@@ -3505,3 +3505,15 @@ msgstr "Adicionar detalhes específicos da fonte"
 #: templates/dnd/layout.html
 msgid "Forum"
 msgstr "Fórum"
+
+msgid "Discuss this record"
+msgstr "Discutir este registro"
+
+msgid "Questions, interpretations and corrections stay connected to this catalog entry."
+msgstr "Dúvidas, interpretações e correções ficam ligadas a esta ficha do catálogo."
+
+msgid "Open the forum"
+msgstr "Abrir o fórum"
+
+msgid "Discussions for this record"
+msgstr "Discussões deste registro"

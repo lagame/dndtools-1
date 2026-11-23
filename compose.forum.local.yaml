@@ -9,6 +9,7 @@ services:
       - "127.0.0.1:18767:80"
     volumes:
       - ./forum-lab/ext/dndtools/brand:/var/www/html/ext/dndtools/brand:ro
+      - ./forum-lab/ext/dndtools/discussions:/var/www/html/ext/dndtools/discussions:ro
       - forum_lab_data:/var/lib/phpbb
 
   forum_gateway:

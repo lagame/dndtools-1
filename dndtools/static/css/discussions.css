@@ -1,0 +1,6 @@
+.record-discussions { margin-top: 2rem; padding: 1.25rem; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); color: var(--ink); }
+.record-discussions-heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .6rem 1rem; }
+.record-discussions-heading h2 { margin: 0; }
+.record-discussions-heading p { margin: .3rem 0 1rem; }
+.record-discussions-frame { display: block; width: 100%; min-height: 320px; border: 0; background: transparent; }
+@media (max-width: 700px) { .record-discussions { padding: .75rem; } .record-discussions-frame { min-height: 400px; } }

@@ -78,6 +78,24 @@ html[data-theme="oled"] .stat-block, html[data-theme="oled"] .stat-block p, html
 .member-avatar-thumb { display: inline-flex; width: 32px; height: 32px; margin-right: .45rem; vertical-align: middle; align-items: center; flex: none; }
 .member-avatar-thumb img { display: block; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 
+/* Catalog-linked conversations retain phpBB's editor and permissions. */
+.dnd-record-board { padding: .8rem 0 1.2rem; color: var(--forum-ink); }
+.dnd-record-board h2 { margin: 0 0 1rem; color: var(--forum-ink); }
+.dnd-record-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-bottom: 1rem; }
+.dnd-record-actions .button { display: inline-flex; align-items: center; min-height: 38px; padding: .4rem .8rem; text-decoration: none; }
+.dnd-record-topic-list { display: grid; gap: .55rem; }
+.dnd-record-topic { display: flex; flex-wrap: wrap; gap: .25rem .8rem; align-items: baseline; padding: .7rem .8rem; border: 1px solid var(--forum-line); border-radius: 8px; background: var(--forum-surface); }
+.dnd-record-topic > a { font-weight: 700; flex: 1 1 12rem; }
+.dnd-record-topic > span, .dnd-record-topic > small { color: var(--forum-muted); }
+.dnd-record-forum-link, .dnd-topic-record-link { margin: .8rem 0; }
+.dnd-topic-record-link { padding: .6rem .8rem; border-left: 3px solid var(--forum-accent); background: var(--forum-surface); }
+html[data-embedded] .dnd-forum-header, html[data-embedded] #page-header,
+html[data-embedded] #page-footer, html[data-embedded] .copyright { display: none !important; }
+html[data-embedded] body { background: transparent; }
+html[data-embedded] #wrap { width: 100%; max-width: none; margin: 0; padding: .4rem; border: 0; box-shadow: none; background: transparent; }
+html[data-embedded] #page-body { margin: 0; }
+html[data-embedded] .dnd-record-board h2 { font-size: 1.35rem; }
+
 /* Keep LiteChat on the same palette as the catalog, including its mobile controls. */
 html[data-theme] .stoker-chat-messages,
 html[data-theme] .stoker-chat-input,
@@ -116,6 +134,8 @@ html[data-theme] .stoker-chat.has-emoji-picker .stoker-chat-input .stoker-chat-e
 html[data-theme] .stoker-chat-emoji-picker[hidden] { display: none; }
 
 @media (max-width: 700px) {
+  .dnd-record-actions { display: grid; grid-template-columns: 1fr; }
+  .dnd-record-actions .button { justify-content: center; }
   .dnd-forum-header-inner { padding: .65rem 1rem; gap: .55rem; }
   .dnd-forum-brand strong { font-size: 1.1rem; }
   .dnd-forum-brand small { font-size: .6rem; }

@@ -1,0 +1,27 @@
+{% INCLUDE 'overall_header.html' %}
+<div class="dnd-record-board">
+  <h2>{% if DND_PT %}Discutir: {{ DND_RECORD_NAME }}{% else %}Discuss: {{ DND_RECORD_NAME }}{% endif %}</h2>
+  {% if DND_CAN_POST %}
+  <div class="dnd-record-actions">
+    <a class="button" href="{{ DND_POST_URL }}&amp;dnd_type=question">{% if DND_PT %}Fazer uma pergunta{% else %}Ask a question{% endif %}</a>
+    <a class="button" href="{{ DND_POST_URL }}&amp;dnd_type=discussion">{% if DND_PT %}Iniciar discussão{% else %}Start a discussion{% endif %}</a>
+    <a class="button" href="{{ DND_POST_URL }}&amp;dnd_type=correction">{% if DND_PT %}Sugerir correção{% else %}Suggest a correction{% endif %}</a>
+  </div>
+  {% else %}
+  <p>{% if DND_PT %}Entre no fórum para participar. Uma conta ativada por e-mail é necessária.{% else %}Sign in to participate. Your account must be activated by email.{% endif %}
+    <a href="{{ DND_LOGIN_URL }}">{% if DND_PT %}Entrar{% else %}Log in{% endif %}</a> · <a href="{{ DND_REGISTER_URL }}">{% if DND_PT %}Cadastrar{% else %}Register{% endif %}</a></p>
+  {% endif %}
+  <div class="dnd-record-topic-list">
+  {% for discussion in discussions %}
+    <article class="dnd-record-topic">
+      <a href="{{ discussion.URL }}">{{ discussion.TITLE }}</a>
+      <span>{% if discussion.TYPE == 'question' %}{% if DND_PT %}Pergunta{% else %}Question{% endif %}{% elseif discussion.TYPE == 'correction' %}{% if DND_PT %}Correção{% else %}Correction{% endif %}{% else %}{% if DND_PT %}Discussão{% else %}Discussion{% endif %}{% endif %}{% if discussion.PENDING %} · {% if DND_PT %}Aguardando moderação{% else %}Awaiting moderation{% endif %}{% endif %}</span>
+      <small>{{ discussion.REPLIES }} {% if DND_PT %}respostas{% else %}replies{% endif %} · {{ discussion.UPDATED }}</small>
+    </article>
+  {% else %}
+    <p>{% if DND_PT %}Ainda não há discussões sobre este registro.{% else %}No discussions about this record yet.{% endif %}</p>
+  {% endfor %}
+  </div>
+  <p class="dnd-record-forum-link"><a href="/forum/" target="_top">{% if DND_PT %}Explorar todo o fórum{% else %}Explore the full forum{% endif %} →</a></p>
+</div>
+{% INCLUDE 'overall_footer.html' %}

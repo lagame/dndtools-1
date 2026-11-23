@@ -1,0 +1,5 @@
+dndtools_discussions_record:
+    path: /record/{kind}/{id}
+    defaults:
+        _controller: dndtools.discussions.controller:display
+    methods: [GET]

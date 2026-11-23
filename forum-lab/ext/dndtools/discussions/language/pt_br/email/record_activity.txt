@@ -1,0 +1,7 @@
+Subject: D&D Tools: {ACTION} em {RECORD_NAME}
+
+{AUTHOR} publicou {ACTION} sobre {RECORD_NAME}.
+
+Leia e modere: {TOPIC_URL}
+
+{EMAIL_SIG}

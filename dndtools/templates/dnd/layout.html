@@ -1,4 +1,4 @@
-{% load static versioned_static i18n seo_tags %}<!doctype html>
+{% load static versioned_static i18n seo_tags discussion_tags %}<!doctype html>
 <html lang="{% if request.LANGUAGE_CODE == 'pt-br' %}pt-BR{% else %}en{% endif %}">
 <head>
   <meta charset="utf-8">
@@ -16,6 +16,7 @@
   <noscript><link rel="stylesheet" href="{% versioned_static 'css/identity.css' %}"><link rel="icon" href="{% static 'favicon.ico' %}"></noscript>
   <link rel="stylesheet" href="{% versioned_static 'css/privacy.css' %}">
   <link rel="stylesheet" href="{% versioned_static 'css/themes.css' %}">
+  {% if forum_enabled %}<link rel="stylesheet" href="{% versioned_static 'css/discussions.css' %}">{% endif %}
   {% block extra_meta %}{% endblock %}
   {% block extra_link %}{% endblock %}
   {% catalog_breadcrumb_json_ld %}
@@ -56,6 +57,7 @@
         {% if inaccurate_url %}<a class="report-link" href="{% url 'inaccurate_content' %}?url={{ inaccurate_url|urlencode }}">{% translate 'Report an issue with this page' %}</a>{% endif %}
         {% if is_admin %}<div class="edit">{% block admin_edit %}{% endblock %}</div>{% endif %}
         {% block content %}{% endblock %}
+        {% record_discussions %}
       </main>
       <aside class="sidebar" aria-label="{% translate 'Related information' %}">
         {% block sidebar %}{% endblock %}
@@ -98,5 +100,6 @@
   <script defer src="{% versioned_static 'js/navigation.js' %}"></script>
   <script defer src="{% versioned_static 'js/search_suggest.js' %}"></script>
   <script defer src="{% versioned_static 'js/privacy_notice.js' %}"></script>
+  {% if forum_enabled %}<script defer src="{% versioned_static 'js/discussions.js' %}"></script>{% endif %}
 </body>
 </html>

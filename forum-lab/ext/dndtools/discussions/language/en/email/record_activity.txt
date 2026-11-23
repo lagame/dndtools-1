@@ -1,0 +1,7 @@
+Subject: D&D Tools: {ACTION} on {RECORD_NAME}
+
+{AUTHOR} posted a {ACTION} about {RECORD_NAME}.
+
+Read and moderate: {TOPIC_URL}
+
+{EMAIL_SIG}

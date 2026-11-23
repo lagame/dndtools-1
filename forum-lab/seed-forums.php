@@ -28,6 +28,7 @@ $structure = [
     'Personagens e opções' => [
         'Classes e builds' => 'Planeje personagens e combinações de classes com objetivo e nível claros.',
         'Magias e talentos' => 'Converse sobre magias, talentos, pré-requisitos e interações.',
+        'Livros, itens e referências' => 'Discuta suplementos, equipamentos, fontes e referências do catálogo.',
     ],
     'Bestiário e mesas' => [
         'Monstros e templates' => 'Discuta criaturas, templates, encontros e fontes oficiais.',

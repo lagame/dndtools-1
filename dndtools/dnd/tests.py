@@ -26,6 +26,7 @@ from dnd.models import (
     TextFeatPrerequisite,
 )
 from dnd.templatetags.versioned_static import versioned_static
+from dnd.templatetags.discussion_tags import record_discussions
 from dnd.security import _tunnel_peers, axes_client_ip, axes_lockout_parameters
 from dnd.templatetags.catalog_html import safe_catalog_html
 from dndproject import settings as project_settings
@@ -40,6 +41,59 @@ class ForumNavigationTests(TestCase):
     def test_forum_link_uses_local_gateway_in_both_languages(self):
         self.assertContains(self.client.get('/'), 'class="forum-nav-link" href="/forum/">Forum</a>')
         self.assertContains(self.client.get('/pt-br/'), 'class="forum-nav-link" href="/forum/">Fórum</a>')
+
+
+class RecordDiscussionTests(TestCase):
+    @override_settings(FORUM_ENABLED=True)
+    def test_widget_uses_canonical_record_and_skips_lists(self):
+        request = SimpleNamespace(resolver_match=SimpleNamespace(url_name='spell_detail'))
+        result = record_discussions({'request': request, 'spell': SimpleNamespace(pk=2474)})
+        self.assertEqual(result, {'discussion_kind': 'spell', 'discussion_id': 2474})
+        request.resolver_match.url_name = 'spell_index'
+        self.assertEqual(record_discussions({'request': request}), {})
+
+        request.resolver_match.url_name = 'skill_variant_detail'
+        self.assertEqual(record_discussions({
+            'request': request, 'skill': SimpleNamespace(pk=5),
+            'selected_variant': SimpleNamespace(pk=19),
+        }), {'discussion_kind': 'skill_variant', 'discussion_id': 19})
+
+        request.resolver_match.url_name = 'character_class_variant_detail'
+        self.assertEqual(record_discussions({
+            'request': request, 'character_class': SimpleNamespace(pk=7),
+            'selected_variant': SimpleNamespace(pk=23),
+        }), {'discussion_kind': 'character_class_variant', 'discussion_id': 23})
+
+    @override_settings(FORUM_ENABLED=False)
+    def test_widget_is_hidden_without_forum(self):
+        request = SimpleNamespace(resolver_match=SimpleNamespace(url_name='feat_detail'))
+        self.assertEqual(record_discussions({'request': request, 'feat': SimpleNamespace(pk=1)}), {})
+
+    def test_metadata_rejects_unknown_kind_and_missing_record(self):
+        self.assertEqual(self.client.get('/forum-record/not-a-record/1/').status_code, 404)
+        self.assertEqual(self.client.get('/forum-record/spell/999999999/').status_code, 404)
+
+    def test_metadata_exposes_only_one_record_name_and_path(self):
+        record = SimpleNamespace(name='Test spell', get_absolute_url=lambda: '/spells/test--1/')
+        with patch('dnd.discussions.get_object_or_404', return_value=record):
+            response = self.client.get('/forum-record/spell/1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'name': 'Test spell', 'path': '/spells/test--1/'})
+
+    def test_variant_metadata_uses_the_source_specific_name(self):
+        class Variant:
+            def __str__(self):
+                return 'Appraise variant (Player Handbook)'
+
+            def get_absolute_url(self):
+                return '/skills/player-handbook--1/appraise/'
+
+        with patch('dnd.discussions.get_object_or_404', return_value=Variant()):
+            response = self.client.get('/forum-record/skill_variant/2/')
+        self.assertEqual(response.json(), {
+            'name': 'Appraise variant (Player Handbook)',
+            'path': '/skills/player-handbook--1/appraise/',
+        })
 
 
 class AdminSecurityTests(TestCase):

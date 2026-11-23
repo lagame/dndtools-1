@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     environment:
       DND_FORUM_PRODUCTION: "1"
+      DND_FORUM_CATALOG_HOST: dndtools.quest
     security_opt:
       - no-new-privileges:true
     volumes:

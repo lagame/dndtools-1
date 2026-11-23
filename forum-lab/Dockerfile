@@ -38,6 +38,7 @@ RUN echo '378abe4e6055a5bcfb6fec45a4b0a530cb760da0418a611426f32adc859b57ba  /tmp
     && rm -rf /tmp/phpbb-pt-br /tmp/phpbb-pt-br.zip /tmp/pt-br-avatar.php
 
 COPY ext/dndtools/brand /var/www/html/ext/dndtools/brand
+COPY ext/dndtools/discussions /var/www/html/ext/dndtools/discussions
 COPY vendor/ajax_litechat_2_1_0.zip /tmp/ajax-litechat.zip
 COPY patches/litechat-base-path.patch /tmp/litechat-base-path.patch
 RUN echo '22e4af7c297b256a6caf56127b18203be5b5e03f944d87b4efa0c52e75182503  /tmp/ajax-litechat.zip' | sha256sum -c - \

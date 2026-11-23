@@ -1,0 +1,11 @@
+services:
+    dndtools.discussions.controller:
+        class: dndtools\discussions\controller\record_controller
+        arguments: ['@auth', '@dbal.conn', '@controller.helper', '@template', '@user', '%tables.dndtools.record_topics%']
+    dndtools.discussions.listener:
+        class: dndtools\discussions\event\posting_listener
+        arguments: ['@auth', '@dbal.conn', '@request', '@template', '@user', '%tables.dndtools.record_topics%', '%core.root_path%']
+        tags:
+            - { name: event.listener }
+parameters:
+    tables.dndtools.record_topics: '%core.table_prefix%dnd_record_topics'
