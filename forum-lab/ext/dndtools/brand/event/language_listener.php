@@ -24,6 +24,16 @@ class language_listener implements EventSubscriberInterface
     public function use_catalog_language($event)
     {
         $cookie = $this->request->variable('django_language', '', false, request_interface::COOKIE);
+        $catalog_language = $this->request->variable('dnd_lang', '', false, request_interface::GET);
+        if ($catalog_language === 'pt-br' || $catalog_language === 'en-us')
+        {
+            $event['user_lang_name'] = $catalog_language === 'pt-br' ? 'pt_br' : 'en';
+            if ($cookie !== $catalog_language)
+            {
+                $this->set_language_cookie($event['user_lang_name']);
+            }
+            return;
+        }
         if ($cookie === 'pt-br' || $cookie === 'en-us')
         {
             $event['user_lang_name'] = $cookie === 'pt-br' ? 'pt_br' : 'en';

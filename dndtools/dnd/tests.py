@@ -46,9 +46,13 @@ class ForumNavigationTests(TestCase):
 class RecordDiscussionTests(TestCase):
     @override_settings(FORUM_ENABLED=True)
     def test_widget_uses_canonical_record_and_skips_lists(self):
-        request = SimpleNamespace(resolver_match=SimpleNamespace(url_name='spell_detail'))
+        request = SimpleNamespace(resolver_match=SimpleNamespace(url_name='spell_detail'), LANGUAGE_CODE='en-us')
         result = record_discussions({'request': request, 'spell': SimpleNamespace(pk=2474)})
-        self.assertEqual(result, {'discussion_kind': 'spell', 'discussion_id': 2474})
+        self.assertEqual(result, {'discussion_kind': 'spell', 'discussion_id': 2474, 'discussion_language': 'en-us'})
+        request.LANGUAGE_CODE = 'pt-br'
+        self.assertEqual(record_discussions({'request': request, 'spell': SimpleNamespace(pk=2474)}), {
+            'discussion_kind': 'spell', 'discussion_id': 2474, 'discussion_language': 'pt-br',
+        })
         request.resolver_match.url_name = 'spell_index'
         self.assertEqual(record_discussions({'request': request}), {})
 
@@ -56,13 +60,13 @@ class RecordDiscussionTests(TestCase):
         self.assertEqual(record_discussions({
             'request': request, 'skill': SimpleNamespace(pk=5),
             'selected_variant': SimpleNamespace(pk=19),
-        }), {'discussion_kind': 'skill_variant', 'discussion_id': 19})
+        }), {'discussion_kind': 'skill_variant', 'discussion_id': 19, 'discussion_language': 'pt-br'})
 
         request.resolver_match.url_name = 'character_class_variant_detail'
         self.assertEqual(record_discussions({
             'request': request, 'character_class': SimpleNamespace(pk=7),
             'selected_variant': SimpleNamespace(pk=23),
-        }), {'discussion_kind': 'character_class_variant', 'discussion_id': 23})
+        }), {'discussion_kind': 'character_class_variant', 'discussion_id': 23, 'discussion_language': 'pt-br'})
 
     @override_settings(FORUM_ENABLED=False)
     def test_widget_is_hidden_without_forum(self):

@@ -161,7 +161,7 @@ class posting_listener implements EventSubscriberInterface
         $record = self::record($row['record_kind'], (int) $row['record_id']);
         if ($record)
         {
-            $is_pt = $this->user->data['user_lang'] === 'pt_br';
+            $is_pt = $this->user->lang_name === 'pt_br';
             $path = $is_pt ? '/pt-br' . $record['path'] : $record['path'];
             $this->template->assign_vars(['DND_LINKED_RECORD_NAME' => $record['name'], 'DND_LINKED_RECORD_URL' => $path, 'DND_PT' => $is_pt]);
         }

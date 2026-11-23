@@ -70,7 +70,7 @@ class record_controller
             'DND_POST_URL' => $can_post ? '/forum/posting.php?mode=post&f=' . $forum_id . '&dnd_kind=' . rawurlencode($kind) . '&dnd_id=' . $id : '',
             'DND_LOGIN_URL' => '/forum/ucp.php?mode=login',
             'DND_REGISTER_URL' => '/forum/ucp.php?mode=register',
-            'DND_PT' => $this->user->data['user_lang'] === 'pt_br',
+            'DND_PT' => $this->user->lang_name === 'pt_br',
         ]);
         return $this->helper->render('record.html', $record['name'], 200, true);
     }

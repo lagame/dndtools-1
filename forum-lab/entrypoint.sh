@@ -6,6 +6,10 @@ if [ "${DND_FORUM_PRODUCTION:-0}" != 1 ]; then
     cp -an /var/www/html/store/. /var/lib/phpbb/store/
     mv /var/www/html/store /var/www/html/store-distribution
     ln -s /var/lib/phpbb/store /var/www/html/store
+    mkdir -p /var/lib/phpbb/avatars
+    cp -an /var/www/html/images/avatars/upload/. /var/lib/phpbb/avatars/
+    mv /var/www/html/images/avatars/upload /var/www/html/images/avatars/upload-distribution
+    ln -s /var/lib/phpbb/avatars /var/www/html/images/avatars/upload
     if [ -s /var/lib/phpbb/config.php ]; then
         cp /var/lib/phpbb/config.php /var/www/html/config.php
         chown www-data:www-data /var/www/html/config.php

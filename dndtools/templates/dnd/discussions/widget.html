@@ -8,6 +8,6 @@
     </div>
     <a href="/forum/">{% translate 'Open the forum' %} →</a>
   </div>
-  <iframe class="record-discussions-frame" title="{% translate 'Discussions for this record' %}" src="/forum/app.php/record/{{ discussion_kind }}/{{ discussion_id }}" loading="lazy"></iframe>
+  <iframe class="record-discussions-frame" title="{% translate 'Discussions for this record' %}" src="/forum/app.php/record/{{ discussion_kind }}/{{ discussion_id }}?dnd_lang={{ discussion_language }}" loading="lazy"></iframe>
 </section>
 {% endif %}

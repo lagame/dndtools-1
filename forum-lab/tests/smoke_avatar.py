@@ -89,6 +89,10 @@ def main():
                     assert response.headers["content-type"].startswith("image/webp")
                     assert b"DNDTOOLS_UNTRUSTED_TRAILER" not in response.body()
                     assert Image.open(io.BytesIO(response.body())).size == (300, 300)
+                    thumbnail = page.request.get(urljoin(page.url, source + "&thumb=1"))
+                    assert thumbnail.status == 200, f"{extension}: thumbnail unavailable"
+                    assert thumbnail.headers["content-type"].startswith("image/webp")
+                    assert Image.open(io.BytesIO(thumbnail.body())).size == (64, 64)
 
                 page.locator('input[name="avatar_upload_file"]').set_input_files({
                     "name": "portrait.jpg", "mimeType": "image/jpeg",

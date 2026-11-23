@@ -37,4 +37,8 @@ def record_discussions(context):
     record = context.get(object_key)
     if not record:
         return {}
-    return {'discussion_kind': kind, 'discussion_id': record.pk}
+    return {
+        'discussion_kind': kind,
+        'discussion_id': record.pk,
+        'discussion_language': 'pt-br' if request.LANGUAGE_CODE == 'pt-br' else 'en-us',
+    }

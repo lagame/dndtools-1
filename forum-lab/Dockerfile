@@ -39,6 +39,7 @@ RUN echo '378abe4e6055a5bcfb6fec45a4b0a530cb760da0418a611426f32adc859b57ba  /tmp
 
 COPY ext/dndtools/brand /var/www/html/ext/dndtools/brand
 COPY ext/dndtools/discussions /var/www/html/ext/dndtools/discussions
+COPY ext/alfredoramos/markdown /var/www/html/ext/alfredoramos/markdown
 COPY vendor/ajax_litechat_2_1_0.zip /tmp/ajax-litechat.zip
 COPY patches/litechat-base-path.patch /tmp/litechat-base-path.patch
 RUN echo '22e4af7c297b256a6caf56127b18203be5b5e03f944d87b4efa0c52e75182503  /tmp/ajax-litechat.zip' | sha256sum -c - \
@@ -51,6 +52,8 @@ COPY install-language.php /usr/local/bin/dndtools-install-language.php
 COPY configure-chat.php /usr/local/bin/dndtools-configure-chat.php
 COPY publish-rules.php /usr/local/bin/dndtools-publish-rules.php
 COPY repair-topic-authors.php /usr/local/bin/dndtools-repair-topic-authors.php
+COPY enable-extensions.php /usr/local/bin/dndtools-enable-extensions.php
+COPY ensure-reference-forum.php /usr/local/bin/dndtools-ensure-reference-forum.php
 COPY entrypoint.sh /usr/local/bin/dndtools-forum-entrypoint
 RUN chmod 755 /usr/local/bin/dndtools-forum-entrypoint
 

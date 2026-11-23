@@ -45,6 +45,8 @@ compose=(docker compose -f compose.yaml -f compose.tunnel.yaml -f compose.forum.
 "${compose[@]}" run --rm app python manage.py curate_rulebooks --apply
 "${compose[@]}" up -d --wait app forum tunnel_proxy
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-install-language.php
+"${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-ensure-reference-forum.php
+"${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-enable-extensions.php
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-configure-chat.php
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-publish-rules.php
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-repair-topic-authors.php
@@ -54,6 +56,8 @@ curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error 
 curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --output /dev/null http://127.0.0.1:8766/static/css/modern.css
 curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/forum/
 curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --header 'Host: dndtools.quest' http://127.0.0.1:8766/forum/ | python3 -c 'import sys; assert "<html dir=\"ltr\" lang=\"pt-br\">" in sys.stdin.read(), "Forum language is not Brazilian Portuguese"'
+curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --header 'Host: dndtools.quest' 'http://127.0.0.1:8766/forum/app.php/help/markdown?dnd_lang=pt-br' | python3 -c 'import sys; assert "Guia de Markdown" in sys.stdin.read(), "Portuguese Markdown help is missing"'
+curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --header 'Host: dndtools.quest' 'http://127.0.0.1:8766/forum/app.php/record/spell/1094?dnd_lang=pt-br' | python3 -c 'import sys; assert "Entre no fórum" in sys.stdin.read(), "Catalog discussion is unavailable"'
 test "$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --header 'Host: dndtools.quest' http://127.0.0.1:8766/forum/adm/index.php)" = 404
 test "$(curl --silent --show-error --output /dev/null --write-out '%{redirect_url}' --header 'Host: www.dndtools.quest' http://127.0.0.1:8766/spells/)" = 'https://dndtools.quest/spells/'
 curl --fail --silent --show-error --header 'Host: dndtools.quest' http://127.0.0.1:8766/sitemap.xml |

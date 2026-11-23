@@ -10,6 +10,7 @@ services:
     volumes:
       - ./forum-lab/ext/dndtools/brand:/var/www/html/ext/dndtools/brand:ro
       - ./forum-lab/ext/dndtools/discussions:/var/www/html/ext/dndtools/discussions:ro
+      - ./forum-lab/ext/alfredoramos/markdown:/var/www/html/ext/alfredoramos/markdown:ro
       - forum_lab_data:/var/lib/phpbb
 
   forum_gateway:

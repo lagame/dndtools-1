@@ -3,6 +3,7 @@
 import re
 import secrets
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -24,7 +25,7 @@ def docker(*args, input_text=None):
     return result.stdout
 
 
-def main():
+def main(markdown=False):
     username = "chatqa_" + secrets.token_hex(4)
     password = secrets.token_urlsafe(24)
     title = "Catalog discussion QA " + secrets.token_hex(4)
@@ -43,6 +44,19 @@ def main():
             browser = playwright.chromium.launch(headless=True)
             try:
                 page = browser.new_page(viewport={"width": 390, "height": 844})
+                page.goto(BASE + "/pt-br" + RECORD)
+                frame = page.frame_locator(".record-discussions-frame")
+                expect(page.get_by_role("heading", name="Discutir este registro")).to_be_visible()
+                expect(frame.get_by_text("Entre no fórum para participar.", exact=False)).to_be_visible()
+                assert frame.locator(".dnd-record-board h2").count() == 0
+                assert frame.get_by_text("Explorar todo o fórum").count() == 0
+                assert any(cookie["name"] == "django_language" and cookie["value"] == "pt-br"
+                           for cookie in page.context.cookies(BASE))
+                page.goto(BASE + RECORD)
+                frame = page.frame_locator(".record-discussions-frame")
+                expect(frame.get_by_text("Sign in to participate.", exact=False)).to_be_visible()
+                assert any(cookie["name"] == "django_language" and cookie["value"] == "en-us"
+                           for cookie in page.context.cookies(BASE))
                 page.context.add_cookies([{
                     "name": "django_language", "value": "pt-br", "domain": "127.0.0.1", "path": "/"
                 }])
@@ -53,10 +67,9 @@ def main():
                 page.locator('input[name="login"]').click()
                 assert username in page.locator("body").inner_text()
 
-                page.goto(BASE + RECORD)
+                page.goto(BASE + "/pt-br" + RECORD)
                 expect(page.locator(".record-discussions-frame")).to_be_visible()
                 frame = page.frame_locator(".record-discussions-frame")
-                expect(frame.get_by_role("heading", name="Discutir: Abate Dracorage")).to_be_visible()
                 frame.get_by_role("link", name="Iniciar discussão").click()
                 expect(frame.locator('input[name="subject"]')).to_be_visible()
                 assert frame.locator("body").evaluate(
@@ -65,7 +78,12 @@ def main():
                 assert frame.locator('input[name="dnd_kind"]').input_value() == "spell"
                 assert frame.locator('input[name="dnd_id"]').input_value() == "1094"
                 frame.locator('input[name="subject"]').fill(title)
-                frame.locator('textarea[name="message"]').fill("Testando a conversa ligada à ficha.")
+                if markdown:
+                    expect(frame.locator('input[name="disable_markdown"]')).to_have_count(1)
+                    expect(frame.locator('.markdown-status')).to_contain_text('ativado')
+                message = ("**Markdown em negrito** na conversa ligada à ficha."
+                           if markdown else "Testando a conversa ligada à ficha.")
+                frame.locator('textarea[name="message"]').fill(message)
                 time.sleep(6)
                 frame.locator('input[name="post"]').click()
                 expect(frame.get_by_text(title).first).to_be_visible(timeout=15000)
@@ -75,6 +93,8 @@ def main():
                 match = re.search(r"[?&]t=(\d+)", topic_url)
                 assert match, f"No topic ID after posting: {topic_url}"
                 topic_id = int(match.group(1))
+                if markdown:
+                    expect(frame.locator('.postbody strong').filter(has_text='Markdown em negrito')).to_be_visible()
                 catalog_link = frame.get_by_role("link", name="Abate Dracorage")
                 expect(catalog_link).to_be_visible()
                 assert catalog_link.get_attribute("href").startswith("/pt-br/spells/")
@@ -103,4 +123,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(markdown='--markdown' in sys.argv[1:])
