@@ -37,6 +37,11 @@ def main():
                         page.screenshot(path=str(output / f"forum-{theme}-{width}.png"))
             page.set_viewport_size({"width": 390, "height": 844})
             page.get_by_role("link", name="Apresentações e ajuda").click()
+            welcome_row = page.locator("li.row").filter(
+                has=page.get_by_role("link", name="Bem-vindo ao fórum D&D Tools")
+            )
+            expect(welcome_row.get_by_text("Ronassic").first).to_be_visible()
+            assert "Visitante" not in welcome_row.inner_text()
             page.get_by_role("link", name="Regras do fórum D&D Tools").click()
             expect(page.get_by_text("1. Respeite as pessoas")).to_be_visible()
             expect(page.get_by_text("4. Organize o assunto para que outras pessoas o encontrem")).to_be_visible()

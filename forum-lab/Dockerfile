@@ -49,6 +49,7 @@ COPY chat-pt-br /var/www/html/ext/stoker/chat/language/pt_br
 COPY install-language.php /usr/local/bin/dndtools-install-language.php
 COPY configure-chat.php /usr/local/bin/dndtools-configure-chat.php
 COPY publish-rules.php /usr/local/bin/dndtools-publish-rules.php
+COPY repair-topic-authors.php /usr/local/bin/dndtools-repair-topic-authors.php
 COPY entrypoint.sh /usr/local/bin/dndtools-forum-entrypoint
 RUN chmod 755 /usr/local/bin/dndtools-forum-entrypoint
 
