@@ -44,7 +44,7 @@ compose=(docker compose -f compose.yaml -f compose.tunnel.yaml -f compose.forum.
 "${compose[@]}" run --rm app python manage.py migrate --noinput
 "${compose[@]}" run --rm app python manage.py curate_rulebooks --apply
 "${compose[@]}" up -d --wait app forum tunnel_proxy
-"${compose[@]}" exec -T forum php /usr/local/bin/dndtools-install-language.php
+"${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-install-language.php
 # Compose does not recreate a service when only a bind-mounted Caddyfile changes.
 "${compose[@]}" up -d --no-deps --force-recreate --wait tunnel_proxy
 curl --retry 15 --retry-delay 2 --retry-all-errors --fail --silent --show-error --output /dev/null --header 'Host: dndtools.quest' http://127.0.0.1:8766/

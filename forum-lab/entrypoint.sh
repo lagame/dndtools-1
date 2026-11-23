@@ -24,4 +24,6 @@ if [ -d /var/www/html/adm ]; then
 fi
 test -d "/var/www/html/$admin_dir" || { echo 'phpBB admin directory is missing.' >&2; exit 1; }
 test -s /var/lib/phpbb/forum.sqlite || { echo 'Forum database is missing.' >&2; exit 1; }
+mkdir -p /var/www/html/cache/production
+chown -R www-data:www-data /var/www/html/cache
 exec docker-php-entrypoint "$@"
