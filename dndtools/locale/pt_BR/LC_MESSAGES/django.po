@@ -1185,6 +1185,27 @@ msgstr "Código do convite"
 msgid "Editorial workspace"
 msgstr "Área editorial"
 
+#: templates/admin/base_site.html
+msgid "Account and language"
+msgstr "Conta e idioma"
+
+#: templates/admin/base_site.html
+msgid "Sign out / switch account"
+msgstr "Sair / trocar de conta"
+
+#: dnd/editorial_import.py
+msgid "JSON records must declare resource. Download the current example for this importer."
+msgstr "Cada registro JSON deve declarar resource. Baixe o exemplo atual deste importador."
+
+#: dnd/editorial_import.py
+#, python-format
+msgid "This file declares %(actual)s, but this form imports %(expected)s. Use the correct importer."
+msgstr "Este arquivo declara %(actual)s, mas este formulário importa %(expected)s. Use o importador correto."
+
+#: templates/admin/editorial/import.html
+msgid "Each JSON record must declare the resource shown in the downloaded example. Files for another catalog type are rejected."
+msgstr "Cada registro JSON deve declarar o recurso mostrado no exemplo para download. Arquivos de outro tipo de catálogo são recusados."
+
 #: dnd/editorial_views.py:149
 msgid ""
 "The invitation could not be sent. Please try again; no account was changed."
@@ -3659,8 +3680,8 @@ msgid "Import records directly"
 msgstr "Importar registros diretamente"
 
 #: templates/admin/editorial/invite.html
-msgid "Choose the resources and actions this collaborator may use. Direct import is a separate permission for trusted editors. Ronassic reviews ordinary proposals. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions."
-msgstr "Escolha os recursos e ações que o colaborador poderá usar. A importação direta tem uma permissão própria para editores de confiança. Ronassic revisa as propostas comuns. O colaborador receberá um código de ativação por e-mail. Reenviar o convite de uma conta pendente ou revogada substitui seu código e suas permissões."
+msgid "Choose the resources and actions this collaborator may use. Ronassic reviews proposals before publication. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions."
+msgstr "Escolha os recursos e ações que o colaborador poderá usar. Ronassic revisa as propostas antes da publicação. O colaborador receberá um código de ativação por e-mail. Reenviar o convite de uma conta pendente ou revogada substitui seu código e suas permissões."
 
 #: templates/admin/editorial/review.html
 msgid "Published by direct import:"

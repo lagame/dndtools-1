@@ -1,6 +1,10 @@
 /* Use Django's native controls and theme preference with the Standard palette. */
-.editorial-language { margin-left: 1rem; white-space: nowrap; }
+.editorial-nav-tools { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .75rem 1rem; }
+.editorial-language { white-space: nowrap; }
 .editorial-language a[aria-current="true"] { font-weight: 700; text-decoration: underline; }
+.editorial-signout { margin: 0; }
+.editorial-signout button { border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 10px; background: var(--workspace-surface); color: var(--link-fg); cursor: pointer; font: inherit; }
+.editorial-signout button:hover { background: var(--selected-bg); }
 @font-face {
   font-family: Inter;
   src: url('../fonts/InterVariable.woff2') format('woff2');
@@ -314,7 +318,8 @@ body:not(.login) .editorial-upload input[type="file"] {
   body:not(.login) #header, body:not(.login) #content { padding: 22px; }
 }
 @media (max-width: 767px) {
-  body:not(.login) #header { padding: 18px 16px; }
+  body:not(.login) #header { padding: 18px 16px; flex-wrap: wrap; gap: 12px; }
+  .editorial-nav-tools { justify-content: flex-start; width: 100%; }
   body:not(.login) #content { padding: 20px 16px; }
   body:not(.login) div.breadcrumbs { padding: 12px 16px; }
   body:not(.login) #site-name span { display: block; margin-left: 0; }

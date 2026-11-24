@@ -223,8 +223,8 @@ class AdminSecurityTests(TestCase):
         with self.assertRaises(ValidationError):
             validate_password('short')
         with self.assertRaises(ValidationError):
-            validate_password('R9!mQ2x')
-        validate_password('R9!mQ2xP')
+            validate_password('K7!' + 'a' * 4)
+        validate_password('K7!' + 'a' * 5)
 
     def test_workspace_links_follow_model_permissions(self):
         editor = User.objects.create_user(username='book-editor', is_staff=True)
@@ -357,7 +357,7 @@ class CatalogSmokeTests(TestCase):
         domain_variant = DomainVariant.objects.create(domain=domain, rulebook=self.spell.rulebook)
         self.assertEqual(str(variant), 'Wizard variant (Test Handbook)')
         self.assertEqual(str(domain_variant), 'Fire variant (Test Handbook)')
-        editor = User.objects.create_superuser('editor', settings.ADMINS[0][1], 'Long-test-password-123')
+        editor = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1], 'Long-test-password-123')
         self.client.force_login(editor)
         choices = (
             ('admin:dnd_monster_add', (self.spell.rulebook, size, monster_type, subtype)),

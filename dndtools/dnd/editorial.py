@@ -16,7 +16,7 @@ from django.forms import modelform_factory
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from dnd.models import (CollaboratorInvite, EditorialGrant, EditorialProposal,
+from dnd.models import (EditorialGrant, EditorialProposal,
                         PublishedTranslation, Rulebook, SupplementalEntry)
 
 
@@ -186,6 +186,7 @@ def model_for(resource):
 
 def owner(user):
     return user.is_authenticated and user.is_active and user.is_superuser and (
+        user.username == settings.ADMINS[0][0] and
         user.email.casefold() == settings.ADMINS[0][1].casefold())
 
 
@@ -213,17 +214,7 @@ def can_import(user, resource, *, kind=None):
     if resource not in IMPORT_RESOURCES or (
             resource == 'SupplementalEntry' and kind not in KIND_LABELS):
         return False
-    if owner(user):
-        return True
-    if not user.is_authenticated or not user.is_active or not user.is_staff:
-        return False
-    if not CollaboratorInvite.objects.filter(user=user, access_state='active').exists():
-        return False
-    resources = [resource]
-    if kind:
-        resources.append('SupplementalEntry:' + kind)
-    return EditorialGrant.objects.filter(
-        user=user, resource__in=resources, can_create=True, can_import=True).exists()
+    return owner(user)
 
 
 def editable_form(resource, *, kind=None, target=None, structured=False):

@@ -60,8 +60,8 @@ EXAMPLE_FIELDS = {
 
 
 def example_file(resource, kind, file_format):
-    fields = ['source_reference', *editable_form(resource, kind=kind or None).base_fields]
-    example = {'name': 'Example record', 'rulebook': 'Example D&D 3.5 rulebook',
+    fields = ['resource', 'source_reference', *editable_form(resource, kind=kind or None).base_fields]
+    example = {'resource': resource, 'name': 'Example record', 'rulebook': 'Example D&D 3.5 rulebook',
                'source_reference': 'Example D&D 3.5 rulebook, p. 12'}
     if 'page' in fields:
         example['page'] = 12
@@ -171,7 +171,7 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
     if len(content.encode('utf-8')) > MAX_BYTES:
         raise forms.ValidationError(_('The file exceeds the %(mib)s MiB limit.') % {'mib': MAX_MIB})
     Form = editable_form(resource, kind=kind or None)
-    allowed = {'source_reference', *Form.base_fields}
+    allowed = {'resource', 'source_reference', *Form.base_fields}
     rows = []
     seen = set()
     try:
@@ -179,6 +179,15 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
             if len(rows) >= max_rows:
                 raise _row_limit_error(max_rows)
             try:
+                declared = row.get('resource')
+                if json_file and not declared:
+                    raise forms.ValidationError(_(
+                        'JSON records must declare resource. Download the current example for this importer.'))
+                if declared and declared != resource:
+                    raise forms.ValidationError(_(
+                        'This file declares %(actual)s, but this form imports %(expected)s. Use the correct importer.') % {
+                            'actual': declared, 'expected': resource,
+                        })
                 _check_columns(row, allowed)
                 source = row.get('source_reference')
                 if not isinstance(source, str) or not source.strip():

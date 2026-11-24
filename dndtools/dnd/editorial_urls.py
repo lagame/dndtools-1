@@ -3,6 +3,7 @@ from dnd import editorial_views as views
 
 urlpatterns = [
     path('', views.dashboard, name='editorial_dashboard'),
+    path('switch-account/', views.switch_account, name='editorial_switch_account'),
     path('invite/', views.invite, name='editorial_invite'),
     path('activate/', views.activate, name='editorial_activate'),
     path('invite/<int:invite_id>/revoke/', views.revoke, name='editorial_revoke'),

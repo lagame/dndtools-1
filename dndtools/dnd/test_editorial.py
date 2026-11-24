@@ -15,6 +15,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Permission
 from django.core import mail
+from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db import connections, transaction
@@ -33,7 +34,7 @@ from dnd.models import (CatalogImportBatch, CharacterClass, CollaboratorInvite, 
 class EditorialFlowTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_superuser('ronassic', settings.ADMINS[0][1], 'long-test-password-123')
+        cls.owner = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1], 'long-test-password-123')
         cls.editor = User.objects.create_user('geeksublime', 'geeksublime@example.test',
                                               'long-test-password-123', is_staff=True)
         cls.edition = DndEdition.objects.create(name='Core 3.5', slug='core-35', system='DnD 3.5', core=True)
@@ -902,8 +903,8 @@ class EditorialFlowTests(TestCase):
         feat_import_url = reverse('editorial_import', args=('Feat',))
         dashboard = self.client.get(dashboard_url)
         self.assertContains(dashboard, '<h1>Área editorial</h1>', count=1, html=True)
-        self.assertContains(dashboard, 'Importar registros diretamente', count=1)
-        self.assertContains(dashboard, f'href="{feat_import_url}"')
+        self.assertNotContains(dashboard, 'Importar registros diretamente')
+        self.assertNotContains(dashboard, f'href="{feat_import_url}"')
         self.assertContains(dashboard, f'href="{reverse("editorial_create", args=("Spell",))}"')
         self.assertNotContains(dashboard, reverse('editorial_import', args=('Spell',)))
         self.assertNotContains(dashboard, reverse('editorial_catalog', args=('Monster',)))
@@ -911,11 +912,71 @@ class EditorialFlowTests(TestCase):
         catalog = self.client.get(reverse('editorial_catalog', args=('Feat',)))
         self.assertContains(catalog, '<h1>Talentos</h1>', count=1, html=True)
         self.assertContains(catalog, 'Propor inclusão')
-        self.assertContains(catalog, f'href="{feat_import_url}"')
+        self.assertNotContains(catalog, f'href="{feat_import_url}"')
+        self.assertEqual(self.client.get(feat_import_url).status_code, 403)
+
+    def test_matching_email_does_not_make_another_superuser_the_owner(self):
+        from dnd.editorial import can_import
+
+        other = User.objects.create_superuser('another-admin', settings.ADMINS[0][1])
+        self.assertFalse(can_import(other, 'Item'))
+        self.client.force_login(other)
+        self.assertEqual(self.client.get(reverse('editorial_import', args=('Item',))).status_code, 403)
+
+    def test_editorial_navigation_and_switch_account_in_both_languages(self):
+        url = reverse('editorial_dashboard')
+        switch_url = reverse('editorial_switch_account')
+        self.client.force_login(self.owner)
+        for language, title, label in (
+                ('en-us', 'Editorial workspace', 'Sign out / switch account'),
+                ('pt-br', 'Área editorial', 'Sair / trocar de conta')):
+            with self.subTest(language=language):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
+                page = self.client.get(url)
+                self.assertContains(page, '<h1>%s</h1>' % title, count=1, html=True)
+                self.assertNotContains(page, '<div class="breadcrumbs">')
+                self.assertContains(page, label)
+                self.assertContains(page, 'action="%s"' % switch_url)
+                self.assertContains(page, 'href="%s"' % reverse('admin:password_change'))
+                self.assertContains(self.client.get(reverse('editorial_invite')), '<h1>', count=1)
+        self.assertEqual(self.client.get(switch_url).status_code, 405)
+        self.assertRedirects(self.client.post(switch_url), reverse('admin:login'),
+                             fetch_redirect_response=False)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    @override_settings(ACCESS_REQUIRED=True)
+    def test_switch_account_also_ends_cloudflare_access_session(self):
+        self.client.force_login(self.owner)
+        with patch('dnd.access.verified_email', return_value=self.owner.email):
+            response = self.client.post(reverse('editorial_switch_account'),
+                                        HTTP_CF_ACCESS_JWT_ASSERTION='test-token')
+        self.assertRedirects(response, '/cdn-cgi/access/logout', fetch_redirect_response=False)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_json_resource_mismatch_stops_before_preview_in_both_languages(self):
+        self.client.force_login(self.owner)
+        url = reverse('editorial_import', args=('Spell',))
+        record = {'resource': 'Feat', 'source_reference': 'Test Source, p. 5',
+                  'name': 'Wrong importer', 'rulebook': self.book.name,
+                  'feat_categories': self.category.name, 'description': 'Example.',
+                  'benefit': 'Example.'}
+        for language, message in (
+                ('en-us', 'This file declares Feat, but this form imports Spell.'),
+                ('pt-br', 'Este arquivo declara Feat, mas este formulário importa Spell.')):
+            with self.subTest(language=language):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
+                upload = SimpleUploadedFile('feats.json', json.dumps([record]).encode())
+                response = self.client.post(url, {'file': upload})
+                self.assertContains(response, message)
+                self.assertNotIn('editorial_import_preview', self.client.session)
+        record.pop('resource')
+        upload = SimpleUploadedFile('untyped.json', json.dumps([record]).encode())
+        self.assertContains(self.client.post(url, {'file': upload}), 'deve declarar resource')
+        self.assertFalse(Spell.objects.filter(name='Wrong importer').exists())
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
                        EDITORIAL_NOTIFY_EMAIL='owner@example.test')
-    def test_trusted_csv_import_previews_then_publishes_with_audit_and_alert(self):
+    def test_owner_csv_import_previews_then_publishes_with_audit_and_alert(self):
         url = reverse('editorial_import', args=('Feat',))
         record = {'source_reference': 'Test Source, p. 12', 'name': 'Careful Focus',
                   'rulebook': 'Test Source', 'feat_categories': 'Import category',
@@ -924,6 +985,11 @@ class EditorialFlowTests(TestCase):
         self.client.force_login(self.editor)
         self.assertEqual(self.client.get(url).status_code, 403)
         self._activate_importer()
+        self.assertEqual(self.client.get(url).status_code, 403)
+        from dnd.editorial_import import publish_rows
+        with self.assertRaises(PermissionDenied):
+            publish_rows('[]', 'Feat', '', self.editor, json_file=True, expected_digest='unused')
+        self.client.force_login(self.owner)
         self.assertEqual(self.client.get(url).status_code, 200)
         template = self.client.get(url + '?template=csv')
         self.assertEqual(template.status_code, 200)
@@ -940,7 +1006,7 @@ class EditorialFlowTests(TestCase):
         self.assertEqual(entry.rulebook, self.book)
         proposal = EditorialProposal.objects.get(resource='Feat', target_pk=entry.pk)
         self.assertEqual((proposal.status, proposal.author, proposal.reviewer),
-                         ('approved', self.editor, self.editor))
+                         ('approved', self.owner, self.owner))
         self.assertEqual(proposal.source_reference, record['source_reference'])
         self.assertEqual(mail.outbox[-1].to, ['owner@example.test'])
         self.assertEqual(self.client.post(url, {'confirm': '1', 'token': token}).status_code, 200)
@@ -956,6 +1022,8 @@ class EditorialFlowTests(TestCase):
                                       can_create=True, can_import=True)
         self.assertEqual(self.client.get(url).status_code, 403)
         self._activate_importer()
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self.client.force_login(self.owner)
         record = {'source_reference': 'Old Source p. 5', 'name': 'Old Trick',
                   'rulebook': str(self.old_book.pk), 'feat_categories': str(self.category.pk),
                   'description': 'Old.', 'benefit': 'Old.'}
@@ -999,14 +1067,14 @@ class EditorialFlowTests(TestCase):
 
         with patch('dnd.editorial_import.save_catalog_entry', side_effect=fail_second):
             with self.assertRaisesMessage(forms.ValidationError, 'Simulated later failure'):
-                editorial_import.publish_rows(content, 'Feat', '', self.editor, expected_digest=digest)
+                editorial_import.publish_rows(content, 'Feat', '', self.owner, expected_digest=digest)
         self.assertFalse(Feat.objects.exists())
         self.assertFalse(EditorialProposal.objects.filter(resource='Feat').exists())
 
     def test_csv_import_typed_supplemental_entry(self):
         from dnd.models import MysteryDetail
         self._activate_importer('SupplementalEntry')
-        self.client.force_login(self.editor)
+        self.client.force_login(self.owner)
         url = reverse('editorial_import', args=('SupplementalEntry',)) + '?kind=mysteries'
         record = {'source_reference': 'Test Source p. 18', 'name': 'Ebon Whispers',
                   'rulebook': str(self.book.pk), 'mechanics': 'A shadow effect.',
@@ -1081,10 +1149,10 @@ class EditorialFlowTests(TestCase):
         client = Client(enforce_csrf_checks=True)
         url = reverse('editorial_import', args=('Feat',))
         self.assertEqual(client.get(url, {'template': 'json'}).status_code, 302)
-        client.force_login(self.editor)
+        client.force_login(self.owner)
         with override_settings(ACCESS_REQUIRED=True):
             self.assertEqual(client.get(url, {'template': 'json'}).status_code, 403)
-        self.assertEqual(client.get(reverse('editorial_import', args=('Item',))).status_code, 403)
+        self.assertEqual(client.get(reverse('editorial_import', args=('Item',))).status_code, 200)
         client.get(url)
         record = {'source_reference': 'Test Source p. 5', 'name': 'CSRF Preview',
                   'rulebook': self.book.name, 'feat_categories': self.category.name,
@@ -1114,10 +1182,10 @@ class EditorialFlowTests(TestCase):
         from dnd.editorial_import import INLINE_BYTES, INLINE_ROWS
 
         self._activate_importer()
-        self.client.force_login(self.editor)
+        self.client.force_login(self.owner)
         url = reverse('editorial_import', args=('Feat',))
         records = [{
-            'name': f'Batch Feat {index}', 'rulebook': self.book.pk,
+            'resource': 'Feat', 'name': f'Batch Feat {index}', 'rulebook': self.book.pk,
             'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 12',
             'description': 'Example rule. ' * 280, 'benefit': 'Example benefit.',
         } for index in range(INLINE_ROWS)]
@@ -1133,7 +1201,7 @@ class EditorialFlowTests(TestCase):
                              reverse('editorial_catalog', args=('Feat',)))
         self.assertEqual(Feat.objects.filter(name__startswith='Batch Feat ').count(), INLINE_ROWS)
         self.assertEqual(EditorialProposal.objects.filter(resource='Feat', status='approved',
-                                                        author=self.editor).count(), INLINE_ROWS)
+                                                        author=self.owner).count(), INLINE_ROWS)
 
     def _queue_feat_file(self, record, *, pad=True):
         from dnd.editorial_import import INLINE_BYTES
@@ -1150,8 +1218,8 @@ class EditorialFlowTests(TestCase):
         from dnd.editorial_batches import process_next_batch
 
         self._activate_importer()
-        self.client.force_login(self.editor)
-        record = {'name': 'Queued feat', 'rulebook': self.book.pk,
+        self.client.force_login(self.owner)
+        record = {'resource': 'Feat', 'name': 'Queued feat', 'rulebook': self.book.pk,
                   'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 6',
                   'description': 'Example.', 'benefit': 'Example.'}
         response = self._queue_feat_file(record)
@@ -1162,7 +1230,7 @@ class EditorialFlowTests(TestCase):
         self.assertRedirects(self._queue_feat_file(dict(record, name='Second job')), status_url)
         self.assertEqual(CatalogImportBatch.objects.count(), 1)
         peer = Client()
-        peer.force_login(self.owner)
+        peer.force_login(self.editor)
         self.assertEqual(peer.get(status_url + '?status=1').status_code, 404)
         self.assertEqual(peer.post(status_url, {'action': 'confirm'}).status_code, 404)
 
@@ -1170,7 +1238,7 @@ class EditorialFlowTests(TestCase):
         self.client.logout()
         self.assertTrue(process_next_batch())
         self.assertFalse(Feat.objects.exists())
-        self.client.force_login(self.editor)
+        self.client.force_login(self.owner)
         page = self.client.get(status_url)
         self.assertContains(page, 'Queued feat')
         self.assertContains(page, 'Publish 1 record now')
@@ -1186,15 +1254,15 @@ class EditorialFlowTests(TestCase):
         self.assertFalse(batch.payload)
         self.assertFalse(batch.preview)
         self.assertEqual(Feat.objects.filter(name='Queued feat').count(), 1)
-        self.assertEqual(EditorialProposal.objects.filter(author=self.editor, status='approved').count(), 1)
+        self.assertEqual(EditorialProposal.objects.filter(author=self.owner, status='approved').count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_queued_import_stops_if_permission_changes_or_batch_is_cancelled(self):
         from dnd.editorial_batches import process_next_batch
 
         self._activate_importer()
-        self.client.force_login(self.editor)
-        record = {'name': 'Queued feat', 'rulebook': self.book.pk,
+        self.client.force_login(self.owner)
+        record = {'resource': 'Feat', 'name': 'Queued feat', 'rulebook': self.book.pk,
                   'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 6',
                   'description': 'Example.', 'benefit': 'Example.'}
         response = self._queue_feat_file(record)
@@ -1206,7 +1274,8 @@ class EditorialFlowTests(TestCase):
         batch = CatalogImportBatch.objects.get(state='ready')
         status_url = reverse('editorial_import_batch', args=(batch.pk,))
         self.assertRedirects(self.client.post(status_url, {'action': 'confirm'}), status_url)
-        EditorialGrant.objects.filter(user=self.editor, resource='Feat').update(can_import=False)
+        self.owner.email = 'former-owner@example.test'
+        self.owner.save(update_fields=('email',))
         self.assertEqual(self.client.get(status_url + '?status=1').status_code, 403)
         self.assertTrue(process_next_batch())
         batch.refresh_from_db()
@@ -1222,7 +1291,7 @@ class EditorialFlowTests(TestCase):
                 validated_rows(content, 'Feat', '', json_file=True)
         with self.assertRaisesMessage(forms.ValidationError, 'does not match the CSV header'):
             validated_rows('source_reference;name;rulebook\nSource;Only name', 'Feat', '')
-        psionic = [{'source_reference': 'Test Source p. 5', 'name': 'Bad Level',
+        psionic = [{'resource': 'SupplementalEntry', 'source_reference': 'Test Source p. 5', 'name': 'Bad Level',
                     'rulebook': self.book.pk, 'mechanics': 'Example effect.',
                     'detail_discipline': 'Clairsentience', 'detail_power_points': 1,
                     'detail_class_levels': 'Test Class | ²'}]
@@ -1253,7 +1322,7 @@ class EditorialFlowTests(TestCase):
 
     def test_import_requires_fresh_preview_when_relation_changes(self):
         self._activate_importer()
-        self.client.force_login(self.editor)
+        self.client.force_login(self.owner)
         url = reverse('editorial_import', args=('Feat',))
         record = {'source_reference': 'Test Source p. 5', 'name': 'Stale Preview',
                   'rulebook': self.book.name, 'feat_categories': self.category.name,
@@ -1269,14 +1338,15 @@ class EditorialFlowTests(TestCase):
 
     def test_import_permission_is_checked_again_at_confirmation(self):
         self._activate_importer()
-        self.client.force_login(self.editor)
+        self.client.force_login(self.owner)
         url = reverse('editorial_import', args=('Feat',))
         record = {'source_reference': 'Test Source p. 5', 'name': 'Revoked Import',
                   'rulebook': self.book.name, 'feat_categories': self.category.name,
                   'description': 'Example.', 'benefit': 'Example.'}
         self.assertContains(self.client.post(url, {'file': self._import_file([record])}), 'Publish 1 record now')
         token = self.client.session['editorial_import_preview']['token']
-        EditorialGrant.objects.filter(user=self.editor, resource='Feat').update(can_import=False)
+        self.owner.email = 'former-owner@example.test'
+        self.owner.save(update_fields=('email',))
         self.assertEqual(self.client.post(url, {'confirm': '1', 'token': token}).status_code, 403)
         self.assertFalse(Feat.objects.filter(name=record['name']).exists())
 
@@ -1305,11 +1375,11 @@ class EditorialImportConcurrencyTests(TransactionTestCase):
     def test_two_confirmations_of_the_same_record_publish_only_once(self):
         from dnd import editorial_import
 
-        editor = User.objects.create_superuser('ronassic', settings.ADMINS[0][1])
+        editor = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1])
         edition = DndEdition.objects.create(name='Core 3.5', slug='core-35', system='DnD 3.5', core=True)
         book = Rulebook.objects.create(name='Example Source', slug='example-source', abbr='ES', dnd_edition=edition)
         category = FeatCategory.objects.create(name='Example category', slug='example-category')
-        content = json.dumps([{'source_reference': 'Example Source, p. 5', 'name': 'Concurrent Feat',
+        content = json.dumps([{'resource': 'Feat', 'source_reference': 'Example Source, p. 5', 'name': 'Concurrent Feat',
                                'rulebook': book.pk, 'feat_categories': [category.pk],
                                'description': 'Example.', 'benefit': 'Example.'}])
         rows = editorial_import.validated_rows(content, 'Feat', '', json_file=True)

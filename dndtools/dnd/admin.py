@@ -49,7 +49,8 @@ class OwnerOnlyGroupAdmin(OwnerOnlyAdminMixin, GroupAdmin):
 
 
 class EditorialGrantAdmin(admin.ModelAdmin):
-    list_display = ('user', 'resource', 'can_create', 'can_correct', 'can_translate', 'can_delete', 'can_import')
+    list_display = ('user', 'resource', 'can_create', 'can_correct', 'can_translate', 'can_delete')
+    exclude = ('can_import',)
     list_filter = ('resource',)
     search_fields = ('user__username', 'user__email')
 
