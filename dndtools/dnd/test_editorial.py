@@ -786,12 +786,43 @@ class EditorialFlowTests(TestCase):
             self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 403)
         self.assertNotIn('_auth_user_id', self.client.session)
 
-    def test_owner_still_uses_django_password_after_cloudflare_access(self):
+    def test_owner_access_identity_signs_in_after_mfa_without_django_password(self):
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value=self.owner.email):
+            self.assertRedirects(self.client.get(reverse('admin:login')),
+                                 reverse('admin:index'), fetch_redirect_response=False)
+            self.assertEqual(self.client.get(reverse('admin:index')).status_code, 200)
+            self.assertEqual(self.client.get(reverse('editorial_dashboard')).status_code, 200)
+        self.assertEqual(self.client.session['_auth_user_id'], str(self.owner.pk))
+
+    def test_owner_access_requires_valid_identity_and_unique_active_account(self):
+        url = reverse('admin:index')
+        with override_settings(ACCESS_REQUIRED=True), patch('dnd.access.verified_email', return_value=None):
+            self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertNotIn('_auth_user_id', self.client.session)
+        with override_settings(ACCESS_REQUIRED=True), patch(
+                'dnd.access.verified_email', return_value=self.owner.email):
+            duplicate = User.objects.create_user('duplicate-owner-email', self.owner.email)
+            self.assertEqual(self.client.get(url).status_code, 403)
+            self.assertNotIn('_auth_user_id', self.client.session)
+            duplicate.delete()
+            for field in ('is_active', 'is_staff', 'is_superuser'):
+                with self.subTest(field=field):
+                    setattr(self.owner, field, False)
+                    self.owner.save(update_fields=(field,))
+                    self.assertEqual(self.client.get(url).status_code, 403)
+                    self.assertNotIn('_auth_user_id', self.client.session)
+                    setattr(self.owner, field, True)
+                    self.owner.save(update_fields=(field,))
+
+    def test_owner_access_rejects_another_session_with_same_email(self):
+        other = User.objects.create_user('other-owner-email', self.owner.email, is_staff=True)
+        self.client.force_login(other)
         with override_settings(ACCESS_REQUIRED=True), patch(
                 'dnd.access.verified_email', return_value=self.owner.email):
             response = self.client.get(reverse('admin:index'))
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse('admin:login'), response['Location'])
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn('_auth_user_id', self.client.session)
 
     def test_admin_session_must_match_signed_access_identity(self):
         self.client.force_login(self.owner)
@@ -943,6 +974,41 @@ class EditorialFlowTests(TestCase):
         self.assertRedirects(self.client.post(switch_url), reverse('admin:login'),
                              fetch_redirect_response=False)
         self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_admin_workspace_tools_follow_language_switch(self):
+        self.client.force_login(self.owner)
+        url = reverse('admin:index')
+        for language, heading, action, model, directory in (
+                ('pt-br', 'Painel do catálogo', 'Gerenciar', 'Talentos', 'Todo o conteúdo e configurações'),
+                ('en-us', 'Catalog workspace', 'Manage', 'Feats', 'All content and settings')):
+            with self.subTest(language=language):
+                self.assertRedirects(self.client.get(reverse('switch_language'), {
+                    'language': language, 'next': url}), url, fetch_redirect_response=False)
+                page = self.client.get(url)
+                self.assertEqual(page.headers['Content-Language'], language)
+                self.assertContains(page, '<h1>%s</h1>' % heading, html=True)
+                self.assertContains(page, action)
+                self.assertContains(page, '<h3><a href="%s">%s</a></h3>' % (
+                    reverse('admin:dnd_feat_changelist'), model), html=True)
+                self.assertContains(page, '<summary>%s</summary>' % directory, html=True)
+                self.assertContains(page, '<a href="%s">%s</a>' % (
+                    reverse('admin:dnd_feat_changelist'), model), count=2, html=True)
+                listing = self.client.get(reverse('admin:dnd_feat_changelist'))
+                self.assertContains(listing, 'Gerenciar Talentos' if language == 'pt-br' else 'Manage Feats')
+                self.assertContains(listing, 'Adicionar registro — Talentos' if language == 'pt-br'
+                                    else 'Add record — Feats')
+                self.assertContains(listing, '0 registros' if language == 'pt-br' else '0 records')
+                self.assertContains(listing, 'Catálogo' if language == 'pt-br' else 'Catalog')
+                add_form = self.client.get(reverse('admin:dnd_feat_add'))
+                self.assertContains(add_form, '<h1>Adicionar registro — Talentos</h1>' if language == 'pt-br'
+                                    else '<h1>Add record — Feats</h1>', html=True)
+                self.assertContains(add_form, 'Categorias de talentos:' if language == 'pt-br'
+                                    else 'Feat categories:')
+                self.assertContains(add_form, 'Pré-requisitos textuais de talentos' if language == 'pt-br'
+                                    else 'Text feat prerequisites')
+                self.assertContains(add_form, 'Novo registro' if language == 'pt-br' else 'New record')
+                self.assertContains(add_form, 'Este campo aceita formatação Textile.' if language == 'pt-br'
+                                    else 'Textile formatting is supported.')
 
     @override_settings(ACCESS_REQUIRED=True)
     def test_switch_account_also_ends_cloudflare_access_session(self):

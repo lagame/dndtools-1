@@ -50,7 +50,24 @@ class AccessIdentityMiddleware:
         if request.user.is_authenticated and request.user.email.casefold() != email:
             logout(request)
             return HttpResponseForbidden('Access account does not match this session.')
-        if email != settings.ADMINS[0][1].casefold():
+        if email == settings.ADMINS[0][1].casefold():
+            accounts = list(get_user_model().objects.filter(email__iexact=email).order_by('pk')[:2])
+            if len(accounts) != 1:
+                if request.user.is_authenticated:
+                    logout(request)
+                return HttpResponseForbidden('Owner Access identity is ambiguous.')
+            account = accounts[0]
+            if (account.username != settings.ADMINS[0][0] or not account.is_active or
+                    not account.is_staff or not account.is_superuser):
+                if request.user.is_authenticated:
+                    logout(request)
+                return HttpResponseForbidden('Owner account is not active.')
+            if request.user.is_authenticated and request.user.pk != account.pk:
+                logout(request)
+                return HttpResponseForbidden('Access account does not match this session.')
+            if not request.user.is_authenticated and request.method in ('GET', 'HEAD'):
+                login(request, account, backend='django.contrib.auth.backends.ModelBackend')
+        else:
             from dnd.models import CollaboratorInvite
             accounts = list(get_user_model().objects.filter(email__iexact=email).order_by('pk')[:2])
             if len(accounts) != 1:

@@ -1193,6 +1193,102 @@ msgstr "Conta e idioma"
 msgid "Sign out / switch account"
 msgstr "Sair / trocar de conta"
 
+#: templates/admin/index.html
+msgid "Catalog workspace"
+msgstr "Painel do catálogo"
+
+#: templates/admin/index.html
+msgid "Keep the library accurate, review sourcebooks and manage the content your community explores."
+msgstr "Mantenha a biblioteca correta, revise os livros e organize o conteúdo da comunidade."
+
+#: templates/admin/index.html
+msgid "Edit the catalog"
+msgstr "Editar o catálogo"
+
+#: templates/admin/index.html
+msgid "Browse"
+msgstr "Consultar"
+
+#: templates/admin/index.html
+msgid "Manage"
+msgstr "Gerenciar"
+
+#: dnd/admin.py
+#, python-format
+msgid "Manage %(model)s"
+msgstr "Gerenciar %(model)s"
+
+#: dnd/admin.py
+#, python-format
+msgid "Add record — %(model)s"
+msgstr "Adicionar registro — %(model)s"
+
+#: dnd/admin.py
+#, python-format
+msgid "Edit record — %(model)s"
+msgstr "Editar registro — %(model)s"
+
+#: dnd/admin.py
+msgid "record"
+msgstr "registro"
+
+#: templates/admin/dnd/change_list.html templates/admin/dnd/change_form.html
+msgid "Catalog"
+msgstr "Catálogo"
+
+#: templates/admin/dnd/change_form.html
+msgid "New record"
+msgstr "Novo registro"
+
+#: templates/admin/pagination.html
+msgid "records"
+msgstr "registros"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Access attempts"
+msgstr "Tentativas de acesso"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Access failures"
+msgstr "Falhas de acesso"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Access logs"
+msgstr "Registros de acesso"
+
+#: dnd/admin.py
+msgid "Textile formatting is supported."
+msgstr "Este campo aceita formatação Textile."
+
+#: templates/admin/change_list_object_tools.html
+#, python-format
+msgid "Add record — %(name)s"
+msgstr "Adicionar registro — %(name)s"
+
+#: templates/admin/index.html
+msgid "All content and settings"
+msgstr "Todo o conteúdo e configurações"
+
+#: templates/admin/index.html
+msgid "Find supporting rules, publication tools, accounts and security records."
+msgstr "Encontre regras complementares, ferramentas de publicação, contas e registros de segurança."
+
+#: templates/admin/index.html templates/admin/app_list.html
+msgid "You don’t have permission to view or edit anything."
+msgstr "Você não tem permissão para consultar ou editar registros."
+
+#: dnd/templatetags/admin_labels.py
+msgid "News entries"
+msgstr "Notícias"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Static pages"
+msgstr "Páginas estáticas"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Editorial grants"
+msgstr "Permissões editoriais"
+
 #: dnd/editorial_import.py
 msgid "JSON records must declare resource. Download the current example for this importer."
 msgstr "Cada registro JSON deve declarar resource. Baixe o exemplo atual deste importador."

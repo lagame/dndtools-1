@@ -1,0 +1,11 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_labels %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{% translate 'Catalog' %}</a>
+&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts|admin_model_label }}</a>{% else %}{{ opts|admin_model_label }}{% endif %}
+&rsaquo; {% if add %}{% translate 'New record' %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
+</div>
+{% endblock %}

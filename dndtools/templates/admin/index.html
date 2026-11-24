@@ -1,11 +1,11 @@
 {% extends "admin/index.html" %}
-{% load i18n %}
+{% load i18n admin_labels %}
 
 {% block content_title %}
 <div class="workspace-intro">
   <span class="workspace-eyebrow">D&amp;D Tools</span>
-  <h1>Catalog workspace</h1>
-  <p>Keep the library accurate, review sourcebooks and manage the content your community explores.</p>
+  <h1>{% translate "Catalog workspace" %}</h1>
+  <p>{% translate "Keep the library accurate, review sourcebooks and manage the content your community explores." %}</p>
 </div>
 {% endblock %}
 
@@ -13,16 +13,16 @@
 <div id="content-main">
   {% if app_list %}
   <section aria-labelledby="workspace-catalog-heading">
-    <h2 id="workspace-catalog-heading">Edit the catalog</h2>
+    <h2 id="workspace-catalog-heading">{% translate "Edit the catalog" %}</h2>
     <div class="workspace-shortcuts">
     {% for app in app_list %}{% if app.app_label == 'dnd' %}{% for model in app.models %}
       {% if model.object_name == 'Rulebook' or model.object_name == 'Spell' or model.object_name == 'Feat' or model.object_name == 'CharacterClass' or model.object_name == 'Race' or model.object_name == 'Monster' or model.object_name == 'Item' or model.object_name == 'Skill' %}
       {% if model.admin_url %}
       <article class="workspace-card">
-        <h3><a href="{{ model.admin_url }}">{{ model.name }}</a></h3>
+        <h3><a href="{{ model.admin_url }}">{{ model|admin_model_label }}</a></h3>
         <div class="workspace-card-actions">
-          <a href="{{ model.admin_url }}">{% if model.view_only %}Browse{% else %}Manage{% endif %}<span class="visually-hidden"> {{ model.name }}</span> <span aria-hidden="true">&rarr;</span></a>
-          {% if model.add_url %}<a href="{{ model.add_url }}">Add<span class="visually-hidden"> {{ model.name }}</span></a>{% endif %}
+          <a href="{{ model.admin_url }}">{% if model.view_only %}{% translate "Browse" %}{% else %}{% translate "Manage" %}{% endif %}<span class="visually-hidden"> {{ model|admin_model_label }}</span> <span aria-hidden="true">&rarr;</span></a>
+          {% if model.add_url %}<a href="{{ model.add_url }}">{% translate "Add" %}<span class="visually-hidden"> {{ model|admin_model_label }}</span></a>{% endif %}
         </div>
       </article>
       {% endif %}{% endif %}
@@ -30,12 +30,12 @@
     </div>
   </section>
   <details class="workspace-directory">
-    <summary>All content and settings</summary>
-    <p class="workspace-help">Find supporting rules, publication tools, accounts and security records.</p>
+    <summary>{% translate "All content and settings" %}</summary>
+    <p class="workspace-help">{% translate "Find supporting rules, publication tools, accounts and security records." %}</p>
     {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
   </details>
   {% else %}
-  <p>You don’t have permission to view or edit anything.</p>
+  <p>{% translate "You don’t have permission to view or edit anything." %}</p>
   {% endif %}
 </div>
 {% endblock %}
