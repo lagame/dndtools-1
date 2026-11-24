@@ -222,6 +222,9 @@ class AdminSecurityTests(TestCase):
         self.assertEqual(self.client.get(reverse('admin:index')).status_code, 200)
         with self.assertRaises(ValidationError):
             validate_password('short')
+        with self.assertRaises(ValidationError):
+            validate_password('R9!mQ2x')
+        validate_password('R9!mQ2xP')
 
     def test_workspace_links_follow_model_permissions(self):
         editor = User.objects.create_user(username='book-editor', is_staff=True)
