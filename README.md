@@ -8,6 +8,35 @@ O [fórum phpBB integrado](forum-lab/README.md) funciona em [dndtools.quest/foru
 
 **The database is not in this repository.** To request the private SQLite snapshot, [open an issue](https://github.com/lagame/dndtools-1/issues). We will arrange a private transfer. Never attach the database, a dump, or source scans to an issue or commit.
 
+## Contributing
+
+There are two ways to help. To add or correct spells, feats, items, monsters and other catalog records, ask the maintainer for an **editorial invitation**. Submit a proposal in the site's Editorial workspace; the record goes live only after review. Include the confirmed D&D 3.5 source book and page when applicable. Do not paste unverified AI output or copyrighted book text into a proposal.
+
+For code, interface, tests and documentation, use a GitHub pull request. You do not need access to the production server or the private catalog database:
+
+1. On [the project repository](https://github.com/lagame/dndtools-1), click **Fork** in your own GitHub account.
+2. In PowerShell, clone **your fork** and create a branch:
+
+   ```powershell
+   git clone https://github.com/YOUR_USERNAME/dndtools-1.git
+   cd dndtools-1
+   git switch -c feat/short-description
+   ```
+
+3. Follow [Local setup](#local-setup-windows-powershell) to run the site. Without the private database, the catalog is empty, but the application and automated tests still work.
+4. Make a focused change. If you use an AI coding assistant, review its diff, verify any claims about D&D 3.5 against the source, and run the relevant tests. For Django changes, use `py -3 scripts\prepare_test_db.py` followed by `docker compose run --rm app python manage.py test dnd --keepdb --noinput`.
+5. Check `git status --short`, stage only the intended files, commit, and push your branch:
+
+   ```powershell
+   git add PATH_TO_CHANGED_FILE
+   git commit -m "feat(scope): describe the change"
+   git push -u origin feat/short-description
+   ```
+
+6. On GitHub, click **Compare & pull request** and target `lagame/dndtools-1:master`. Explain what changed and how you checked it. CI runs on pull requests; the maintainer reviews before merging. A merged PR does not deploy automatically.
+
+Never include `.env`, passwords, tokens, database files, backups, uploaded images, or private user data in a commit, PR or Issue. If a task needs the private catalog, arrange access with the maintainer through an [Issue](https://github.com/lagame/dndtools-1/issues), without attaching the data there.
+
 ## Local setup (Windows PowerShell)
 
 Install Git, Python 3 and Docker Desktop. From PowerShell:
@@ -43,6 +72,35 @@ docker compose exec app python manage.py createsuperuser
 ```
 
 Enter the username, email and a unique password of at least 14 characters at the private terminal prompt, then open <http://127.0.0.1:8765/admin/login/>. No default administrator exists. The generated `.env`, original SQLite, MySQL volume, uploads and backups stay private and out of Git.
+
+## Como contribuir
+
+Há dois caminhos. Para incluir ou corrigir magias, talentos, itens, monstros e outros registros, peça ao mantenedor um **convite editorial**. Envie a proposta pelo Espaço editorial do site; ela só aparece no catálogo após revisão. Informe o livro D&D 3.5 confirmado e a página, quando houver. Confira resultados de IA antes de propor conteúdo e respeite os direitos dos textos dos livros.
+
+Para contribuir com código, interface, testes ou documentação, envie um pull request (PR) pelo GitHub. Não é necessário acesso ao VPS nem ao banco privado:
+
+1. Abra o [repositório do projeto](https://github.com/lagame/dndtools-1) e clique em **Fork** para criar uma cópia na sua conta GitHub.
+2. No PowerShell, baixe **o seu fork** e crie uma branch para a mudança:
+
+   ```powershell
+   git clone https://github.com/SEU_USUARIO/dndtools-1.git
+   cd dndtools-1
+   git switch -c feat/descricao-curta
+   ```
+
+3. Siga a [configuração local](#configuração-local-em-português-windows) abaixo. Sem o banco privado, o catálogo fica vazio, mas a aplicação e os testes funcionam.
+4. Faça uma mudança por PR. Se usar uma ferramenta de *vibe coding*, revise o código que ela gerou, confira fontes de regras 3.5 e rode os testes pertinentes. Para mudanças no Django, execute `py -3 scripts\prepare_test_db.py` e depois `docker compose run --rm app python manage.py test dnd --keepdb --noinput`.
+5. Confira `git status --short`, adicione somente os arquivos da mudança e envie sua branch:
+
+   ```powershell
+   git add CAMINHO_DO_ARQUIVO_ALTERADO
+   git commit -m "feat(scope): describe the change"
+   git push -u origin feat/descricao-curta
+   ```
+
+6. No GitHub, clique em **Compare & pull request** e escolha `lagame/dndtools-1:master` como destino. Descreva o que mudou e como testou. A CI roda no PR; o mantenedor revisa antes de juntar. Um PR aprovado não publica automaticamente em produção.
+
+Não inclua `.env`, senhas, tokens, banco, backups, imagens enviadas por usuários ou dados privados em commit, PR ou Issue. Se precisar do banco para uma tarefa, combine o acesso por uma [Issue](https://github.com/lagame/dndtools-1/issues), sem anexá-lo lá.
 
 ## Configuração local em português (Windows)
 
