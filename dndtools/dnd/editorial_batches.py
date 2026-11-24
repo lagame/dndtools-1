@@ -134,7 +134,7 @@ def _process_batch(batch):
         except PermissionDenied:
             _finish(batch, State.FAILED, error=_('Your import permission has changed. Nothing was published.'))
         except forms.ValidationError as error:
-            _finish(batch, State.FAILED, error='; '.join(error.messages))
+            _finish(batch, State.FAILED, error='; '.join(error.messages)[:2000])
         except IntegrityError:
             _finish(batch, State.FAILED, error=_(
                 'The catalog changed while publishing. Nothing was saved. Upload the file again.'))

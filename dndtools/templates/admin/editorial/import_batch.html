@@ -47,7 +47,7 @@
             <h2 id="batch-preview-heading">{% blocktranslate count count=batch.count %}Review {{ count }} record before publishing{% plural %}Review {{ count }} records before publishing{% endblocktranslate %}</h2>
             <p>{% translate "Check the names, books and sources. This preview is available for 24 hours." %}</p>
             <div class="editorial-table">
-                <table>
+                <table class="editorial-preview-table">
                     <thead><tr><th scope="col">{% translate "Row" %}</th><th scope="col">{% translate "Name" %}</th><th scope="col">{% translate "Rulebook" %}</th><th scope="col">{% translate "Source" %}</th></tr></thead>
                     <tbody>
                         {% for number, name, book, source in preview %}
