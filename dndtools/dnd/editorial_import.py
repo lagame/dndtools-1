@@ -18,8 +18,9 @@ from dnd.models import EditorialProposal
 from dnd.supplemental.forms import parse_class_levels
 
 
-MAX_BYTES = 128 * 1024
-MAX_ROWS = 50
+MAX_MIB = 1
+MAX_BYTES = MAX_MIB * 1024 ** 2
+MAX_ROWS = 250
 REQUIRED_COLUMNS = frozenset(('source_reference', 'name', 'rulebook'))
 DOWNLOAD_FORMATS = {'csv': ',', 'csv-semicolon': ';', 'json': None}
 
@@ -155,7 +156,7 @@ def _field_value(field, value):
 
 def validated_rows(content, resource, kind, *, json_file=False):
     if len(content.encode('utf-8')) > MAX_BYTES:
-        raise forms.ValidationError(_('The file exceeds the 128 KiB limit.'))
+        raise forms.ValidationError(_('The file exceeds the %(mib)s MiB limit.') % {'mib': MAX_MIB})
     Form = editable_form(resource, kind=kind or None)
     allowed = {'source_reference', *Form.base_fields}
     rows = []
@@ -163,7 +164,7 @@ def validated_rows(content, resource, kind, *, json_file=False):
     try:
         for number, row in _source_rows(content.lstrip('\ufeff'), json_file, allowed):
             if len(rows) >= MAX_ROWS:
-                raise forms.ValidationError(_('Import at most 50 records per file.'))
+                raise forms.ValidationError(_('Import at most %(rows)s records per file.') % {'rows': MAX_ROWS})
             try:
                 _check_columns(row, allowed)
                 source = row.get('source_reference')

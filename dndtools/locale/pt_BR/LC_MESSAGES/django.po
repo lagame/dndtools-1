@@ -3590,8 +3590,8 @@ msgid_plural "Published %(count)s catalog records."
 msgstr[0] "%(count)s registro publicado no catálogo."
 msgstr[1] "%(count)s registros publicados no catálogo."
 
-msgid "Choose a UTF-8 .csv or .json file up to 128 KiB."
-msgstr "Escolha um arquivo .csv ou .json em UTF-8 com até 128 KiB."
+msgid "Choose a UTF-8 .csv or .json file up to %(mib)s MiB."
+msgstr "Escolha um arquivo .csv ou .json em UTF-8 com até %(mib)s MiB."
 
 msgid "The file must use UTF-8 encoding."
 msgstr "O arquivo precisa estar em UTF-8."
@@ -3624,11 +3624,11 @@ msgstr "Use true ou false nos campos de sim ou não."
 msgid "Use text or a number, or a list for multiple related records."
 msgstr "Use texto ou número. Para vários registros relacionados, você também pode usar uma lista."
 
-msgid "The file exceeds the 128 KiB limit."
-msgstr "O arquivo excede o limite de 128 KiB."
+msgid "The file exceeds the %(mib)s MiB limit."
+msgstr "O arquivo excede o limite de %(mib)s MiB."
 
-msgid "Import at most 50 records per file."
-msgstr "Importe até 50 registros por arquivo."
+msgid "Import at most %(rows)s records per file."
+msgstr "Importe até %(rows)s registros por arquivo."
 
 msgid "Enter the official source and page."
 msgstr "Informe a fonte oficial e a página."
@@ -3667,8 +3667,16 @@ msgid "Published by direct import:"
 msgstr "Publicado por importação direta:"
 
 #: templates/admin/editorial/import.html
-msgid "Upload up to 50 new D&D 3.5 records in a UTF-8 file of up to 128 KiB. Enter the official book and page in source_reference. Review the preview before publishing."
-msgstr "Envie até 50 novos registros de D&D 3.5 em um arquivo UTF-8 de até 128 KiB. Informe o livro oficial e a página em source_reference. Confira a prévia antes de publicar."
+msgid "Upload up to %(max_rows)s new D&D 3.5 records in one UTF-8 file of up to %(max_mib)s MiB. Enter the official book and page in source_reference. Review the preview before publishing."
+msgstr "Envie até %(max_rows)s novos registros de D&D 3.5 em um arquivo UTF-8 de até %(max_mib)s MiB. Informe o livro oficial e a página em source_reference. Confira a prévia antes de publicar."
+
+#: templates/admin/editorial/import.html
+msgid "Download an example"
+msgstr "Baixar um modelo"
+
+#: templates/admin/editorial/import.html
+msgid "Upload a file"
+msgstr "Enviar um arquivo"
 
 msgid "Replace the example values with verified data. Related records accept an exact name or numeric ID. For multiple relations, separate values with | in CSV or use a JSON array."
 msgstr "Substitua os valores do exemplo por dados conferidos. Para registros relacionados, use o nome exato ou o ID numérico. Se houver vários, separe os valores com | no CSV ou use uma lista no JSON."

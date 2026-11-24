@@ -30,7 +30,7 @@ from dnd.editorial import (IMPORT_RESOURCES, RESOURCE_GROUPS, RESOURCE_LABELS, K
                            model_for, owner, serialize_form, source_digest,
                            translation_form, validate_new_edition, detect_duplicate)
 from dnd.models import CollaboratorInvite, EditorialGrant, EditorialProposal, SupplementalEntry
-from dnd.editorial_import import (DOWNLOAD_FORMATS, MAX_BYTES, example_file, preview_digest,
+from dnd.editorial_import import (DOWNLOAD_FORMATS, MAX_BYTES, MAX_MIB, MAX_ROWS, example_file, preview_digest,
                                   publish_rows, validated_rows)
 from dnd.supplemental.catalog import detail_for
 
@@ -360,7 +360,9 @@ def import_catalog(request, resource):
             request.session.pop('editorial_import_preview', None)
             upload = request.FILES.get('file')
             if not upload or upload.size > MAX_BYTES or not upload.name.lower().endswith(('.csv', '.json')):
-                messages.error(request, _('Choose a UTF-8 .csv or .json file up to 128 KiB.'))
+                messages.error(request, _('Choose a UTF-8 .csv or .json file up to %(mib)s MiB.') % {
+                    'mib': MAX_MIB,
+                })
             else:
                 json_file = upload.name.lower().endswith('.json')
                 try:
@@ -386,6 +388,7 @@ def import_catalog(request, resource):
         'preview': preview, 'token': request.session.get('editorial_import_preview', {}).get('token')
         if preview else '',
         'resource_label': label,
+        'max_rows': MAX_ROWS, 'max_mib': MAX_MIB,
     })
     response['Cache-Control'] = 'no-store'
     return response

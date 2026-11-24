@@ -259,7 +259,19 @@ body.dashboard #content-related h3, body.dashboard #content-related p, body.dash
   width: min(100%, 22rem);
 }
 
-.editorial-actions .button {
+.editorial-upload label {
+  display: block;
+  font-weight: 650;
+}
+
+body:not(.login) .editorial-upload input[type="file"] {
+  display: block;
+  padding-inline: 0;
+  margin-bottom: 0.5rem;
+}
+
+.editorial-actions .button,
+.editorial-upload .button {
   border: 0;
   cursor: pointer;
 }
