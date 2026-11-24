@@ -1,0 +1,32 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n %}
+{% block content %}
+<p><a href="{% url 'editorial_catalog' resource %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">← {{ resource_label }}</a></p>
+<p>{% translate "Upload up to 50 new D&D 3.5 records in a UTF-8 file of up to 128 KiB. Enter the official book and page in source_reference. Review the preview before publishing." %}</p>
+<p>{% translate "Replace the example values with verified data. Related records accept an exact name or numeric ID. For multiple relations, separate values with | in CSV or use a JSON array." %}</p>
+{% with prefix=kind|urlencode %}
+<ul>
+  <li><a href="?{% if kind %}kind={{ prefix }}&amp;{% endif %}template=csv">{% translate "Download CSV example (comma)" %}</a></li>
+  <li><a href="?{% if kind %}kind={{ prefix }}&amp;{% endif %}template=csv-semicolon">{% translate "Download CSV example (semicolon)" %}</a></li>
+  <li><a href="?{% if kind %}kind={{ prefix }}&amp;{% endif %}template=json">{% translate "Download JSON example" %}</a></li>
+</ul>
+{% endwith %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <label for="import-file">{% translate "CSV or JSON file" %}</label>
+  <input id="import-file" type="file" name="file" accept=".csv,.json,text/csv,application/json" required>
+  <button type="submit" class="button">{% translate "Preview import" %}</button>
+</form>
+{% if preview %}
+<h2>{% blocktranslate count count=preview|length %}Review {{ count }} record before publishing{% plural %}Review {{ count }} records before publishing{% endblocktranslate %}</h2>
+<table><thead><tr><th>{% translate "Row" %}</th><th>{% translate "Name" %}</th><th>{% translate "Rulebook" %}</th><th>{% translate "Source" %}</th></tr></thead><tbody>
+{% for number, row, form in preview %}<tr><td>{{ number }}</td><td><strong>{{ form.cleaned_data.name }}</strong><details><summary>{% translate "All submitted fields" %}</summary><dl>{% for field, value in row.items %}{% if value != '' and value is not None %}<dt>{{ field }}</dt><dd>{{ value }}</dd>{% endif %}{% endfor %}</dl></details></td><td>{{ form.cleaned_data.rulebook }}</td><td>{{ row.source_reference }}</td></tr>{% endfor %}
+</tbody></table>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="confirm" value="1">
+  <input type="hidden" name="token" value="{{ token }}">
+  <button type="submit" class="button default">{% blocktranslate count count=preview|length %}Publish {{ count }} record now{% plural %}Publish {{ count }} records now{% endblocktranslate %}</button>
+</form>
+{% endif %}
+{% endblock %}

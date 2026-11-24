@@ -2565,6 +2565,7 @@ class EditorialGrant(models.Model):
     can_correct = models.BooleanField(default=False)
     can_translate = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
+    can_import = models.BooleanField(default=False, verbose_name=_('Can publish imports directly'))
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('user', 'resource'), name='unique_editorial_grant')]
