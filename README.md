@@ -81,7 +81,7 @@ Open <http://127.0.0.1:8765/>. For editorial access, create your own administrat
 docker compose exec app python manage.py createsuperuser
 ```
 
-Enter the username, email and a unique password of at least 14 characters at the private terminal prompt, then open <http://127.0.0.1:8765/admin/login/>. No default administrator exists. The generated `.env`, original SQLite, MySQL volume, uploads and backups stay private and out of Git.
+Enter the username, email and a unique password of at least 8 characters at the private terminal prompt, then open <http://127.0.0.1:8765/admin/login/>. No default administrator exists. The generated `.env`, original SQLite, MySQL volume, uploads and backups stay private and out of Git.
 
 ## Como contribuir
 
@@ -158,7 +158,7 @@ Para entrar na administração, crie sua própria conta local após iniciar o ap
 docker compose exec app python manage.py createsuperuser
 ```
 
-Informe usuário, e-mail e uma senha exclusiva de pelo menos 14 caracteres no terminal. Depois abra <http://127.0.0.1:8765/admin/login/>. O projeto não fornece login ou senha padrão. Se você bloquear a própria conta após cinco tentativas erradas, espere 15 minutos; quem tem acesso ao servidor pode usar `docker compose exec app python manage.py axes_reset_username NOME_DO_USUARIO` para liberar apenas essa conta. A proteção usa o MySQL compartilhado pelos processos da aplicação.
+Informe usuário, e-mail e uma senha exclusiva de pelo menos 8 caracteres no terminal. Depois abra <http://127.0.0.1:8765/admin/login/>. O projeto não fornece login ou senha padrão. Se você bloquear a própria conta após cinco tentativas erradas, espere 15 minutos; quem tem acesso ao servidor pode usar `docker compose exec app python manage.py axes_reset_username NOME_DO_USUARIO` para liberar apenas essa conta. A proteção usa o MySQL compartilhado pelos processos da aplicação.
 
 A fonte Inter é servida pelo próprio projeto e sua licença OFL está em `dndtools/static/fonts/LICENSE-Inter.txt`. A página `/privacy/?lang=pt` informa os dados técnicos tratados, o contato do responsável e a duração do armazenamento no navegador.
 
