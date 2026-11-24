@@ -17,21 +17,24 @@ from django.core.mail import send_mail
 from django.db import IntegrityError, transaction
 from django.db.models import F, Q
 from django.db.models.functions import Collate
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods, require_POST
 
 from dnd.editorial import (IMPORT_RESOURCES, RESOURCE_GROUPS, RESOURCE_LABELS, KIND_LABELS,
                            GRANT_CHOICES, approve, can_import, can_propose, editable_form,
                            model_for, owner, serialize_form, source_digest,
                            translation_form, validate_new_edition, detect_duplicate)
-from dnd.models import CollaboratorInvite, EditorialGrant, EditorialProposal, SupplementalEntry
-from dnd.editorial_import import (DOWNLOAD_FORMATS, MAX_BYTES, MAX_MIB, MAX_ROWS, example_file, preview_digest,
-                                  publish_rows, validated_rows)
+from dnd.models import CatalogImportBatch, CollaboratorInvite, EditorialGrant, EditorialProposal, SupplementalEntry
+from dnd.editorial_import import (DOWNLOAD_FORMATS, INLINE_BYTES, INLINE_ROWS, MAX_BYTES, MAX_MIB, MAX_ROWS,
+                                  ImportRowLimitError, example_file, preview_digest, publish_rows, validated_rows)
+from dnd.editorial_batches import (CANCELLABLE_STATES, WORKING_STATES, enqueue_batch, notify_direct_import,
+                                   review_expired, update_batch_from_review)
 from dnd.supplemental.catalog import detail_for
 
 
@@ -329,28 +332,15 @@ def import_catalog(request, resource):
                 request.session.pop('editorial_import_preview', None)
                 try:
                     count = publish_rows(saved['content'], resource, kind, request.user,
-                                         json_file=saved['json_file'], expected_digest=saved['digest'])
+                                         json_file=saved['json_file'], expected_digest=saved['digest'], wait=False)
                 except (forms.ValidationError, ValueError) as error:
                     detail = '; '.join(error.messages) if isinstance(error, forms.ValidationError) else str(error)
                     messages.error(request, _('Nothing was published: %(error)s') % {'error': detail})
                 except IntegrityError:
                     messages.error(request, _('The catalog changed while publishing. Nothing was saved. Upload the file again.'))
                 else:
-                    if settings.EDITORIAL_NOTIFY_EMAIL:
-                        try:
-                            sent = send_mail(str(_('D&D Tools: direct catalog import')),
-                                             _('%(email)s published %(count)s records in %(resource)s. '
-                                               'Review the private editorial history.') % {
-                                                 'email': request.user.email, 'count': count,
-                                                 'resource': KIND_LABELS.get(kind, RESOURCE_LABELS[resource]),
-                                             },
-                                             settings.DEFAULT_FROM_EMAIL, [settings.EDITORIAL_NOTIFY_EMAIL],
-                                             fail_silently=False)
-                            if sent != 1:
-                                raise smtplib.SMTPException('Import notification was not accepted.')
-                        except (OSError, smtplib.SMTPException):
-                            logger.exception('Editorial import email notification failed')
-                            messages.warning(request, _('Records published, but the email alert could not be sent.'))
+                    if not notify_direct_import(request.user, resource, kind, count):
+                        messages.warning(request, _('Records published, but the email alert could not be sent.'))
                     messages.success(request, ngettext(
                         'Published %(count)s catalog record.',
                         'Published %(count)s catalog records.', count) % {'count': count})
@@ -367,10 +357,14 @@ def import_catalog(request, resource):
                 json_file = upload.name.lower().endswith('.json')
                 try:
                     content = upload.read(MAX_BYTES + 1).decode('utf-8-sig')
-                    rows = validated_rows(content, resource, kind, json_file=json_file)
+                    if upload.size > INLINE_BYTES:
+                        return _queue_import(request, resource, kind, content, json_file=json_file)
+                    rows = validated_rows(content, resource, kind, json_file=json_file, max_rows=INLINE_ROWS)
                     digest = preview_digest(rows)
                 except UnicodeError:
                     messages.error(request, _('The file must use UTF-8 encoding.'))
+                except ImportRowLimitError:
+                    return _queue_import(request, resource, kind, content, json_file=json_file)
                 except forms.ValidationError as error:
                     messages.error(request, '; '.join(error.messages))
                 else:
@@ -389,9 +383,46 @@ def import_catalog(request, resource):
         if preview else '',
         'resource_label': label,
         'max_rows': MAX_ROWS, 'max_mib': MAX_MIB,
+        'recent_batch': (CatalogImportBatch.objects.only('pk', 'state')
+                         .filter(author=request.user, resource=resource, kind=kind).order_by('-pk').first()),
     })
     response['Cache-Control'] = 'no-store'
     return response
+
+
+def _queue_import(request, resource, kind, content, *, json_file):
+    batch, created = enqueue_batch(request.user, resource, kind, content, json_file=json_file)
+    if not created:
+        messages.warning(request, _('Finish or cancel the current batch before uploading another large file.'))
+    return redirect('editorial_import_batch', batch.pk)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
+@never_cache
+def import_batch(request, batch_id):
+    batch = get_object_or_404(CatalogImportBatch.objects.defer('payload', 'preview'), pk=batch_id,
+                              author=request.user)
+    if not can_import(request.user, batch.resource, kind=batch.kind or None):
+        return HttpResponseForbidden()
+    if request.method == 'POST':
+        update_batch_from_review(batch.pk, request.user, request.POST.get('action'))
+        return redirect('editorial_import_batch', batch.pk)
+    if review_expired(batch):
+        batch.state = CatalogImportBatch.State.EXPIRED
+    working = batch.state in WORKING_STATES or batch.notify_pending
+    if request.GET.get('status') == '1':
+        return JsonResponse({
+            'state': batch.state, 'processed': batch.processed, 'working': working,
+        })
+    preview = Paginator(batch.preview, 50).get_page(request.GET.get('page')) if batch.state == 'ready' else None
+    return render(request, 'admin/editorial/import_batch.html', {
+        'title': _('Import batch #%(number)s') % {'number': batch.pk},
+        'batch': batch,
+        'resource_label': KIND_LABELS.get(batch.kind, RESOURCE_LABELS[batch.resource]),
+        'preview': preview, 'working': working,
+        'can_cancel': batch.state in CANCELLABLE_STATES,
+    })
 
 
 @staff_member_required

@@ -42,9 +42,10 @@ Never include `.env`, passwords, tokens, database files, backups, uploaded image
 Ronassic can enable **Add records** and **Publish validated imports directly** for specific resources when inviting an editor. For an active collaborator, use **Editorial workspace → Manage resource grants** and enable **Can publish imports directly** on the relevant grant, with creation enabled. Ordinary proposals still go to Ronassic for review.
 
 1. In the **Editorial workspace**, find the resource and select **Import records directly**. The importer supports spells, feats, monsters, items, creature templates and each supplemental rules family.
-2. Download a filled example for that resource in comma CSV, semicolon CSV (common in Excel on Brazilian settings), or JSON. Replace the fictional values before uploading. Keep the field names and UTF-8 encoding. Each file can contain up to **250 records and 1 MiB**. Use an existing D&D 3.5 rulebook in `rulebook` and cite the official book and page in `source_reference`.
+2. Download a filled example for that resource in comma CSV, semicolon CSV (common in Excel on Brazilian settings), or JSON. Replace the fictional values before uploading. Keep the field names and UTF-8 encoding. Each file can contain up to **5,000 records and 40 MiB**. Use an existing D&D 3.5 rulebook in `rulebook` and cite the official book and page in `source_reference`.
 3. For related records, enter the exact catalog name or its numeric ID. Use `|` between multiple values in CSV or a JSON array, such as `["General", "Fighter Bonus"]`. JSON uses a top-level list with one object per record. Use `true` / `false` for boolean fields and a decimal point in numeric fields. Use the proposal forms for links that have their own records, such as spell class levels and feat prerequisites.
-4. Choose **Preview import**, check the records and confirm publication. The preview expires after 20 minutes. For multiple files, confirm each batch before uploading the next one. The importer adds new records only and rejects duplicates and invalid batches. The editorial history records the author and source of each entry, and Ronassic receives one email per published batch when SMTP is configured. The editor is responsible for checking the cited source and publication rights.
+4. Choose **Preview import**, check the records and confirm publication. Files above 250 records or 1 MiB run in the `editorial_import_worker` Docker service. You can close the page and return through **View your latest queued batch**. Queued previews expire after 24 hours. Smaller previews expire after 20 minutes.
+5. For multiple files, finish each batch before uploading the next one. The importer adds new records and rejects duplicates and invalid batches. Each batch commits in a single transaction. The editorial history records the author and source of each entry, and Ronassic receives one email per published batch when SMTP is configured. The editor is responsible for checking the cited source and publication rights.
 
 ## Local setup (Windows PowerShell)
 
@@ -71,7 +72,7 @@ docker compose run --rm --volume "${privateDb}:/private/dnd.sqlite:ro" app pytho
 The import reads the SQLite file without modifying it, requires an empty MySQL catalog and verifies every content field after writing. It does not import the unrelated HeroForge table. The project also starts without the private data, with an empty catalog.
 
 ```powershell
-docker compose up -d app
+docker compose up -d app editorial_import_worker
 ```
 
 Open <http://127.0.0.1:8765/>. For editorial access, create your own administrator after starting the app:
@@ -133,7 +134,7 @@ $privateDb = (Resolve-Path 'C:\caminho\para\dnd.sqlite').Path
 docker compose run --rm --volume "${privateDb}:/private/dnd.sqlite:ro" app python manage.py import_legacy_sqlite --source /private/dnd.sqlite
 docker compose run --rm --volume "${privateDb}:/private/dnd.sqlite:ro" app python manage.py import_legacy_sqlite --source /private/dnd.sqlite --apply
 docker compose run --rm --volume "${privateDb}:/private/dnd.sqlite:ro" app python manage.py import_legacy_sqlite --source /private/dnd.sqlite --verify
-docker compose up -d app
+docker compose up -d app editorial_import_worker
 ```
 
 Abra <http://127.0.0.1:8765/>. A primeira importação pode levar alguns minutos. A opção sem `--apply` apenas confere; `--verify` compara o MySQL com o arquivo recebido antes da curadoria, que altera intencionalmente descrições e capas. Se o banco já contém registros, o importador recusa uma segunda carga.
@@ -182,9 +183,10 @@ Para convidados que não são membros da conta Cloudflare, adicione **One-time P
 Ao convidar um editor, Ronassic pode marcar **Adicionar registros** e **Publicar importações validadas diretamente** para os recursos escolhidos. Para um colaborador já ativo, abra **Área editorial → Gerenciar permissões por recurso** e marque **Pode publicar importações diretamente** na permissão do tipo desejado, junto com a permissão de inclusão. As propostas comuns continuam na fila de revisão.
 
 1. Na **Área editorial**, encontre o tipo de registro e clique em **Importar registros diretamente**. A importação aceita magias, talentos, monstros, itens, modelos de criaturas e cada família de regras suplementares.
-2. Baixe um exemplo preenchido para o tipo escolhido. Há CSV com vírgula, CSV com ponto e vírgula (comum no Excel em português) e JSON. Troque os dados fictícios, mantenha os nomes dos campos e salve em UTF-8. Cada arquivo aceita até **250 registros e 1 MiB**. Em `rulebook`, indique um livro 3.5 já cadastrado. Em `source_reference`, cite o livro oficial e a página.
+2. Baixe um exemplo preenchido para o tipo escolhido. Há CSV com vírgula, CSV com ponto e vírgula (comum no Excel em português) e JSON. Troque os dados fictícios, mantenha os nomes dos campos e salve em UTF-8. Cada arquivo aceita até **5.000 registros e 40 MiB**. Em `rulebook`, indique um livro 3.5 já cadastrado. Em `source_reference`, cite o livro oficial e a página.
 3. Use o nome exato ou o ID numérico para registros relacionados. Separe valores múltiplos com `|` no CSV ou use uma lista no JSON, como `["General", "Fighter Bonus"]`. No JSON, a raiz é uma lista com um objeto por registro. Use `true` ou `false` nos campos booleanos e ponto decimal nos campos numéricos. Vínculos com cadastro próprio, como níveis de magia por classe e pré-requisitos de talentos, podem ser propostos pelos formulários correspondentes.
-4. Clique em **Ver prévia da importação**, confira os dados e confirme a publicação. A prévia vale por 20 minutos. Se tiver vários arquivos, confirme cada lote antes de enviar o próximo. A ferramenta só cria registros novos e rejeita lotes inválidos ou duplicados. O histórico editorial guarda autor e fonte de cada registro, e Ronassic recebe um e-mail por lote publicado quando o SMTP está configurado. Cabe ao editor conferir a informação na fonte e os direitos de publicação.
+4. Clique em **Ver prévia da importação**, confira os dados e confirme a publicação. Arquivos com mais de 250 registros ou 1 MiB rodam no serviço Docker `editorial_import_worker`. Você pode fechar a página e voltar pelo link **Ver seu lote mais recente na fila**. A prévia dos lotes em fila vale por 24 horas. Para os arquivos menores, vale por 20 minutos.
+5. Se tiver vários arquivos, conclua cada lote antes de enviar o próximo. A ferramenta cria registros novos e rejeita lotes inválidos ou duplicados. A publicação grava cada lote em uma única transação. O histórico editorial guarda autor e fonte de cada registro, e Ronassic recebe um e-mail por lote publicado quando o SMTP está configurado. Cabe ao editor conferir a informação na fonte e os direitos de publicação.
 
 ### Administração em produção
 

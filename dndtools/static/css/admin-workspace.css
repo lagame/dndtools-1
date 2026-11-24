@@ -245,6 +245,11 @@ body.dashboard #content-related h3, body.dashboard #content-related p, body.dash
   background: var(--darkened-bg);
 }
 
+.editorial-preview-table th:first-child,
+.editorial-preview-table td:first-child {
+  white-space: nowrap;
+}
+
 .editorial-catalog-table {
   table-layout: fixed;
 }

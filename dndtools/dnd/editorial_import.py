@@ -18,9 +18,19 @@ from dnd.models import EditorialProposal
 from dnd.supplemental.forms import parse_class_levels
 
 
-MAX_MIB = 1
+MAX_MIB = 40
 MAX_BYTES = MAX_MIB * 1024 ** 2
-MAX_ROWS = 250
+MAX_ROWS = 5000
+INLINE_BYTES = 1024 ** 2
+INLINE_ROWS = 250
+
+
+class ImportRowLimitError(forms.ValidationError):
+    pass
+
+
+def _row_limit_error(max_rows):
+    return ImportRowLimitError(_('Import at most %(rows)s records per file.') % {'rows': max_rows})
 REQUIRED_COLUMNS = frozenset(('source_reference', 'name', 'rulebook'))
 DOWNLOAD_FORMATS = {'csv': ',', 'csv-semicolon': ';', 'json': None}
 
@@ -80,7 +90,7 @@ def _invalid_constant(value):
     raise ValueError('Invalid JSON number: ' + value)
 
 
-def _source_rows(content, json_file, allowed):
+def _source_rows(content, json_file, allowed, max_rows):
     if json_file:
         try:
             rows = json.loads(content, object_pairs_hook=_unique_fields,
@@ -90,6 +100,8 @@ def _source_rows(content, json_file, allowed):
             raise forms.ValidationError(_('Invalid JSON or repeated field name.')) from error
         if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
             raise forms.ValidationError(_('JSON must be an array of record objects.'))
+        if len(rows) > max_rows:
+            raise _row_limit_error(max_rows)
         for number, row in enumerate(rows, 1):
             yield number, row
     else:
@@ -154,7 +166,8 @@ def _field_value(field, value):
     return value
 
 
-def validated_rows(content, resource, kind, *, json_file=False):
+def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, progress=None):
+    max_rows = MAX_ROWS if max_rows is None else max_rows
     if len(content.encode('utf-8')) > MAX_BYTES:
         raise forms.ValidationError(_('The file exceeds the %(mib)s MiB limit.') % {'mib': MAX_MIB})
     Form = editable_form(resource, kind=kind or None)
@@ -162,9 +175,9 @@ def validated_rows(content, resource, kind, *, json_file=False):
     rows = []
     seen = set()
     try:
-        for number, row in _source_rows(content.lstrip('\ufeff'), json_file, allowed):
-            if len(rows) >= MAX_ROWS:
-                raise forms.ValidationError(_('Import at most %(rows)s records per file.') % {'rows': MAX_ROWS})
+        for number, row in _source_rows(content.lstrip('\ufeff'), json_file, allowed, max_rows):
+            if len(rows) >= max_rows:
+                raise _row_limit_error(max_rows)
             try:
                 _check_columns(row, allowed)
                 source = row.get('source_reference')
@@ -202,6 +215,8 @@ def validated_rows(content, resource, kind, *, json_file=False):
                 raise forms.ValidationError(_('Row %(row)s: %(error)s') % {
                     'row': number, 'error': '; '.join(error.messages)}) from error
             rows.append((number, row, form))
+            if progress and len(rows) % INLINE_ROWS == 0:
+                progress(len(rows))
     except csv.Error as error:
         raise forms.ValidationError(_('Invalid CSV format.')) from error
     if not rows:
@@ -221,13 +236,16 @@ def preview_digest(rows):
 
 
 @transaction.atomic
-def publish_rows(content, resource, kind, user, *, json_file=False, expected_digest):
+def publish_rows(content, resource, kind, user, *, json_file=False, expected_digest, wait=True):
     if not can_import(user, resource, kind=kind or None):
         raise PermissionDenied
     rows = validated_rows(content, resource, kind, json_file=json_file)
     if preview_digest(rows) != expected_digest:
         raise forms.ValidationError(_('Catalog values changed after the preview. Upload the file again.'))
-    lock_creation_books({form.cleaned_data['rulebook'].pk for number, raw, form in rows})
+    lock_creation_books({form.cleaned_data['rulebook'].pk for number, raw, form in rows}, wait=wait)
+    user.refresh_from_db(fields=('is_active', 'is_staff', 'is_superuser', 'email'))
+    if not can_import(user, resource, kind=kind or None):
+        raise PermissionDenied
     for number, raw, form in rows:
         entry = save_catalog_entry(resource, form, user, creating=True)
         EditorialProposal.objects.create(
@@ -236,4 +254,7 @@ def publish_rows(content, resource, kind, user, *, json_file=False, expected_dig
             status='approved', author=user, reviewer=user,
             review_note='Direct file import', reviewed_at=timezone.now(),
         )
+    user.refresh_from_db(fields=('is_active', 'is_staff', 'is_superuser', 'email'))
+    if not can_import(user, resource, kind=kind or None):
+        raise PermissionDenied
     return len(rows)
