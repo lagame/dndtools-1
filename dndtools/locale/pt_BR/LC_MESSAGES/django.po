@@ -1978,6 +1978,18 @@ msgstr ""
 msgid "Back to the catalog"
 msgstr "Voltar ao catálogo"
 
+#: templates/404.html
+msgid "Error 404"
+msgstr "Erro 404"
+
+#: templates/404.html
+msgid "Page not found"
+msgstr "Página não encontrada"
+
+#: templates/404.html
+msgid "Check the address or return to the catalog to find what you were looking for."
+msgstr "Confira o endereço ou volte ao catálogo para encontrar o que procurava."
+
 #: templates/dnd/character_classes/character_class_detail.html:21
 #: templates/dnd/deities/deity_detail.html:15
 #: templates/dnd/feats/feat_category_detail.html:14

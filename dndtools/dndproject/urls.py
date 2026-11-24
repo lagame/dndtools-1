@@ -10,6 +10,8 @@ from dnd.locale import switch_language
 from dnd.discussions import record_metadata
 admin.autodiscover()
 
+handler404 = 'dnd.locale.localized_page_not_found'
+
 urlpatterns = patterns('',
 
     path('forum-record/<slug:kind>/<int:record_id>/', record_metadata, name='forum_record_metadata'),

@@ -3,9 +3,28 @@
 from urllib.parse import urlsplit, urlunsplit
 
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.utils import translation
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
+
+
+def preferred_language(request):
+    stored = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    if stored in ('en-us', 'pt-br'):
+        return stored
+    preferred = request.META.get('HTTP_ACCEPT_LANGUAGE', '').split(',', 1)[0].lower()
+    return 'pt-br' if preferred.startswith('pt') else 'en-us'
+
+
+@never_cache
+def localized_page_not_found(request, exception):
+    language = 'pt-br' if request.path_info.startswith('/pt-br/') else preferred_language(request)
+    with translation.override(language):
+        response = HttpResponseNotFound(render_to_string('404.html', {'requested_path': request.path_info}))
+    response['Content-Language'] = language
+    return response
 
 
 class PublicLocaleMiddleware:
@@ -14,11 +33,8 @@ class PublicLocaleMiddleware:
 
     def __call__(self, request):
         path = request.path_info
-        if path == '/':
-            stored = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
-            preferred = request.META.get('HTTP_ACCEPT_LANGUAGE', '').split(',', 1)[0].lower()
-            if stored == 'pt-br' or (stored not in ('en-us', 'pt-br') and preferred.startswith('pt')):
-                return HttpResponseRedirect('/pt-br/' + ('?' + request.META['QUERY_STRING'] if request.META.get('QUERY_STRING') else ''))
+        if path == '/' and preferred_language(request) == 'pt-br':
+            return HttpResponseRedirect('/pt-br/' + ('?' + request.META['QUERY_STRING'] if request.META.get('QUERY_STRING') else ''))
         if path == '/privacy/' and request.GET.get('lang', '').lower() == 'pt':
             return HttpResponseRedirect('/pt-br/privacy/')
         if path.startswith('/' + settings.ADMIN_URL):
@@ -31,7 +47,7 @@ class PublicLocaleMiddleware:
         request.LANGUAGE_CODE = language
         try:
             response = self.get_response(request)
-            response['Content-Language'] = language
+            response.headers.setdefault('Content-Language', language)
             return response
         finally:
             translation.deactivate()

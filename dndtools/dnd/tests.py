@@ -15,7 +15,7 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, RequestFactory, TestCase
+from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -98,6 +98,35 @@ class RecordDiscussionTests(TestCase):
             'name': 'Appraise variant (Player Handbook)',
             'path': '/skills/player-handbook--1/appraise/',
         })
+
+
+@override_settings(DEBUG=False)
+class ErrorPageTests(SimpleTestCase):
+    def test_returns_a_localized_404_with_a_catalog_link(self):
+        cases = (
+            ('/missing-page/', None, 'pt-BR,pt;q=0.9', 'pt-br', 'Página não encontrada', '/pt-br/'),
+            ('/missing-page/', 'pt-br', 'en-US', 'pt-br', 'Página não encontrada', '/pt-br/'),
+            ('/missing-page/', 'en-us', 'pt-BR', 'en-us', 'Page not found', '/'),
+            ('/pt-br/missing-page/', 'en-us', 'en-US', 'pt-br', 'Página não encontrada', '/pt-br/'),
+        )
+        for path, cookie, browser, language, title, home in cases:
+            with self.subTest(path=path, cookie=cookie):
+                client = Client()
+                if cookie:
+                    client.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+                page = client.get(path, HTTP_ACCEPT_LANGUAGE=browser)
+                self.assertContains(page, f'<h1>{title}</h1>', status_code=404)
+                self.assertContains(page, f'<html lang="{language}">', status_code=404)
+                self.assertContains(page, f'class="error-action" href="{home}"', status_code=404)
+                self.assertEqual(page['Content-Language'], language)
+                self.assertIn('no-store', page['Cache-Control'])
+
+    def test_language_switch_preserves_the_missing_path(self):
+        page = self.client.get(reverse('switch_language'), {
+            'language': 'en-us', 'next': '/pt-br/missing-page/',
+        }, HTTP_ACCEPT_LANGUAGE='pt-BR', follow=True)
+        self.assertEqual(page.redirect_chain, [('/missing-page/', 302)])
+        self.assertContains(page, '<h1>Page not found</h1>', status_code=404)
 
 
 class AdminSecurityTests(TestCase):
