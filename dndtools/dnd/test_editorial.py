@@ -578,8 +578,11 @@ class EditorialFlowTests(TestCase):
                                       can_create=True)
         self.client.force_login(limited)
         dashboard = self.client.get(reverse('editorial_dashboard'))
-        self.assertContains(dashboard, 'Additional D&D 3.5 mechanics')
+        self.assertContains(dashboard, '<p class="editorial-group-label">Additional D&amp;D 3.5 mechanics</p>',
+                            html=True)
         self.assertNotContains(dashboard, 'href="' + reverse('editorial_catalog', args=('SupplementalEntry',)) + '"')
+        self.assertContains(dashboard, reverse('editorial_create', args=('SupplementalEntry',)) + '?kind=auras')
+        self.assertNotContains(dashboard, '?kind=psionics')
         self.assertEqual(self.client.get(reverse('editorial_catalog', args=('SupplementalEntry',)) +
                                          '?kind=auras').status_code, 200)
         self.assertEqual(self.client.get(reverse('editorial_catalog', args=('SupplementalEntry',)) +
@@ -890,6 +893,26 @@ class EditorialFlowTests(TestCase):
             user=self.editor, resource=resource,
             defaults={'can_create': True, 'can_import': True})
 
+    def test_workspace_shows_only_allowed_import_and_proposal_actions(self):
+        self._activate_importer()
+        EditorialGrant.objects.create(user=self.editor, resource='Spell', can_create=True)
+        self.client.force_login(self.editor)
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = 'pt-br'
+        dashboard_url = reverse('editorial_dashboard')
+        feat_import_url = reverse('editorial_import', args=('Feat',))
+        dashboard = self.client.get(dashboard_url)
+        self.assertContains(dashboard, '<h1>Área editorial</h1>', count=1, html=True)
+        self.assertContains(dashboard, 'Importar registros diretamente', count=1)
+        self.assertContains(dashboard, f'href="{feat_import_url}"')
+        self.assertContains(dashboard, f'href="{reverse("editorial_create", args=("Spell",))}"')
+        self.assertNotContains(dashboard, reverse('editorial_import', args=('Spell',)))
+        self.assertNotContains(dashboard, reverse('editorial_catalog', args=('Monster',)))
+        self.assertNotContains(dashboard, reverse('editorial_invite'))
+        catalog = self.client.get(reverse('editorial_catalog', args=('Feat',)))
+        self.assertContains(catalog, '<h1>Talentos</h1>', count=1, html=True)
+        self.assertContains(catalog, 'Propor inclusão')
+        self.assertContains(catalog, f'href="{feat_import_url}"')
+
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
                        EDITORIAL_NOTIFY_EMAIL='owner@example.test')
     def test_trusted_csv_import_previews_then_publishes_with_audit_and_alert(self):
@@ -1075,17 +1098,45 @@ class EditorialFlowTests(TestCase):
         self.assertEqual(client.post(url, {'confirm': '1', 'token': token}).status_code, 403)
         self.assertFalse(Feat.objects.filter(name=record['name']).exists())
 
-    def test_import_rejects_large_files_and_more_than_fifty_records(self):
-        from dnd.editorial_import import MAX_BYTES, MAX_ROWS, validated_rows
-        self.assertRaisesMessage(forms.ValidationError, 'exceeds the 128 KiB limit.',
+    def test_import_rejects_files_and_batches_above_the_limits(self):
+        from dnd.editorial_import import MAX_BYTES, MAX_MIB, MAX_ROWS, validated_rows
+        self.assertRaisesMessage(forms.ValidationError, f'exceeds the {MAX_MIB} MiB limit.',
                                  validated_rows, ' ' * (MAX_BYTES + 1), 'Feat', '')
         record = {'source_reference': 'Test Source p. 5',
                   'rulebook': self.book.pk, 'feat_categories': [self.category.pk],
                   'description': 'Example.', 'benefit': 'Example.'}
         records = [dict(record, name='Batch feat %s' % index) for index in range(MAX_ROWS + 1)]
-        with self.assertRaisesMessage(forms.ValidationError, 'Import at most 50 records per file.'):
+        with self.assertRaisesMessage(forms.ValidationError, f'Import at most {MAX_ROWS} records per file.'):
             validated_rows(json.dumps(records), 'Feat', '', json_file=True)
         self.assertFalse(Feat.objects.exists())
+
+    def test_import_accepts_and_audits_a_batch_at_both_limits(self):
+        from dnd.editorial_import import MAX_BYTES, MAX_ROWS
+
+        self._activate_importer()
+        self.client.force_login(self.editor)
+        url = reverse('editorial_import', args=('Feat',))
+        records = [{
+            'name': f'Batch Feat {index}', 'rulebook': self.book.pk,
+            'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 12',
+            'description': 'Example rule. ' * 280, 'benefit': 'Example benefit.',
+        } for index in range(MAX_ROWS)]
+        content = json.dumps(records).encode('utf-8')
+        self.assertGreater(len(content), MAX_BYTES * 0.9)
+        self.assertLess(len(content), MAX_BYTES)
+        content = content.ljust(MAX_BYTES, b' ')
+        oversized = SimpleUploadedFile('batch.json', content + b' ', content_type='application/json')
+        self.assertContains(self.client.post(url, {'file': oversized}), 'up to 1 MiB.')
+        self.assertNotIn('editorial_import_preview', self.client.session)
+        upload = SimpleUploadedFile('batch.json', content, content_type='application/json')
+        self.assertContains(self.client.post(url, {'file': upload}), f'Review {MAX_ROWS} records before publishing')
+        self.assertFalse(Feat.objects.exists())
+        token = self.client.session['editorial_import_preview']['token']
+        self.assertRedirects(self.client.post(url, {'confirm': '1', 'token': token}),
+                             reverse('editorial_catalog', args=('Feat',)))
+        self.assertEqual(Feat.objects.filter(name__startswith='Batch Feat ').count(), MAX_ROWS)
+        self.assertEqual(EditorialProposal.objects.filter(resource='Feat', status='approved',
+                                                        author=self.editor).count(), MAX_ROWS)
 
     def test_import_rejects_bad_json_and_incomplete_csv(self):
         from dnd.editorial_import import validated_rows
