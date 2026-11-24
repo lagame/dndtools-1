@@ -101,6 +101,23 @@ class RecordDiscussionTests(TestCase):
 
 
 class AdminSecurityTests(TestCase):
+    def test_legacy_admin_redirects_to_configured_index_without_caching(self):
+        index = reverse('admin:index')
+        legacy_paths = ['/admin']
+        if index != '/admin/':
+            legacy_paths.append('/admin/')
+        for path in legacy_paths:
+            with self.subTest(path=path):
+                response = self.client.get(path, {'next': '/spells/'})
+                self.assertRedirects(response, index, fetch_redirect_response=False)
+                self.assertIn('no-store', response['Cache-Control'])
+
+    @override_settings(ACCESS_REQUIRED=True)
+    def test_legacy_admin_still_requires_access_at_destination(self):
+        response = self.client.get('/admin', follow=True)
+        self.assertEqual(response.redirect_chain, [(reverse('admin:index'), 302)])
+        self.assertContains(response, 'Access authentication required.', status_code=403)
+
     def test_custom_route_and_report_only_csp(self):
         login = reverse('admin:login')
         self.assertEqual(login, '/' + settings.ADMIN_URL + 'login/')
