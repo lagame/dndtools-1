@@ -1,18 +1,92 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n %}
 {% block content %}
-<h1>{% translate "Editorial workspace" %}</h1>
-<p>{% translate "Submit catalog additions, corrections, removals and complete PT-BR translations. All submissions wait for Ronassic's review." %}</p>
-{% if is_owner %}<h2>{% blocktranslate %}Pending collaborations: {{ pending_count }}{% endblocktranslate %}</h2>{% endif %}
-{% if is_owner %}<h2>{% translate "Collaborators" %}</h2><p><a class="button" href="{% url 'editorial_invite' %}">{% translate "Invite collaborator" %}</a> · <a href="{% url 'admin:dnd_editorialgrant_changelist' %}">{% translate "Manage resource grants" %}</a></p>
-<table><thead><tr><th>{% translate "Email" %}</th><th>{% translate "Access state" %}</th><th>{% translate "Action" %}</th></tr></thead><tbody>
-{% for invite in collaborators %}<tr><td>{{ invite.user.email }}</td><td>{{ invite.access_state_label }}</td><td>{% if invite.access_state != 'revoked' %}<form method="post" action="{% url 'editorial_revoke' invite.pk %}">{% csrf_token %}<button type="submit">{% translate "Revoke access" %}</button></form>{% endif %}</td></tr>{% empty %}<tr><td colspan="3">{% translate "No collaborators invited yet." %}</td></tr>{% endfor %}</tbody></table>{% endif %}
-<h2>{% translate "Proposals" %}</h2>
-<table><thead><tr><th>{% translate "Submitted" %}</th><th>{% translate "Author" %}</th><th>{% translate "Action" %}</th><th>{% translate "Resource" %}</th><th>{% translate "Status" %}</th></tr></thead><tbody>
-{% for proposal in proposals %}<tr><td>{{ proposal.created_at }}</td><td>{{ proposal.author.username }}</td><td>{% if is_owner %}<a href="{% url 'editorial_review' proposal.pk %}">{{ proposal.action_label }}</a>{% else %}{{ proposal.action_label }}{% endif %}</td><td>{{ proposal.resource_label }}</td><td>{{ proposal.status_label }}</td></tr>
-{% empty %}<tr><td colspan="5">{% translate "No proposals yet." %}</td></tr>{% endfor %}
-</tbody></table>
-<h2>{% translate "Catalog resources" %}</h2>
-{% for group, resources in groups %}{% if resources %}<h3>{{ group }}</h3><ul>{% for name, label, create, correct, translate, delete in resources %}{% if create or correct or translate or delete %}<li><a href="{% url 'editorial_catalog' name %}">{{ label }}</a></li>{% endif %}{% endfor %}</ul>{% endif %}{% endfor %}
-{% if supplemental_kinds %}<h2>{% translate "Additional D&D 3.5 mechanics" %}</h2><ul>{% for kind, label in supplemental_kinds %}<li><a href="{% url 'editorial_catalog' 'SupplementalEntry' %}?kind={{ kind|urlencode }}">{{ label }}</a></li>{% endfor %}</ul>{% endif %}
+<div class="editorial-workspace">
+    {% if is_owner %}
+        <div class="editorial-actions">
+            <a href="#editorial-proposals">{% translate "Proposals" %}</a>
+            <a href="#editorial-collaborators">{% translate "Collaborators" %}</a>
+        </div>
+    {% endif %}
+    <section class="editorial-section" aria-labelledby="editorial-resources">
+        <h2 id="editorial-resources">{% translate "Catalog resources" %}</h2>
+        <p class="workspace-help">{% translate "Choose a resource to open its records, submit a proposal or import a file. Proposals go through review before publication." %}</p>
+        {% if groups %}
+            <div class="editorial-groups">
+                {% for group, resources in groups %}
+                    <section class="workspace-card editorial-group">
+                        {% if group != resources.0.label or resources|length > 1 %}
+                            <p class="editorial-group-label">{{ group }}</p>
+                        {% endif %}
+                        <ul class="editorial-resources">
+                            {% for resource in resources %}
+                                <li>
+                                    <h3>{{ resource.label }}</h3>
+                                    {% with kind=resource.kind %}
+                                        <div class="editorial-actions">
+                                            {% if resource.can_import %}
+                                                <a class="button" href="{% url 'editorial_import' resource.name %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Import records directly" %}</a>
+                                            {% endif %}
+                                            {% if resource.can_create %}
+                                                <a href="{% url 'editorial_create' resource.name %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Propose an addition" %}</a>
+                                            {% endif %}
+                                            <a href="{% url 'editorial_catalog' resource.name %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "View records" %}</a>
+                                        </div>
+                                    {% endwith %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>{% translate "No catalog permissions assigned. Contact the project maintainer to request access." %}</p>
+        {% endif %}
+    </section>
+    <section class="editorial-section" aria-labelledby="editorial-proposals">
+        <h2 id="editorial-proposals">{% translate "Proposals" %}</h2>
+        {% if is_owner %}<p>{% blocktranslate %}Pending collaborations: {{ pending_count }}{% endblocktranslate %}</p>{% endif %}
+        {% if proposals %}
+            <div class="editorial-table">
+                <table>
+                    <thead><tr><th scope="col">{% translate "Submitted" %}</th><th scope="col">{% translate "Author" %}</th><th scope="col">{% translate "Action" %}</th><th scope="col">{% translate "Resource" %}</th><th scope="col">{% translate "Status" %}</th></tr></thead>
+                    <tbody>
+                        {% for proposal in proposals %}
+                            <tr><td>{{ proposal.created_at }}</td><td>{{ proposal.author.username }}</td><td>{% if is_owner %}<a href="{% url 'editorial_review' proposal.pk %}">{{ proposal.action_label }}</a>{% else %}{{ proposal.action_label }}{% endif %}</td><td>{{ proposal.resource_label }}</td><td>{{ proposal.status_label }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>{% translate "No proposals yet." %}</p>
+        {% endif %}
+    </section>
+    {% if is_owner %}
+        <section class="editorial-section" aria-labelledby="editorial-collaborators">
+            <h2 id="editorial-collaborators">{% translate "Collaborators" %}</h2>
+            <div class="editorial-actions">
+                <a class="button" href="{% url 'editorial_invite' %}">{% translate "Invite collaborator" %}</a>
+                <a href="{% url 'admin:dnd_editorialgrant_changelist' %}">{% translate "Manage resource grants" %}</a>
+            </div>
+            {% if collaborators %}
+                <div class="editorial-table">
+                    <table>
+                        <thead><tr><th scope="col">{% translate "Email" %}</th><th scope="col">{% translate "Access state" %}</th><th scope="col">{% translate "Action" %}</th></tr></thead>
+                        <tbody>
+                            {% for invite in collaborators %}
+                                <tr>
+                                    <td>{{ invite.user.email }}</td>
+                                    <td>{{ invite.access_state_label }}</td>
+                                    <td>{% if invite.access_state != 'revoked' %}<form method="post" action="{% url 'editorial_revoke' invite.pk %}">{% csrf_token %}<button type="submit">{% translate "Revoke access" %}</button></form>{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>{% translate "No collaborators invited yet." %}</p>
+            {% endif %}
+        </section>
+    {% endif %}
+</div>
 {% endblock %}

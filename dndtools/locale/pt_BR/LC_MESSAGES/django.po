@@ -1990,6 +1990,22 @@ msgstr "Página não encontrada"
 msgid "Check the address or return to the catalog to find what you were looking for."
 msgstr "Confira o endereço ou volte ao catálogo para encontrar o que procurava."
 
+#: templates/admin/editorial/dashboard.html
+msgid "Choose a resource to open its records, submit a proposal or import a file. Proposals go through review before publication."
+msgstr "Escolha um recurso para ver os registros, enviar uma proposta ou importar um arquivo. As propostas passam por revisão antes da publicação."
+
+#: templates/admin/editorial/catalog.html templates/admin/editorial/dashboard.html
+msgid "Propose an addition"
+msgstr "Propor inclusão"
+
+#: templates/admin/editorial/dashboard.html
+msgid "View records"
+msgstr "Ver registros"
+
+#: templates/admin/editorial/dashboard.html
+msgid "No catalog permissions assigned. Contact the project maintainer to request access."
+msgstr "Você ainda não tem permissões no catálogo. Fale com o responsável pelo projeto para solicitar acesso."
+
 #: templates/dnd/character_classes/character_class_detail.html:21
 #: templates/dnd/deities/deity_detail.html:15
 #: templates/dnd/feats/feat_category_detail.html:14

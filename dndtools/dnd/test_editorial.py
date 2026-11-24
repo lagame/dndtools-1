@@ -578,8 +578,11 @@ class EditorialFlowTests(TestCase):
                                       can_create=True)
         self.client.force_login(limited)
         dashboard = self.client.get(reverse('editorial_dashboard'))
-        self.assertContains(dashboard, 'Additional D&D 3.5 mechanics')
+        self.assertContains(dashboard, '<p class="editorial-group-label">Additional D&amp;D 3.5 mechanics</p>',
+                            html=True)
         self.assertNotContains(dashboard, 'href="' + reverse('editorial_catalog', args=('SupplementalEntry',)) + '"')
+        self.assertContains(dashboard, reverse('editorial_create', args=('SupplementalEntry',)) + '?kind=auras')
+        self.assertNotContains(dashboard, '?kind=psionics')
         self.assertEqual(self.client.get(reverse('editorial_catalog', args=('SupplementalEntry',)) +
                                          '?kind=auras').status_code, 200)
         self.assertEqual(self.client.get(reverse('editorial_catalog', args=('SupplementalEntry',)) +
@@ -889,6 +892,26 @@ class EditorialFlowTests(TestCase):
         EditorialGrant.objects.update_or_create(
             user=self.editor, resource=resource,
             defaults={'can_create': True, 'can_import': True})
+
+    def test_workspace_shows_only_allowed_import_and_proposal_actions(self):
+        self._activate_importer()
+        EditorialGrant.objects.create(user=self.editor, resource='Spell', can_create=True)
+        self.client.force_login(self.editor)
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = 'pt-br'
+        dashboard_url = reverse('editorial_dashboard')
+        feat_import_url = reverse('editorial_import', args=('Feat',))
+        dashboard = self.client.get(dashboard_url)
+        self.assertContains(dashboard, '<h1>Área editorial</h1>', count=1, html=True)
+        self.assertContains(dashboard, 'Importar registros diretamente', count=1)
+        self.assertContains(dashboard, f'href="{feat_import_url}"')
+        self.assertContains(dashboard, f'href="{reverse("editorial_create", args=("Spell",))}"')
+        self.assertNotContains(dashboard, reverse('editorial_import', args=('Spell',)))
+        self.assertNotContains(dashboard, reverse('editorial_catalog', args=('Monster',)))
+        self.assertNotContains(dashboard, reverse('editorial_invite'))
+        catalog = self.client.get(reverse('editorial_catalog', args=('Feat',)))
+        self.assertContains(catalog, '<h1>Talentos</h1>', count=1, html=True)
+        self.assertContains(catalog, 'Propor inclusão')
+        self.assertContains(catalog, f'href="{feat_import_url}"')
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
                        EDITORIAL_NOTIFY_EMAIL='owner@example.test')

@@ -83,16 +83,33 @@ class ActivationForm(forms.Form):
     code = forms.CharField(max_length=100, widget=forms.PasswordInput, label=_('Invitation code'))
 
 
+def _dashboard_resource(user, name, label, *, kind=None):
+    can_create = can_propose(user, name, 'create', kind=kind)
+    if not can_create and not any(can_propose(user, name, action, kind=kind)
+                                  for action in ('correct', 'translate', 'delete')):
+        return None
+    return {
+        'name': name, 'label': label, 'kind': kind,
+        'can_create': can_create,
+        'can_import': can_create and can_import(user, name, kind=kind),
+    }
+
+
 @staff_member_required
 def dashboard(request):
-    groups = [(label, [(name, RESOURCE_LABELS[name],
-                        can_propose(request.user, name, 'create'),
-                        can_propose(request.user, name, 'correct'),
-                        can_propose(request.user, name, 'translate'),
-                        can_propose(request.user, name, 'delete'))
-                       for name in names if name != 'SupplementalEntry'])
-              for label, names in RESOURCE_GROUPS.items()]
-    proposals = (EditorialProposal.objects.all() if owner(request.user) else
+    groups = []
+    for label, names in RESOURCE_GROUPS.items():
+        if names == ('SupplementalEntry',):
+            label = _('Additional D&D 3.5 mechanics')
+            resources = [_dashboard_resource(request.user, 'SupplementalEntry', KIND_LABELS[kind], kind=kind)
+                         for kind, _ in SupplementalEntry.KINDS]
+        else:
+            resources = [_dashboard_resource(request.user, name, RESOURCE_LABELS[name]) for name in names]
+        available = [resource for resource in resources if resource is not None]
+        if available:
+            groups.append((label, available))
+    is_owner = owner(request.user)
+    proposals = (EditorialProposal.objects.all() if is_owner else
                  EditorialProposal.objects.filter(author=request.user))
     pending_count = proposals.filter(status='pending').count()
     proposals = list(proposals.select_related('author')[:30])
@@ -102,11 +119,8 @@ def dashboard(request):
         'groups': groups, 'pending_count': pending_count,
         'proposals': proposals,
         'collaborators': (CollaboratorInvite.objects.select_related('user').order_by('-created_at')[:50]
-                          if owner(request.user) else ()),
-        'supplemental_kinds': [(kind, KIND_LABELS[kind]) for kind, _ in SupplementalEntry.KINDS
-                               if any(can_propose(request.user, 'SupplementalEntry', action, kind=kind)
-                                      for action in ('create', 'correct', 'translate', 'delete'))],
-        'is_owner': owner(request.user), 'title': _('Editorial workspace'),
+                          if is_owner else ()),
+        'is_owner': is_owner, 'title': _('Editorial workspace'),
     })
 
 
@@ -270,10 +284,10 @@ def catalog(request, resource):
                 lookups |= Q(**{alias + '__contains': query})
             entries = entries.alias(**aliases).filter(lookups) if lookups else entries.none()
     return render(request, 'admin/editorial/catalog.html', {
-        'title': RESOURCE_LABELS[resource],
-        'resource': resource, 'resource_label': RESOURCE_LABELS[resource],
+        'title': KIND_LABELS.get(kind, RESOURCE_LABELS[resource]),
+        'resource': resource,
         'query': query,
-        'kind': kind, 'kind_label': KIND_LABELS.get(kind, ''),
+        'kind': kind,
         'entries': Paginator(entries, 50).get_page(request.GET.get('page')),
         'can_create': can_propose(request.user, resource, 'create', kind=kind or None),
         'can_import': can_import(request.user, resource, kind=kind or None),
