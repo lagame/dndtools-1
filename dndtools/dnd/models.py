@@ -2630,6 +2630,36 @@ class PublishedTranslation(models.Model):
                                                name='unique_published_translation')]
 
 
+class CatalogImportBatch(models.Model):
+    class State(models.TextChoices):
+        QUEUED = 'queued', _('Waiting for validation')
+        VALIDATING = 'validating', _('Validating')
+        READY = 'ready', _('Ready to review')
+        APPROVED = 'approved', _('Waiting to publish')
+        PUBLISHING = 'publishing', _('Publishing')
+        PUBLISHED = 'published', _('Published')
+        FAILED = 'failed', _('Failed')
+        EXPIRED = 'expired', _('Expired')
+        CANCELLED = 'cancelled', _('Cancelled')
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    resource = models.CharField(max_length=64)
+    kind = models.CharField(max_length=32, blank=True)
+    state = models.CharField(max_length=16, choices=State.choices, default=State.QUEUED, db_index=True)
+    language = models.CharField(max_length=5, default='en-us')
+    json_file = models.BooleanField(default=False)
+    payload = models.TextField()
+    preview = models.JSONField(default=list)
+    digest = models.CharField(max_length=64, blank=True)
+    count = models.PositiveIntegerField(default=0)
+    processed = models.PositiveIntegerField(default=0)
+    error = models.TextField(blank=True)
+    notify_pending = models.BooleanField(default=False)
+    notify_failed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class CollaboratorInvite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='editorial_invite')
     token_hash = models.CharField(max_length=64, blank=True)

@@ -9,6 +9,9 @@
 {% endblock %}
 {% block content %}
 <div class="editorial-workspace">
+    {% if recent_batch %}
+        <p><a href="{% url 'editorial_import_batch' recent_batch.pk %}">{% translate "View your latest queued batch" %}</a></p>
+    {% endif %}
     <div class="editorial-groups">
         <section class="editorial-section" aria-labelledby="import-examples">
             <h2 id="import-examples">{% translate "Download an example" %}</h2>
@@ -24,6 +27,7 @@
         <section class="editorial-section" aria-labelledby="upload-file">
             <h2 id="upload-file">{% translate "Upload a file" %}</h2>
             <p>{% blocktranslate %}Upload up to {{ max_rows }} new D&D 3.5 records in one UTF-8 file of up to {{ max_mib }} MiB. Enter the official book and page in source_reference. Review the preview before publishing.{% endblocktranslate %}</p>
+            <p>{% translate "Large files run in the background. You can close the page and return to check their status." %}</p>
             <form class="editorial-upload" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <label for="import-file">{% translate "CSV or JSON file" %}</label>

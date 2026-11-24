@@ -43,7 +43,7 @@ compose=(docker compose -f compose.yaml -f compose.tunnel.yaml -f compose.forum.
   --output-dir /var/www/media < scripts/restore_catalog_media.py
 "${compose[@]}" run --rm app python manage.py migrate --noinput
 "${compose[@]}" run --rm app python manage.py curate_rulebooks --apply
-"${compose[@]}" up -d --wait app forum tunnel_proxy
+"${compose[@]}" up -d --wait app forum tunnel_proxy editorial_import_worker
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-install-language.php
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-ensure-reference-forum.php
 "${compose[@]}" exec -T -u www-data forum php /usr/local/bin/dndtools-enable-extensions.php

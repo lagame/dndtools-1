@@ -1,0 +1,73 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n versioned_static %}
+{% block extrahead %}
+    {{ block.super }}
+    {% if working %}<script defer src="{% versioned_static 'js/editorial_batch.js' %}"></script>{% endif %}
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'editorial_dashboard' %}">{% translate "Editorial workspace" %}</a> ›
+        <a href="{% url 'editorial_import' batch.resource %}{% if batch.kind %}?kind={{ batch.kind|urlencode }}{% endif %}">{{ resource_label }}</a> ›
+        {{ title }}
+    </div>
+{% endblock %}
+{% block content %}
+<div class="editorial-workspace">
+    <section class="editorial-section" aria-labelledby="batch-status-heading">
+        <h2 id="batch-status-heading">{{ batch.get_state_display }}</h2>
+        {% if working %}
+            <p role="status" data-import-progress data-state="{{ batch.state }}">
+                {% if batch.state == 'validating' %}
+                    {% translate "Records validated so far" %} <strong data-import-count>{{ batch.processed }}</strong>
+                {% elif batch.state == 'publishing' %}
+                    {% blocktranslate with count=batch.count %}Publishing {{ count }} records as a single transaction.{% endblocktranslate %}
+                {% endif %}
+            </p>
+            <p>{% translate "You can close this page. Processing continues on the server." %}</p>
+            <a href="{% url 'editorial_import_batch' batch.pk %}">{% translate "Refresh status" %}</a>
+        {% endif %}
+        {% if batch.state == 'published' %}
+            <p>{% blocktranslate with count=batch.count %}{{ count }} records published and logged in the editorial history.{% endblocktranslate %}</p>
+        {% elif batch.state == 'expired' %}
+            <p>{% translate "This preview expired. Upload the file again to review it." %}</p>
+        {% endif %}
+        {% if batch.error %}<p class="errornote" role="alert">{{ batch.error }}</p>{% endif %}
+        {% if batch.notify_failed %}
+            <p>{% translate "Records published, but the email alert could not be sent." %}</p>
+        {% endif %}
+        {% if can_cancel %}
+            <form class="editorial-actions editorial-pagination" method="post">
+                {% csrf_token %}
+                <button class="button" type="submit" name="action" value="cancel">{% translate "Cancel batch" %}</button>
+            </form>
+        {% endif %}
+    </section>
+    {% if preview %}
+        <section class="editorial-section" aria-labelledby="batch-preview-heading">
+            <h2 id="batch-preview-heading">{% blocktranslate count count=batch.count %}Review {{ count }} record before publishing{% plural %}Review {{ count }} records before publishing{% endblocktranslate %}</h2>
+            <p>{% translate "Check the names, books and sources. This preview is available for 24 hours." %}</p>
+            <div class="editorial-table">
+                <table>
+                    <thead><tr><th scope="col">{% translate "Row" %}</th><th scope="col">{% translate "Name" %}</th><th scope="col">{% translate "Rulebook" %}</th><th scope="col">{% translate "Source" %}</th></tr></thead>
+                    <tbody>
+                        {% for number, name, book, source in preview %}
+                            <tr><td>{{ number }}</td><th scope="row">{{ name }}</th><td>{{ book }}</td><td>{{ source }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if preview.has_other_pages %}
+                <nav class="editorial-actions editorial-pagination" aria-label="{% translate 'Pagination' %}">
+                    {% if preview.has_previous %}<a href="?page={{ preview.previous_page_number }}">{% translate "Previous" %}</a>{% endif %}
+                    <span>{% blocktranslate with number=preview.number total=preview.paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktranslate %}</span>
+                    {% if preview.has_next %}<a href="?page={{ preview.next_page_number }}">{% translate "Next" %}</a>{% endif %}
+                </nav>
+            {% endif %}
+            <form class="editorial-actions editorial-pagination" method="post">
+                {% csrf_token %}
+                <button class="button default" type="submit" name="action" value="confirm">{% blocktranslate count count=batch.count %}Publish {{ count }} record now{% plural %}Publish {{ count }} records now{% endblocktranslate %}</button>
+            </form>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

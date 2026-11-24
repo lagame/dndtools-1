@@ -25,7 +25,7 @@ from django.urls import reverse
 from dnd.editorial import RESOURCES, RESOURCE_LABELS, FIELD_LABELS, editable_form, approve
 from dnd.access import verified_email
 from dnd.supplemental.catalog import detail_for
-from dnd.models import (CharacterClass, CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
+from dnd.models import (CatalogImportBatch, CharacterClass, CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
                         EditorialProposal, Feat, FeatCategory, FeatRequiresFeat, Monster, MonsterType, MysteryDetail, PublishedTranslation,
                         RaceSize, Rulebook, Spell, SpellSchool, SupplementalEntry)
 
@@ -1111,7 +1111,7 @@ class EditorialFlowTests(TestCase):
         self.assertFalse(Feat.objects.exists())
 
     def test_import_accepts_and_audits_a_batch_at_both_limits(self):
-        from dnd.editorial_import import MAX_BYTES, MAX_ROWS
+        from dnd.editorial_import import INLINE_BYTES, INLINE_ROWS
 
         self._activate_importer()
         self.client.force_login(self.editor)
@@ -1120,23 +1120,100 @@ class EditorialFlowTests(TestCase):
             'name': f'Batch Feat {index}', 'rulebook': self.book.pk,
             'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 12',
             'description': 'Example rule. ' * 280, 'benefit': 'Example benefit.',
-        } for index in range(MAX_ROWS)]
+        } for index in range(INLINE_ROWS)]
         content = json.dumps(records).encode('utf-8')
-        self.assertGreater(len(content), MAX_BYTES * 0.9)
-        self.assertLess(len(content), MAX_BYTES)
-        content = content.ljust(MAX_BYTES, b' ')
-        oversized = SimpleUploadedFile('batch.json', content + b' ', content_type='application/json')
-        self.assertContains(self.client.post(url, {'file': oversized}), 'up to 1 MiB.')
-        self.assertNotIn('editorial_import_preview', self.client.session)
+        self.assertGreater(len(content), INLINE_BYTES * 0.9)
+        self.assertLess(len(content), INLINE_BYTES)
+        content = content.ljust(INLINE_BYTES, b' ')
         upload = SimpleUploadedFile('batch.json', content, content_type='application/json')
-        self.assertContains(self.client.post(url, {'file': upload}), f'Review {MAX_ROWS} records before publishing')
+        self.assertContains(self.client.post(url, {'file': upload}), f'Review {INLINE_ROWS} records before publishing')
         self.assertFalse(Feat.objects.exists())
         token = self.client.session['editorial_import_preview']['token']
         self.assertRedirects(self.client.post(url, {'confirm': '1', 'token': token}),
                              reverse('editorial_catalog', args=('Feat',)))
-        self.assertEqual(Feat.objects.filter(name__startswith='Batch Feat ').count(), MAX_ROWS)
+        self.assertEqual(Feat.objects.filter(name__startswith='Batch Feat ').count(), INLINE_ROWS)
         self.assertEqual(EditorialProposal.objects.filter(resource='Feat', status='approved',
-                                                        author=self.editor).count(), MAX_ROWS)
+                                                        author=self.editor).count(), INLINE_ROWS)
+
+    def _queue_feat_file(self, record, *, pad=True):
+        from dnd.editorial_import import INLINE_BYTES
+
+        content = json.dumps([record]).encode('utf-8')
+        if pad:
+            content = content.ljust(INLINE_BYTES + 1, b' ')
+        url = reverse('editorial_import', args=('Feat',))
+        return self.client.post(url, {'file': SimpleUploadedFile('queued.json', content)})
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+                       EDITORIAL_NOTIFY_EMAIL='owner@example.test')
+    def test_large_job_resumes_and_publishes_once_after_confirmation(self):
+        from dnd.editorial_batches import process_next_batch
+
+        self._activate_importer()
+        self.client.force_login(self.editor)
+        record = {'name': 'Queued feat', 'rulebook': self.book.pk,
+                  'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 6',
+                  'description': 'Example.', 'benefit': 'Example.'}
+        response = self._queue_feat_file(record)
+        batch = CatalogImportBatch.objects.get()
+        status_url = reverse('editorial_import_batch', args=(batch.pk,))
+        self.assertRedirects(response, status_url)
+        self.assertEqual(self.client.get(status_url + '?status=1').json()['state'], 'queued')
+        self.assertRedirects(self._queue_feat_file(dict(record, name='Second job')), status_url)
+        self.assertEqual(CatalogImportBatch.objects.count(), 1)
+        peer = Client()
+        peer.force_login(self.owner)
+        self.assertEqual(peer.get(status_url + '?status=1').status_code, 404)
+        self.assertEqual(peer.post(status_url, {'action': 'confirm'}).status_code, 404)
+
+        CatalogImportBatch.objects.filter(pk=batch.pk).update(state='validating')
+        self.client.logout()
+        self.assertTrue(process_next_batch())
+        self.assertFalse(Feat.objects.exists())
+        self.client.force_login(self.editor)
+        page = self.client.get(status_url)
+        self.assertContains(page, 'Queued feat')
+        self.assertContains(page, 'Publish 1 record now')
+        self.assertIn('no-store', page['Cache-Control'])
+        for _ in range(2):
+            self.assertRedirects(self.client.post(status_url, {'action': 'confirm'}), status_url)
+        CatalogImportBatch.objects.filter(pk=batch.pk).update(state='publishing')
+        self.assertTrue(process_next_batch())
+        self.assertTrue(process_next_batch())  # Email is processed after the transaction commits.
+        self.assertFalse(process_next_batch())
+        batch.refresh_from_db()
+        self.assertEqual(batch.state, 'published')
+        self.assertFalse(batch.payload)
+        self.assertFalse(batch.preview)
+        self.assertEqual(Feat.objects.filter(name='Queued feat').count(), 1)
+        self.assertEqual(EditorialProposal.objects.filter(author=self.editor, status='approved').count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_queued_import_stops_if_permission_changes_or_batch_is_cancelled(self):
+        from dnd.editorial_batches import process_next_batch
+
+        self._activate_importer()
+        self.client.force_login(self.editor)
+        record = {'name': 'Queued feat', 'rulebook': self.book.pk,
+                  'feat_categories': [self.category.pk], 'source_reference': 'Test Source p. 6',
+                  'description': 'Example.', 'benefit': 'Example.'}
+        response = self._queue_feat_file(record)
+        self.assertRedirects(self.client.post(response.url, {'action': 'cancel'}), response.url)
+        self.assertFalse(process_next_batch())
+        self.assertTrue(CatalogImportBatch.objects.filter(state='cancelled', payload='').exists())
+        self.assertEqual(self._queue_feat_file(record).status_code, 302)
+        self.assertTrue(process_next_batch())
+        batch = CatalogImportBatch.objects.get(state='ready')
+        status_url = reverse('editorial_import_batch', args=(batch.pk,))
+        self.assertRedirects(self.client.post(status_url, {'action': 'confirm'}), status_url)
+        EditorialGrant.objects.filter(user=self.editor, resource='Feat').update(can_import=False)
+        self.assertEqual(self.client.get(status_url + '?status=1').status_code, 403)
+        self.assertTrue(process_next_batch())
+        batch.refresh_from_db()
+        self.assertEqual(batch.state, 'failed')
+        self.assertFalse(batch.payload)
+        self.assertFalse(Feat.objects.exists())
+        self.assertFalse(EditorialProposal.objects.exists())
 
     def test_import_rejects_bad_json_and_incomplete_csv(self):
         from dnd.editorial_import import validated_rows

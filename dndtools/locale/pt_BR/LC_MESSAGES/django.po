@@ -3714,3 +3714,69 @@ msgid "Publish %(count)s record now"
 msgid_plural "Publish %(count)s records now"
 msgstr[0] "Publicar %(count)s registro agora"
 msgstr[1] "Publicar %(count)s registros agora"
+
+msgid "Waiting for validation"
+msgstr "Aguardando validação"
+
+msgid "Validating"
+msgstr "Validando"
+
+msgid "Ready to review"
+msgstr "Pronto para conferência"
+
+msgid "Waiting to publish"
+msgstr "Aguardando publicação"
+
+msgid "Publishing"
+msgstr "Publicando"
+
+msgid "Failed"
+msgstr "Falhou"
+
+msgid "Expired"
+msgstr "Expirado"
+
+msgid "Cancelled"
+msgstr "Cancelado"
+
+msgid "Your import permission has changed. Nothing was published."
+msgstr "Sua permissão de importação mudou. Nenhum registro foi publicado."
+
+msgid "The import could not be processed. Nothing was published."
+msgstr "Não foi possível processar a importação. Nenhum registro foi publicado."
+
+msgid "Finish or cancel the current batch before uploading another large file."
+msgstr "Conclua ou cancele o lote atual antes de enviar outro arquivo grande."
+
+msgid "Import batch #%(number)s"
+msgstr "Lote de importação nº %(number)s"
+
+msgid "View your latest queued batch"
+msgstr "Ver seu lote mais recente na fila"
+
+msgid "Large files run in the background. You can close the page and return to check their status."
+msgstr "Arquivos grandes são processados em segundo plano. Você pode fechar a página e voltar para acompanhar o andamento."
+
+msgid "Records validated so far"
+msgstr "Registros validados até agora"
+
+msgid "Publishing %(count)s records as a single transaction."
+msgstr "Publicando %(count)s registros em uma única transação."
+
+msgid "You can close this page. Processing continues on the server."
+msgstr "Você pode fechar esta página. O processamento continua no servidor."
+
+msgid "Refresh status"
+msgstr "Atualizar andamento"
+
+msgid "%(count)s records published and logged in the editorial history."
+msgstr "%(count)s registros publicados e anotados no histórico editorial."
+
+msgid "This preview expired. Upload the file again to review it."
+msgstr "Esta prévia expirou. Envie o arquivo novamente para conferi-lo."
+
+msgid "Cancel batch"
+msgstr "Cancelar lote"
+
+msgid "Check the names, books and sources. This preview is available for 24 hours."
+msgstr "Confira os nomes, os livros e as fontes. A prévia fica disponível por 24 horas."
