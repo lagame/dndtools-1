@@ -3517,3 +3517,164 @@ msgstr "Abrir o fórum"
 
 msgid "Discussions for this record"
 msgstr "Discussões deste registro"
+
+#: dnd/editorial.py
+msgid "New catalog entries must use a confirmed D&D 3.5 rulebook."
+msgstr "Novos registros precisam usar um livro confirmado de D&D 3.5."
+
+msgid "A catalog record with this original name already exists."
+msgstr "Já existe um registro com esse nome original no catálogo."
+
+#: dnd/models.py
+msgid "Can publish imports directly"
+msgstr "Pode publicar importações diretamente"
+
+#: dnd/editorial_views.py
+msgid "Publish validated imports directly"
+msgstr "Publicar importações validadas diretamente"
+
+msgid "Direct import also requires permission to add records."
+msgstr "A importação direta também exige permissão para incluir registros."
+
+msgid "Direct import is available for spells, feats, monsters, items, creature templates and supplemental rules only."
+msgstr "A importação direta está disponível para magias, talentos, monstros, itens, modelos de criaturas e regras suplementares."
+
+msgid "Import preview expired. Upload the file again."
+msgstr "A prévia expirou. Envie o arquivo novamente."
+
+msgid "Nothing was published: %(error)s"
+msgstr "Nenhum registro foi publicado: %(error)s"
+
+msgid "The catalog changed while publishing. Nothing was saved. Upload the file again."
+msgstr "O catálogo mudou durante a publicação. Nenhum registro foi salvo. Envie o arquivo novamente."
+
+msgid "D&D Tools: direct catalog import"
+msgstr "D&D Tools: importação direta no catálogo"
+
+msgid "%(email)s published %(count)s records in %(resource)s. Review the private editorial history."
+msgstr "%(email)s publicou %(count)s registro(s) em %(resource)s. Consulte o histórico no Espaço editorial."
+
+msgid "Records published, but the email alert could not be sent."
+msgstr "Os registros foram publicados, mas não foi possível enviar o aviso por e-mail."
+
+msgid "Published %(count)s catalog record."
+msgid_plural "Published %(count)s catalog records."
+msgstr[0] "%(count)s registro publicado no catálogo."
+msgstr[1] "%(count)s registros publicados no catálogo."
+
+msgid "Choose a UTF-8 .csv or .json file up to 128 KiB."
+msgstr "Escolha um arquivo .csv ou .json em UTF-8 com até 128 KiB."
+
+msgid "The file must use UTF-8 encoding."
+msgstr "O arquivo precisa estar em UTF-8."
+
+msgid "Import catalog records — %(resource)s"
+msgstr "Importar registros do catálogo — %(resource)s"
+
+#: dnd/editorial_import.py
+msgid "Invalid JSON or repeated field name."
+msgstr "JSON inválido ou nome de campo repetido."
+
+msgid "JSON must be an array of record objects."
+msgstr "O JSON precisa conter uma lista de objetos, um por registro."
+
+msgid "CSV needs unique headers including source_reference, name and rulebook."
+msgstr "O CSV precisa ter cabeçalhos sem nomes repetidos, incluindo source_reference, name e rulebook."
+
+msgid "Row %(row)s does not match the CSV header."
+msgstr "A linha %(row)s não tem o mesmo número de campos do cabeçalho CSV."
+
+msgid "The file contains fields that cannot be imported: %(fields)s"
+msgstr "O arquivo contém campos que não podem ser importados: %(fields)s"
+
+msgid "Related record “%(value)s” must have one exact match; use its ID if the name is ambiguous."
+msgstr "O valor “%(value)s” precisa corresponder a um único registro relacionado. Use o ID se houver nomes iguais."
+
+msgid "Use true or false for yes/no fields."
+msgstr "Use true ou false nos campos de sim ou não."
+
+msgid "Use text or a number, or a list for multiple related records."
+msgstr "Use texto ou número. Para vários registros relacionados, você também pode usar uma lista."
+
+msgid "The file exceeds the 128 KiB limit."
+msgstr "O arquivo excede o limite de 128 KiB."
+
+msgid "Import at most 50 records per file."
+msgstr "Importe até 50 registros por arquivo."
+
+msgid "Enter the official source and page."
+msgstr "Informe a fonte oficial e a página."
+
+msgid "The source reference may contain up to 2000 characters."
+msgstr "A referência da fonte pode ter até 2.000 caracteres."
+
+msgid "This record has a different catalog type."
+msgstr "Este registro pertence a outro tipo do catálogo."
+
+msgid "This record duplicates another entry in the file."
+msgstr "Este registro está duplicado no arquivo."
+
+msgid "Row %(row)s: %(error)s"
+msgstr "Linha %(row)s: %(error)s"
+
+msgid "Invalid CSV format."
+msgstr "Formato CSV inválido."
+
+msgid "The file has no records."
+msgstr "O arquivo não contém registros."
+
+msgid "Catalog values changed after the preview. Upload the file again."
+msgstr "Os dados do catálogo mudaram depois da prévia. Envie o arquivo novamente."
+
+#: templates/admin/editorial/catalog.html
+msgid "Import records directly"
+msgstr "Importar registros diretamente"
+
+#: templates/admin/editorial/invite.html
+msgid "Choose the resources and actions this collaborator may use. Direct import is a separate permission for trusted editors. Ronassic reviews ordinary proposals. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions."
+msgstr "Escolha os recursos e ações que o colaborador poderá usar. A importação direta tem uma permissão própria para editores de confiança. Ronassic revisa as propostas comuns. O colaborador receberá um código de ativação por e-mail. Reenviar o convite de uma conta pendente ou revogada substitui seu código e suas permissões."
+
+#: templates/admin/editorial/review.html
+msgid "Published by direct import:"
+msgstr "Publicado por importação direta:"
+
+#: templates/admin/editorial/import.html
+msgid "Upload up to 50 new D&D 3.5 records in a UTF-8 file of up to 128 KiB. Enter the official book and page in source_reference. Review the preview before publishing."
+msgstr "Envie até 50 novos registros de D&D 3.5 em um arquivo UTF-8 de até 128 KiB. Informe o livro oficial e a página em source_reference. Confira a prévia antes de publicar."
+
+msgid "Replace the example values with verified data. Related records accept an exact name or numeric ID. For multiple relations, separate values with | in CSV or use a JSON array."
+msgstr "Substitua os valores do exemplo por dados conferidos. Para registros relacionados, use o nome exato ou o ID numérico. Se houver vários, separe os valores com | no CSV ou use uma lista no JSON."
+
+msgid "Download CSV example (comma)"
+msgstr "Baixar exemplo de CSV com vírgula"
+
+msgid "Download CSV example (semicolon)"
+msgstr "Baixar exemplo de CSV com ponto e vírgula"
+
+msgid "Download JSON example"
+msgstr "Baixar exemplo em JSON"
+
+msgid "CSV or JSON file"
+msgstr "Arquivo CSV ou JSON"
+
+msgid "Preview import"
+msgstr "Ver prévia da importação"
+
+msgid "Review %(count)s record before publishing"
+msgid_plural "Review %(count)s records before publishing"
+msgstr[0] "Confira %(count)s registro antes de publicar"
+msgstr[1] "Confira %(count)s registros antes de publicar"
+
+msgid "Row"
+msgstr "Linha"
+
+msgid "Source"
+msgstr "Fonte"
+
+msgid "All submitted fields"
+msgstr "Ver campos enviados"
+
+msgid "Publish %(count)s record now"
+msgid_plural "Publish %(count)s records now"
+msgstr[0] "Publicar %(count)s registro agora"
+msgstr[1] "Publicar %(count)s registros agora"

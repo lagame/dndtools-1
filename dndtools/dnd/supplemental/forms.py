@@ -27,10 +27,13 @@ def parse_class_levels(value):
         if not line.strip():
             continue
         name, separator, level_text = line.partition('|')
-        if not separator or not level_text.strip().isdigit():
+        if not separator:
             raise forms.ValidationError(_('Use one class per line: Class name | Level.'))
+        try:
+            level = int(level_text.strip())
+        except ValueError as error:
+            raise forms.ValidationError(_('Use one class per line: Class name | Level.')) from error
         matches = list(CharacterClass.objects.filter(name__iexact=name.strip())[:2])
-        level = int(level_text.strip())
         if len(matches) != 1 or not 0 <= level <= 9 or matches[0].pk in seen:
             raise forms.ValidationError(_('Choose an existing class and a unique level from 0 to 9.'))
         seen.add(matches[0].pk)

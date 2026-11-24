@@ -13,5 +13,8 @@
 {% if proposal.status == 'pending' %}<form method="post" action="{% url 'editorial_decide' proposal.pk %}">{% csrf_token %}
 <p><label for="review-note">{% translate "Review note" %}</label><br><textarea id="review-note" name="review_note" rows="3" cols="70"></textarea></p>
 <button type="submit" name="decision" value="approve" class="button default">{% if proposal.action == 'delete' %}{% translate "Approve and remove" %}{% else %}{% translate "Approve and publish" %}{% endif %}</button>
-<button type="submit" name="decision" value="reject" class="button">{% translate "Reject" %}</button></form>{% else %}<p>{% translate "Reviewed by" %} {{ proposal.reviewer.username }}. {{ proposal.review_note }}</p>{% endif %}
+<button type="submit" name="decision" value="reject" class="button">{% translate "Reject" %}</button></form>
+{% elif proposal.status == 'approved' and proposal.review_note == 'Direct file import' %}
+<p>{% translate "Published by direct import:" %} {{ proposal.author.username }}</p>
+{% else %}<p>{% translate "Reviewed by" %} {{ proposal.reviewer.username }}. {{ proposal.review_note }}</p>{% endif %}
 {% endblock %}

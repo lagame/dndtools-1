@@ -16,7 +16,8 @@ from django.forms import modelform_factory
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from dnd.models import EditorialGrant, EditorialProposal, PublishedTranslation, SupplementalEntry
+from dnd.models import (CollaboratorInvite, EditorialGrant, EditorialProposal,
+                        PublishedTranslation, Rulebook, SupplementalEntry)
 
 
 RESOURCE_GROUPS = {
@@ -205,6 +206,26 @@ def can_propose(user, resource, action, *, kind=None):
         user=user, resource__in=choices, **{field: True}).exists()
 
 
+IMPORT_RESOURCES = frozenset(('Spell', 'Feat', 'Monster', 'Item', 'CreatureTemplate', 'SupplementalEntry'))
+
+
+def can_import(user, resource, *, kind=None):
+    if resource not in IMPORT_RESOURCES or (
+            resource == 'SupplementalEntry' and kind not in KIND_LABELS):
+        return False
+    if owner(user):
+        return True
+    if not user.is_authenticated or not user.is_active or not user.is_staff:
+        return False
+    if not CollaboratorInvite.objects.filter(user=user, access_state='active').exists():
+        return False
+    resources = [resource]
+    if kind:
+        resources.append('SupplementalEntry:' + kind)
+    return EditorialGrant.objects.filter(
+        user=user, resource__in=resources, can_create=True, can_import=True).exists()
+
+
 def editable_form(resource, *, kind=None, target=None, structured=False):
     if resource == 'SupplementalEntry' and kind:
         from dnd.supplemental.catalog import detail_for
@@ -317,7 +338,7 @@ def validate_new_edition(resource, form):
             raise forms.ValidationError('New catalog entries must be confirmed D&D 3.5.')
     book = form.cleaned_data.get('rulebook')
     if book and book.dnd_edition.system != 'DnD 3.5':
-        raise forms.ValidationError('New catalog entries must use a confirmed D&D 3.5 rulebook.')
+        raise forms.ValidationError(_('New catalog entries must use a confirmed D&D 3.5 rulebook.'))
     edition = form.cleaned_data.get('dnd_edition')
     if edition and edition.system != 'DnD 3.5':
         raise forms.ValidationError('New catalog entries must use D&D 3.5.')
@@ -338,7 +359,7 @@ def detect_duplicate(resource, form):
     if resource == 'SupplementalEntry':
         matches = matches.filter(kind=form.cleaned_data.get('kind'))
     if matches.exists():
-        raise forms.ValidationError('A catalog record with this original name already exists.')
+        raise forms.ValidationError(_('A catalog record with this original name already exists.'))
 
 
 def delete_without_cascading_catalog(target):
@@ -362,6 +383,43 @@ def delete_without_cascading_catalog(target):
         if not queryset.model._meta.auto_created and queryset.model not in allowed and queryset.exists():
             raise forms.ValidationError('Remove dependent records or links before approving removal.')
     collector.delete()
+
+
+def lock_creation_books(book_ids):
+    # Both CSV publication and proposal approval lock the same source books
+    # before checking duplicates. Batches acquire them in primary key order.
+    list(Rulebook.objects.filter(pk__in=book_ids).order_by('pk')
+         .select_for_update().values_list('pk', flat=True))
+
+
+def save_catalog_entry(resource, form, reviewer, *, creating):
+    """Save a validated catalog form, including its related and typed fields."""
+    if creating:
+        validate_new_edition(resource, form)
+        detect_duplicate(resource, form)
+    entry = form.save(commit=False)
+    if creating and hasattr(entry, 'slug') and not entry.slug:
+        from django.utils.text import slugify
+        model = model_for(resource)
+        limit = entry._meta.get_field('slug').max_length
+        base = slugify(getattr(entry, 'name', '')) or entry._meta.model_name
+        candidate = base[:limit]
+        number = 2
+        while model.objects.filter(slug=candidate).exists():
+            suffix = '-%s' % number
+            candidate = base[:limit - len(suffix)] + suffix
+            number += 1
+        entry.slug = candidate
+    if resource == 'Spell':
+        entry.verified = True
+        entry.verified_author = reviewer
+        entry.verified_time = timezone.now()
+    entry.full_clean()
+    entry.save()
+    form.save_m2m()
+    if hasattr(form, 'save_details'):
+        form.save_details(entry)
+    return entry
 
 
 @transaction.atomic
@@ -397,30 +455,11 @@ def approve(proposal, reviewer):
                              target=target, structured=typed)(proposal.payload, instance=target)
         if not form.is_valid():
             raise forms.ValidationError('The proposed catalog values are no longer valid: %s' % form.errors)
-        if proposal.action == 'create':
-            validate_new_edition(proposal.resource, form)
-            detect_duplicate(proposal.resource, form)
-        entry = form.save(commit=False)
-        if proposal.action == 'create' and hasattr(entry, 'slug') and not entry.slug:
-            from django.utils.text import slugify
-            limit = entry._meta.get_field('slug').max_length
-            base = slugify(getattr(entry, 'name', '')) or entry._meta.model_name
-            candidate = base[:limit]
-            number = 2
-            while model.objects.filter(slug=candidate).exists():
-                suffix = '-%s' % number
-                candidate = base[:limit - len(suffix)] + suffix
-                number += 1
-            entry.slug = candidate
-        if proposal.resource == 'Spell':
-            entry.verified = True
-            entry.verified_author = reviewer
-            entry.verified_time = timezone.now()
-        entry.full_clean()
-        entry.save()
-        form.save_m2m()
-        if hasattr(form, 'save_details'):
-            form.save_details(entry)
+        creating = proposal.action == 'create'
+        book = form.cleaned_data.get('rulebook')
+        if creating and proposal.resource in IMPORT_RESOURCES and book:
+            lock_creation_books([book.pk])
+        entry = save_catalog_entry(proposal.resource, form, reviewer, creating=creating)
         proposal.target_pk = entry.pk
     proposal.status = 'approved'
     proposal.reviewer = reviewer

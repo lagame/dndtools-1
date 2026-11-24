@@ -7,6 +7,7 @@ urlpatterns = [
     path('activate/', views.activate, name='editorial_activate'),
     path('invite/<int:invite_id>/revoke/', views.revoke, name='editorial_revoke'),
     path('catalog/<str:resource>/', views.catalog, name='editorial_catalog'),
+    path('catalog/<str:resource>/import/', views.import_catalog, name='editorial_import'),
     path('catalog/<str:resource>/create/', views.propose, {'action': 'create'}, name='editorial_create'),
     path('catalog/<str:resource>/<int:target_pk>/correct/', views.propose,
          {'action': 'correct'}, name='editorial_correct'),

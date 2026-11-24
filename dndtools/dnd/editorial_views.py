@@ -14,20 +14,24 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import F, Q
 from django.db.models.functions import Collate
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST
+from django.utils.translation import ngettext
+from django.views.decorators.http import require_http_methods, require_POST
 
-from dnd.editorial import (RESOURCE_GROUPS, RESOURCE_LABELS, KIND_LABELS, GRANT_CHOICES, approve, can_propose, editable_form,
+from dnd.editorial import (IMPORT_RESOURCES, RESOURCE_GROUPS, RESOURCE_LABELS, KIND_LABELS,
+                           GRANT_CHOICES, approve, can_import, can_propose, editable_form,
                            model_for, owner, serialize_form, source_digest,
                            translation_form, validate_new_edition, detect_duplicate)
 from dnd.models import CollaboratorInvite, EditorialGrant, EditorialProposal, SupplementalEntry
+from dnd.editorial_import import (DOWNLOAD_FORMATS, MAX_BYTES, example_file, preview_digest,
+                                  publish_rows, validated_rows)
 from dnd.supplemental.catalog import detail_for
 
 
@@ -48,7 +52,8 @@ class InviteForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 12}))
     permissions = forms.MultipleChoiceField(
         label=_('Permissions'),
-        choices=(('create', _('Add records')), ('correct', _('Correct records')),
+        choices=(('create', _('Add records')), ('import', _('Publish validated imports directly')),
+                 ('correct', _('Correct records')),
                  ('translate', _('Translate records')), ('delete', _('Propose removals'))),
         widget=forms.CheckboxSelectMultiple)
 
@@ -62,6 +67,16 @@ class InviteForm(forms.Form):
                          existing.editorial_invite.access_state == 'active'):
             raise forms.ValidationError(_('This email already has an active or unrelated Django account.'))
         return email
+
+    def clean(self):
+        values = super().clean()
+        if 'import' in values.get('permissions', ()) and 'create' not in values.get('permissions', ()):
+            self.add_error('permissions', _('Direct import also requires permission to add records.'))
+        if 'import' in values.get('permissions', ()) and any(
+                resource.split(':', 1)[0] not in IMPORT_RESOURCES
+                for resource in values.get('resources', ())):
+            self.add_error('resources', _('Direct import is available for spells, feats, monsters, items, creature templates and supplemental rules only.'))
+        return values
 
 
 class ActivationForm(forms.Form):
@@ -130,6 +145,7 @@ def invite(request):
                     EditorialGrant.objects.create(
                         user=user, resource=resource,
                         can_create='create' in form.cleaned_data['permissions'],
+                        can_import='import' in form.cleaned_data['permissions'],
                         can_correct='correct' in form.cleaned_data['permissions'],
                         can_translate='translate' in form.cleaned_data['permissions'],
                         can_delete='delete' in form.cleaned_data['permissions'])
@@ -141,7 +157,10 @@ def invite(request):
                     'O código do Cloudflare recebido por e-mail é diferente deste código do convite.\n'
                     'Após a ativação, não é preciso criar outra senha.\n'
                     'Suas propostas só serão publicadas após aprovação de Ronassic.\n'
-                    % (settings.PUBLIC_HOST, reverse('editorial_activate'), code),
+                    '%s'
+                    % (settings.PUBLIC_HOST, reverse('editorial_activate'), code,
+                       'A importação direta está autorizada para os recursos escolhidos.\n'
+                       if 'import' in form.cleaned_data['permissions'] else ''),
                     settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
                 if sent != 1:
                     raise smtplib.SMTPException('Invitation email was not accepted.')
@@ -257,10 +276,105 @@ def catalog(request, resource):
         'kind': kind, 'kind_label': KIND_LABELS.get(kind, ''),
         'entries': Paginator(entries, 50).get_page(request.GET.get('page')),
         'can_create': can_propose(request.user, resource, 'create', kind=kind or None),
+        'can_import': can_import(request.user, resource, kind=kind or None),
         'can_correct': can_propose(request.user, resource, 'correct', kind=kind or None),
         'can_translate': can_propose(request.user, resource, 'translate', kind=kind or None),
         'can_delete': can_propose(request.user, resource, 'delete', kind=kind or None),
     })
+
+
+@staff_member_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
+def import_catalog(request, resource):
+    if resource not in IMPORT_RESOURCES:
+        raise Http404
+    kind = request.GET.get('kind', '') if resource == 'SupplementalEntry' else ''
+    if resource == 'SupplementalEntry' and kind not in dict(SupplementalEntry.KINDS):
+        raise Http404
+    if not can_import(request.user, resource, kind=kind or None):
+        return HttpResponseForbidden()
+    file_format = request.GET.get('template')
+    if request.method in ('GET', 'HEAD') and file_format in DOWNLOAD_FORMATS:
+        extension = 'json' if file_format == 'json' else 'csv'
+        media_type = 'application/json' if extension == 'json' else 'text/csv'
+        response = HttpResponse(example_file(resource, kind, file_format),
+                                content_type=media_type + '; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="dndtools-%s-%s-example.%s"' % (
+            kind or resource.lower(), file_format, extension)
+        response['Cache-Control'] = 'no-store'
+        return response
+    preview = None
+    if request.method == 'POST':
+        if request.POST.get('confirm'):
+            saved = request.session.get('editorial_import_preview', {})
+            if (saved.get('token') != request.POST.get('token') or saved.get('user') != request.user.pk
+                    or saved.get('resource') != resource or saved.get('kind') != kind or not saved.get('digest')
+                    or timezone.now().timestamp() - saved.get('created', 0) > 1200):
+                messages.error(request, _('Import preview expired. Upload the file again.'))
+            else:
+                request.session.pop('editorial_import_preview', None)
+                try:
+                    count = publish_rows(saved['content'], resource, kind, request.user,
+                                         json_file=saved['json_file'], expected_digest=saved['digest'])
+                except (forms.ValidationError, ValueError) as error:
+                    detail = '; '.join(error.messages) if isinstance(error, forms.ValidationError) else str(error)
+                    messages.error(request, _('Nothing was published: %(error)s') % {'error': detail})
+                except IntegrityError:
+                    messages.error(request, _('The catalog changed while publishing. Nothing was saved. Upload the file again.'))
+                else:
+                    if settings.EDITORIAL_NOTIFY_EMAIL:
+                        try:
+                            sent = send_mail(str(_('D&D Tools: direct catalog import')),
+                                             _('%(email)s published %(count)s records in %(resource)s. '
+                                               'Review the private editorial history.') % {
+                                                 'email': request.user.email, 'count': count,
+                                                 'resource': KIND_LABELS.get(kind, RESOURCE_LABELS[resource]),
+                                             },
+                                             settings.DEFAULT_FROM_EMAIL, [settings.EDITORIAL_NOTIFY_EMAIL],
+                                             fail_silently=False)
+                            if sent != 1:
+                                raise smtplib.SMTPException('Import notification was not accepted.')
+                        except (OSError, smtplib.SMTPException):
+                            logger.exception('Editorial import email notification failed')
+                            messages.warning(request, _('Records published, but the email alert could not be sent.'))
+                    messages.success(request, ngettext(
+                        'Published %(count)s catalog record.',
+                        'Published %(count)s catalog records.', count) % {'count': count})
+                    return redirect(reverse('editorial_catalog', kwargs={'resource': resource},
+                                            query={'kind': kind} if kind else None))
+        else:
+            request.session.pop('editorial_import_preview', None)
+            upload = request.FILES.get('file')
+            if not upload or upload.size > MAX_BYTES or not upload.name.lower().endswith(('.csv', '.json')):
+                messages.error(request, _('Choose a UTF-8 .csv or .json file up to 128 KiB.'))
+            else:
+                json_file = upload.name.lower().endswith('.json')
+                try:
+                    content = upload.read(MAX_BYTES + 1).decode('utf-8-sig')
+                    rows = validated_rows(content, resource, kind, json_file=json_file)
+                    digest = preview_digest(rows)
+                except UnicodeError:
+                    messages.error(request, _('The file must use UTF-8 encoding.'))
+                except forms.ValidationError as error:
+                    messages.error(request, '; '.join(error.messages))
+                else:
+                    preview = rows
+                    request.session['editorial_import_preview'] = {
+                        'token': secrets.token_urlsafe(24), 'user': request.user.pk,
+                        'resource': resource, 'kind': kind,
+                        'created': timezone.now().timestamp(), 'content': content,
+                        'json_file': json_file, 'digest': digest,
+                    }
+    label = KIND_LABELS.get(kind, RESOURCE_LABELS[resource])
+    response = render(request, 'admin/editorial/import.html', {
+        'title': _('Import catalog records — %(resource)s') % {'resource': label},
+        'resource': resource, 'kind': kind,
+        'preview': preview, 'token': request.session.get('editorial_import_preview', {}).get('token')
+        if preview else '',
+        'resource_label': label,
+    })
+    response['Cache-Control'] = 'no-store'
+    return response
 
 
 @staff_member_required

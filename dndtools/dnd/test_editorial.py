@@ -1,18 +1,24 @@
 from unittest.mock import patch
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
+import csv
 import json
 import smtplib
 from io import StringIO
+from threading import Barrier
 
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from django.conf import settings
+from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Permission
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from django.test import Client, TestCase
+from django.db import connections
+from django.test import Client, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -37,6 +43,7 @@ class EditorialFlowTests(TestCase):
         cls.old_book = Rulebook.objects.create(name='Old Source', slug='old-source', abbr='OS',
                                                 dnd_edition=cls.old_edition)
         cls.test_class = CharacterClass.objects.create(name='Test Class', slug='test-class', prestige=False)
+        cls.category = FeatCategory.objects.create(name='Import category', slug='import-category')
         EditorialGrant.objects.create(user=cls.editor, resource='SupplementalEntry',
                                       can_create=True, can_correct=True, can_translate=True)
 
@@ -864,3 +871,321 @@ class EditorialFlowTests(TestCase):
         self.assertEqual(fallback.content.decode().count(
             'Este registro ainda está disponível apenas na versão original em inglês.'), 1)
         self.assertNotContains(fallback, 'Efeito traduzido')
+
+    def _import_file(self, records, fields=None):
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=fields or
+                                ['source_reference', 'name', 'rulebook', 'feat_categories', 'description', 'benefit'])
+        writer.writeheader()
+        writer.writerows(records)
+        return SimpleUploadedFile('catalog.csv', output.getvalue().encode('utf-8'),
+                                  content_type='text/csv')
+
+    def _activate_importer(self, resource='Feat'):
+        from django.utils import timezone as django_timezone
+        CollaboratorInvite.objects.create(
+            user=self.editor, access_state='active',
+            expires_at=django_timezone.now() + timedelta(days=7))
+        EditorialGrant.objects.update_or_create(
+            user=self.editor, resource=resource,
+            defaults={'can_create': True, 'can_import': True})
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+                       EDITORIAL_NOTIFY_EMAIL='owner@example.test')
+    def test_trusted_csv_import_previews_then_publishes_with_audit_and_alert(self):
+        url = reverse('editorial_import', args=('Feat',))
+        record = {'source_reference': 'Test Source, p. 12', 'name': 'Careful Focus',
+                  'rulebook': 'Test Source', 'feat_categories': 'Import category',
+                  'description': 'A focused approach.',
+                  'benefit': 'Gain a small bonus.'}
+        self.client.force_login(self.editor)
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self._activate_importer()
+        self.assertEqual(self.client.get(url).status_code, 200)
+        template = self.client.get(url + '?template=csv')
+        self.assertEqual(template.status_code, 200)
+        self.assertIn('source_reference', template.content.decode())
+        self.assertNotIn('verified_author', template.content.decode())
+        preview = self.client.post(url, {'file': self._import_file([record])})
+        self.assertContains(preview, 'Careful Focus')
+        self.assertFalse(Feat.objects.filter(name='Careful Focus').exists())
+        token = self.client.session['editorial_import_preview']['token']
+        self.assertEqual(self.client.post(url, {'confirm': '1', 'token': 'wrong'}).status_code, 200)
+        self.assertFalse(Feat.objects.filter(name='Careful Focus').exists())
+        self.assertEqual(self.client.post(url, {'confirm': '1', 'token': token}).status_code, 302)
+        entry = Feat.objects.get(name='Careful Focus')
+        self.assertEqual(entry.rulebook, self.book)
+        proposal = EditorialProposal.objects.get(resource='Feat', target_pk=entry.pk)
+        self.assertEqual((proposal.status, proposal.author, proposal.reviewer),
+                         ('approved', self.editor, self.editor))
+        self.assertEqual(proposal.source_reference, record['source_reference'])
+        self.assertEqual(mail.outbox[-1].to, ['owner@example.test'])
+        self.assertEqual(self.client.post(url, {'confirm': '1', 'token': token}).status_code, 200)
+        self.assertEqual(Feat.objects.filter(name='Careful Focus').count(), 1)
+        self.assertContains(self.client.post(url, {'file': self._import_file([record])}),
+                            'already exists')
+
+    def test_csv_import_rejects_wrong_edition_bad_source_and_uninvited_staff(self):
+        from dnd.editorial_import import validated_rows
+        url = reverse('editorial_import', args=('Feat',))
+        self.client.force_login(self.editor)
+        EditorialGrant.objects.create(user=self.editor, resource='Feat',
+                                      can_create=True, can_import=True)
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self._activate_importer()
+        record = {'source_reference': 'Old Source p. 5', 'name': 'Old Trick',
+                  'rulebook': str(self.old_book.pk), 'feat_categories': str(self.category.pk),
+                  'description': 'Old.', 'benefit': 'Old.'}
+        response = self.client.post(url, {'file': self._import_file([record])})
+        self.assertContains(response, 'confirmed D&amp;D 3.5 rulebook')
+        self.assertFalse(Feat.objects.exists())
+        record['rulebook'] = str(self.book.pk)
+        record['source_reference'] = 'x' * 2001
+        with self.assertRaises(forms.ValidationError):
+            validated_rows(self._import_file([record]).read().decode(), 'Feat', '')
+        record['source_reference'] = 'Test Source p. 5'
+        record['verified'] = 'true'
+        with self.assertRaises(forms.ValidationError):
+            validated_rows(self._import_file([record], fields=[
+                'source_reference', 'name', 'rulebook', 'feat_categories',
+                'description', 'benefit', 'verified']).read().decode(),
+                'Feat', '')
+
+    def test_csv_import_batch_is_atomic_on_late_failure(self):
+        from dnd import editorial_import
+        self._activate_importer()
+        records = [
+            {'source_reference': 'Test Source p. 5', 'name': 'First Trick',
+             'rulebook': str(self.book.pk), 'feat_categories': str(self.category.pk),
+             'description': 'First.', 'benefit': 'First.'},
+            {'source_reference': 'Test Source p. 6', 'name': 'Second Trick',
+             'rulebook': str(self.book.pk), 'feat_categories': str(self.category.pk),
+             'description': 'Second.', 'benefit': 'Second.'},
+        ]
+        content = self._import_file(records).read().decode()
+        digest = editorial_import.preview_digest(editorial_import.validated_rows(content, 'Feat', ''))
+        real_publish = editorial_import.save_catalog_entry
+        calls = 0
+
+        def fail_second(*args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise forms.ValidationError('Simulated later failure')
+            return real_publish(*args, **kwargs)
+
+        with patch('dnd.editorial_import.save_catalog_entry', side_effect=fail_second):
+            with self.assertRaisesMessage(forms.ValidationError, 'Simulated later failure'):
+                editorial_import.publish_rows(content, 'Feat', '', self.editor, expected_digest=digest)
+        self.assertFalse(Feat.objects.exists())
+        self.assertFalse(EditorialProposal.objects.filter(resource='Feat').exists())
+
+    def test_csv_import_typed_supplemental_entry(self):
+        from dnd.models import MysteryDetail
+        self._activate_importer('SupplementalEntry')
+        self.client.force_login(self.editor)
+        url = reverse('editorial_import', args=('SupplementalEntry',)) + '?kind=mysteries'
+        record = {'source_reference': 'Test Source p. 18', 'name': 'Ebon Whispers',
+                  'rulebook': str(self.book.pk), 'mechanics': 'A shadow effect.',
+                  'kind': '', 'detail_path': 'Ebon Whispers', 'detail_grade': 'apprentice',
+                  'detail_mystery_level': '1'}
+        upload = self._import_file([record], fields=list(record))
+        self.assertEqual(self.client.post(url, {'file': upload}).status_code, 200)
+        token = self.client.session['editorial_import_preview']['token']
+        response = self.client.post(url, {'confirm': '1', 'token': token})
+        self.assertRedirects(response, reverse('editorial_catalog', args=('SupplementalEntry',))
+                             + '?kind=mysteries')
+        entry = SupplementalEntry.objects.get(name='Ebon Whispers')
+        self.assertEqual(entry.kind, 'mysteries')
+        self.assertEqual(MysteryDetail.objects.get(entry=entry).grade, 'apprentice')
+
+    def test_import_examples_and_submission_in_both_csv_formats_and_json(self):
+        from dnd.editorial import IMPORT_RESOURCES, model_for
+        from dnd.editorial_import import DOWNLOAD_FORMATS
+
+        SpellSchool.objects.create(name='Example school', slug='example-school')
+        RaceSize.objects.create(name='Example size', order=1)
+        MonsterType.objects.create(name='Example creature type', slug='example-type')
+        CharacterClass.objects.create(name='Example class', slug='example-class', prestige=False)
+        self.client.force_login(self.owner)
+        url = reverse('editorial_import', args=('Feat',))
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = 'pt-br'
+        page = self.client.get(url)
+        self.assertContains(page, 'Baixar exemplo de CSV com vírgula')
+        self.assertContains(page, 'Baixar exemplo de CSV com ponto e vírgula')
+        self.assertContains(page, 'Baixar exemplo em JSON')
+        resources = [(resource, '') for resource in sorted(IMPORT_RESOURCES - {'SupplementalEntry'})]
+        resources += [('SupplementalEntry', kind) for kind, _ in SupplementalEntry.KINDS]
+        for resource, kind in resources:
+            url = reverse('editorial_import', args=(resource,), query={'kind': kind} if kind else None)
+            for file_format, separator in DOWNLOAD_FORMATS.items():
+                with self.subTest(resource=resource, kind=kind, file_format=file_format):
+                    example = self.client.get(reverse('editorial_import', args=(resource,)),
+                                              {'kind': kind, 'template': file_format})
+                    self.assertEqual(example['Cache-Control'], 'no-store')
+                    content = example.content.decode('utf-8-sig')
+                    self.assertNotIn(self.book.name, content)
+                    if separator:
+                        self.assertIn(separator, content.splitlines()[0])
+                        content = content.replace('Example feat category', self.category.name)
+                    else:
+                        content = content.replace('"Example feat category"', str(self.category.pk))
+                    name = 'Imported %s %s' % (kind or resource, file_format)
+                    content = (content.replace('Example record', name)
+                               .replace('Example D&D 3.5 rulebook', self.book.name)
+                               .replace('Example monster', 'Imported Monster csv'))
+                    extension = 'csv' if separator else 'json'
+                    response = self.client.post(url, {'file': SimpleUploadedFile(
+                        'example.' + extension, content.encode('utf-8'))})
+                    self.assertContains(response, 'Publicar 1 registro agora')
+                    entries = model_for(resource).objects.filter(name=name)
+                    self.assertFalse(entries.exists())
+                    token = self.client.session['editorial_import_preview']['token']
+                    self.assertEqual(self.client.post(url, {'confirm': '1', 'token': token}).status_code, 302)
+                    entry = entries.get()
+                    self.assertEqual(entry.rulebook, self.book)
+                    if resource == 'Feat':
+                        self.assertEqual(entry.feat_categories.get(), self.category)
+                    elif resource == 'Spell':
+                        self.assertTrue(entry.verbal_component)
+                        self.assertFalse(entry.somatic_component)
+                    elif kind:
+                        self.assertEqual(entry.kind, kind)
+                        self.assertIsNotNone(detail_for(entry))
+
+    def test_import_enforces_access_and_csrf_and_escapes_preview(self):
+        self._activate_importer()
+        client = Client(enforce_csrf_checks=True)
+        url = reverse('editorial_import', args=('Feat',))
+        self.assertEqual(client.get(url, {'template': 'json'}).status_code, 302)
+        client.force_login(self.editor)
+        with override_settings(ACCESS_REQUIRED=True):
+            self.assertEqual(client.get(url, {'template': 'json'}).status_code, 403)
+        self.assertEqual(client.get(reverse('editorial_import', args=('Item',))).status_code, 403)
+        client.get(url)
+        record = {'source_reference': 'Test Source p. 5', 'name': 'CSRF Preview',
+                  'rulebook': self.book.name, 'feat_categories': self.category.name,
+                  'description': '<mark>Visible markup</mark>', 'benefit': 'Example.'}
+        self.assertEqual(client.post(url, {'file': self._import_file([record])}).status_code, 403)
+        response = client.post(url, {'file': self._import_file([record]),
+                                    'csrfmiddlewaretoken': client.cookies[settings.CSRF_COOKIE_NAME].value})
+        self.assertContains(response, '&lt;mark&gt;Visible markup&lt;/mark&gt;')
+        self.assertEqual(response['Cache-Control'], 'no-store')
+        token = client.session['editorial_import_preview']['token']
+        self.assertEqual(client.post(url, {'confirm': '1', 'token': token}).status_code, 403)
+        self.assertFalse(Feat.objects.filter(name=record['name']).exists())
+
+    def test_import_rejects_large_files_and_more_than_fifty_records(self):
+        from dnd.editorial_import import MAX_BYTES, MAX_ROWS, validated_rows
+        self.assertRaisesMessage(forms.ValidationError, 'exceeds the 128 KiB limit.',
+                                 validated_rows, ' ' * (MAX_BYTES + 1), 'Feat', '')
+        record = {'source_reference': 'Test Source p. 5',
+                  'rulebook': self.book.pk, 'feat_categories': [self.category.pk],
+                  'description': 'Example.', 'benefit': 'Example.'}
+        records = [dict(record, name='Batch feat %s' % index) for index in range(MAX_ROWS + 1)]
+        with self.assertRaisesMessage(forms.ValidationError, 'Import at most 50 records per file.'):
+            validated_rows(json.dumps(records), 'Feat', '', json_file=True)
+        self.assertFalse(Feat.objects.exists())
+
+    def test_import_rejects_bad_json_and_incomplete_csv(self):
+        from dnd.editorial_import import validated_rows
+        for content in ('{}', '[123]', '[{"name":"one","name":"two"}]', '[{"name":NaN}]'):
+            with self.subTest(content=content), self.assertRaises(forms.ValidationError):
+                validated_rows(content, 'Feat', '', json_file=True)
+        with self.assertRaisesMessage(forms.ValidationError, 'does not match the CSV header'):
+            validated_rows('source_reference;name;rulebook\nSource;Only name', 'Feat', '')
+        psionic = [{'source_reference': 'Test Source p. 5', 'name': 'Bad Level',
+                    'rulebook': self.book.pk, 'mechanics': 'Example effect.',
+                    'detail_discipline': 'Clairsentience', 'detail_power_points': 1,
+                    'detail_class_levels': 'Test Class | ²'}]
+        with self.assertRaisesMessage(forms.ValidationError, 'Use one class per line'):
+            validated_rows(json.dumps(psionic), 'SupplementalEntry', 'psionics', json_file=True)
+
+    def test_approved_spell_correction_still_records_verifier(self):
+        school = SpellSchool.objects.create(name='Test School', slug='test-school')
+        form = editable_form('Spell')({'rulebook': self.book.pk, 'school': school.pk,
+                                       'name': 'Test Spell', 'description': 'Original text.'})
+        self.assertTrue(form.is_valid(), form.errors)
+        spell = form.save(commit=False)
+        spell.slug = 'test-spell'
+        spell.save()
+        self.client.force_login(self.owner)
+        self.assertEqual(self.client.post(reverse('editorial_correct', args=('Spell', spell.pk)), {
+            'rulebook': self.book.pk, 'school': school.pk, 'name': spell.name,
+            'description': 'Corrected text.', 'source_reference': 'Test Source, p. 7',
+        }).status_code, 302)
+        proposal = EditorialProposal.objects.get(resource='Spell', action='correct')
+        self.assertEqual(self.client.post(reverse('editorial_decide', args=(proposal.pk,)),
+                                          {'decision': 'approve'}).status_code, 302)
+        spell.refresh_from_db()
+        self.assertEqual(spell.description, 'Corrected text.')
+        self.assertTrue(spell.verified)
+        self.assertEqual(spell.verified_author_id, self.owner.pk)
+        self.assertIsNotNone(spell.verified_time)
+
+    def test_import_requires_fresh_preview_when_relation_changes(self):
+        self._activate_importer()
+        self.client.force_login(self.editor)
+        url = reverse('editorial_import', args=('Feat',))
+        record = {'source_reference': 'Test Source p. 5', 'name': 'Stale Preview',
+                  'rulebook': self.book.name, 'feat_categories': self.category.name,
+                  'description': 'Example.', 'benefit': 'Example.'}
+        self.assertContains(self.client.post(url, {'file': self._import_file([record])}), 'Publish 1 record now')
+        token = self.client.session['editorial_import_preview']['token']
+        self.category.name = 'Renamed category'
+        self.category.save(update_fields=['name'])
+        FeatCategory.objects.create(name=record['feat_categories'], slug='replacement')
+        response = self.client.post(url, {'confirm': '1', 'token': token})
+        self.assertContains(response, 'Catalog values changed after the preview')
+        self.assertFalse(Feat.objects.filter(name=record['name']).exists())
+
+    def test_import_permission_is_checked_again_at_confirmation(self):
+        self._activate_importer()
+        self.client.force_login(self.editor)
+        url = reverse('editorial_import', args=('Feat',))
+        record = {'source_reference': 'Test Source p. 5', 'name': 'Revoked Import',
+                  'rulebook': self.book.name, 'feat_categories': self.category.name,
+                  'description': 'Example.', 'benefit': 'Example.'}
+        self.assertContains(self.client.post(url, {'file': self._import_file([record])}), 'Publish 1 record now')
+        token = self.client.session['editorial_import_preview']['token']
+        EditorialGrant.objects.filter(user=self.editor, resource='Feat').update(can_import=False)
+        self.assertEqual(self.client.post(url, {'confirm': '1', 'token': token}).status_code, 403)
+        self.assertFalse(Feat.objects.filter(name=record['name']).exists())
+
+
+class EditorialImportConcurrencyTests(TransactionTestCase):
+    def test_two_confirmations_of_the_same_record_publish_only_once(self):
+        from dnd import editorial_import
+
+        editor = User.objects.create_superuser('ronassic', settings.ADMINS[0][1])
+        edition = DndEdition.objects.create(name='Core 3.5', slug='core-35', system='DnD 3.5', core=True)
+        book = Rulebook.objects.create(name='Example Source', slug='example-source', abbr='ES', dnd_edition=edition)
+        category = FeatCategory.objects.create(name='Example category', slug='example-category')
+        content = json.dumps([{'source_reference': 'Example Source, p. 5', 'name': 'Concurrent Feat',
+                               'rulebook': book.pk, 'feat_categories': [category.pk],
+                               'description': 'Example.', 'benefit': 'Example.'}])
+        rows = editorial_import.validated_rows(content, 'Feat', '', json_file=True)
+        digest = editorial_import.preview_digest(rows)
+        barrier = Barrier(2)
+        lock_books = editorial_import.lock_creation_books
+
+        def lock_after_both_validated(ids):
+            barrier.wait(timeout=10)
+            lock_books(ids)
+
+        def confirm():
+            try:
+                return editorial_import.publish_rows(content, 'Feat', '', editor,
+                                                     json_file=True, expected_digest=digest)
+            except forms.ValidationError as error:
+                return '; '.join(error.messages)
+            finally:
+                connections.close_all()
+
+        with patch.object(editorial_import, 'lock_creation_books', side_effect=lock_after_both_validated):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                pending = [pool.submit(confirm), pool.submit(confirm)]
+                outcomes = [result.result(timeout=20) for result in pending]
+        self.assertCountEqual(outcomes, [1, 'A catalog record with this original name already exists.'])
+        self.assertEqual(Feat.objects.filter(name='Concurrent Feat').count(), 1)
+        self.assertEqual(EditorialProposal.objects.filter(resource='Feat', status='approved').count(), 1)
