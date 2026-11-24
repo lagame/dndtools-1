@@ -17,7 +17,7 @@ from django.contrib.auth.models import Permission
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from django.db import connections
+from django.db import connections, transaction
 from django.test import Client, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -1282,6 +1282,26 @@ class EditorialFlowTests(TestCase):
 
 
 class EditorialImportConcurrencyTests(TransactionTestCase):
+    def test_inline_write_reports_contention_without_waiting_for_a_large_batch(self):
+        from dnd.editorial import lock_creation_books
+
+        edition = DndEdition.objects.create(name='Core 3.5', slug='core-35', system='DnD 3.5', core=True)
+        book = Rulebook.objects.create(name='Example Source', slug='example-source', abbr='ES', dnd_edition=edition)
+
+        def try_inline():
+            try:
+                with transaction.atomic():
+                    lock_creation_books([book.pk], wait=False)
+            finally:
+                connections.close_all()
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            with transaction.atomic():
+                lock_creation_books([book.pk])
+                result = pool.submit(try_inline)
+                with self.assertRaisesMessage(forms.ValidationError, 'Another batch is publishing'):
+                    result.result(timeout=5)
+
     def test_two_confirmations_of_the_same_record_publish_only_once(self):
         from dnd import editorial_import
 
@@ -1297,9 +1317,9 @@ class EditorialImportConcurrencyTests(TransactionTestCase):
         barrier = Barrier(2)
         lock_books = editorial_import.lock_creation_books
 
-        def lock_after_both_validated(ids):
+        def lock_after_both_validated(ids, *, wait=True):
             barrier.wait(timeout=10)
-            lock_books(ids)
+            lock_books(ids, wait=wait)
 
         def confirm():
             try:

@@ -236,13 +236,13 @@ def preview_digest(rows):
 
 
 @transaction.atomic
-def publish_rows(content, resource, kind, user, *, json_file=False, expected_digest):
+def publish_rows(content, resource, kind, user, *, json_file=False, expected_digest, wait=True):
     if not can_import(user, resource, kind=kind or None):
         raise PermissionDenied
     rows = validated_rows(content, resource, kind, json_file=json_file)
     if preview_digest(rows) != expected_digest:
         raise forms.ValidationError(_('Catalog values changed after the preview. Upload the file again.'))
-    lock_creation_books({form.cleaned_data['rulebook'].pk for number, raw, form in rows})
+    lock_creation_books({form.cleaned_data['rulebook'].pk for number, raw, form in rows}, wait=wait)
     user.refresh_from_db(fields=('is_active', 'is_staff', 'is_superuser', 'email'))
     if not can_import(user, resource, kind=kind or None):
         raise PermissionDenied

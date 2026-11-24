@@ -3780,3 +3780,6 @@ msgstr "Cancelar lote"
 
 msgid "Check the names, books and sources. This preview is available for 24 hours."
 msgstr "Confira os nomes, os livros e as fontes. A prévia fica disponível por 24 horas."
+
+msgid "Another batch is publishing records in this rulebook. Try again when it finishes."
+msgstr "Outro lote está publicando registros neste livro. Tente novamente quando ele terminar."

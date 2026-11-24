@@ -332,7 +332,7 @@ def import_catalog(request, resource):
                 request.session.pop('editorial_import_preview', None)
                 try:
                     count = publish_rows(saved['content'], resource, kind, request.user,
-                                         json_file=saved['json_file'], expected_digest=saved['digest'])
+                                         json_file=saved['json_file'], expected_digest=saved['digest'], wait=False)
                 except (forms.ValidationError, ValueError) as error:
                     detail = '; '.join(error.messages) if isinstance(error, forms.ValidationError) else str(error)
                     messages.error(request, _('Nothing was published: %(error)s') % {'error': detail})

@@ -8,7 +8,7 @@ from datetime import date, datetime
 from django import forms
 from django.apps import apps
 from django.conf import settings
-from django.db import models, transaction
+from django.db import OperationalError, models, transaction
 from django.db.models.deletion import Collector, ProtectedError, RestrictedError
 from django.db.models import F
 from django.db.models.functions import Collate
@@ -385,11 +385,17 @@ def delete_without_cascading_catalog(target):
     collector.delete()
 
 
-def lock_creation_books(book_ids):
+def lock_creation_books(book_ids, *, wait=True):
     # Both CSV publication and proposal approval lock the same source books
     # before checking duplicates. Batches acquire them in primary key order.
-    list(Rulebook.objects.filter(pk__in=book_ids).order_by('pk')
-         .select_for_update().values_list('pk', flat=True))
+    try:
+        list(Rulebook.objects.filter(pk__in=book_ids).order_by('pk')
+             .select_for_update(nowait=not wait).values_list('pk', flat=True))
+    except OperationalError as error:
+        if wait or not error.args or error.args[0] != 3572:
+            raise
+        raise forms.ValidationError(_(
+            'Another batch is publishing records in this rulebook. Try again when it finishes.')) from error
 
 
 def save_catalog_entry(resource, form, reviewer, *, creating):
@@ -458,7 +464,7 @@ def approve(proposal, reviewer):
         creating = proposal.action == 'create'
         book = form.cleaned_data.get('rulebook')
         if creating and proposal.resource in IMPORT_RESOURCES and book:
-            lock_creation_books([book.pk])
+            lock_creation_books([book.pk], wait=False)
         entry = save_catalog_entry(proposal.resource, form, reviewer, creating=creating)
         proposal.target_pk = entry.pk
     proposal.status = 'approved'
