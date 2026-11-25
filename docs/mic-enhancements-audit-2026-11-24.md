@@ -53,3 +53,9 @@
 - Quatro registros de sinergia usam `synergy_prerequisite` e ficam em `dependent-records/`: Healing Greater após Healing; Soulbound Greater após Soulbound; Stamina Improved após o Stamina corrigido; Stamina Greater após Stamina Improved. A prévia de cada dependente deve ser refeita depois de existir seu registro base.
 - O importador local validou os 27 registros de `new-records/` como um conjunto, os demais campos dos quatro dependentes individualmente sem a relação ainda indisponível, e os 32 hashes do manifesto. Stamina foi excluído da carga como duplicata. O mesmo JSON `Item` foi recusado no importador `Spell` com motivo específico.
 - Nenhum registro do ZIP foi enviado à produção. A publicação dos 27 novos itens e dos quatro dependentes continua pendente de revisão final de direitos e dos campos assinalados acima.
+
+## Rechecagem antes da importação
+
+- O ZIP revisado foi relido sem extração: os 32 arquivos de registro conferem com os hashes do `manifest.json` (27 novos, quatro dependentes e Stamina separado como duplicata). O formulário aceita `.json` ou `.csv`, não o ZIP.
+- Em produção, o item 166 foi rechecado por consulta somente de leitura: Stamina está como `ENH`, página 15. A nota histórica do manifesto v1.2 que ainda diz `MAG` ficou desatualizada; este pacote não deve ser tratado como pronto para publicação.
+- A ativação *Free (mental)* de Manifester ainda não existe no catálogo de produção. O arquivo de Ranged não menciona a exclusão de escudos de torre, embora essa restrição conste da fonte. Esses campos e a revisão dos textos precisam ser concluídos antes de publicar o lote.
