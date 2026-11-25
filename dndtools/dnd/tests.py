@@ -22,7 +22,7 @@ from django.utils.crypto import get_random_string
 
 from dnd.models import (
     CharacterClass, CharacterClassVariant, DndEdition, Domain, DomainVariant, Feat, FeatCategory,
-    Item, ItemActivationType, ItemAuraType, ItemSlot, MonsterSubtype, MonsterType, Race, RaceSize,
+    Item, ItemActivationType, ItemAuraType, ItemSlot, MonsterSubtype, MonsterType, PublishedTranslation, Race, RaceSize,
     NewsEntry, RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDescriptor, SpellDomainLevel, SpellSchool, StaticPage,
     TextFeatPrerequisite,
 )
@@ -395,6 +395,73 @@ class CatalogSmokeTests(TestCase):
             self.assertContains(response, name)
         self.assertNotRegex(response.content.decode(), r'\b[A-Z]\w* object \(')
 
+    def test_item_detail_uses_one_period_for_source_costs_and_prerequisites(self):
+        feat = Feat.objects.create(rulebook=self.spell.rulebook, name='Craft Magic Arms and Armor',
+                                   slug='craft-arms', description='Craft items.', benefit='Create equipment.')
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Test Armor', slug='test-armor',
+                                   type=Item.ItemType.ENHANCEMENT, description='Protective armor.')
+        item.required_feats.add(feat)
+        for suffix in ('.', ''):
+            item.required_extra = 'heroism or empty mind (EPH 99)' + suffix
+            item.cost_to_create = '1,500 gp, 120 XP, 3 days' + suffix
+            item.save(update_fields=['required_extra', 'cost_to_create'])
+            for path in (item.get_absolute_url(), '/pt-br' + item.get_absolute_url(),
+                         item.get_absolute_url_mobile(), '/pt-br' + item.get_absolute_url_mobile()):
+                with self.subTest(path=path, suffix=suffix):
+                    response = self.client.get(path, follow=True)
+                    self.assertEqual(response.status_code, 200)
+                    if '/m/' in path:
+                        self.assertEqual(response.redirect_chain, [(path.replace('/m/', '/'), 301)])
+                    content = response.content.decode()
+                    self.assertRegex(content, r'Craft Magic Arms and Armor</a>,\s*heroism or empty mind \(EPH 99\)\.')
+                    self.assertIn('1,500 gp, 120 XP, 3 days.', content)
+                    self.assertNotIn('EPH 99)..', content)
+                    self.assertNotIn('3 days..', content)
+
+    def test_item_detail_separates_visual_intro_from_rules(self):
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Time Buttress', slug='time-buttress',
+                                   type=Item.ItemType.ENHANCEMENT,
+                                   visual_description='This shield seems to pulse with power.',
+                                   description='The shield protects its bearer.')
+        for path in (item.get_absolute_url(), '/pt-br' + item.get_absolute_url(),
+                     item.get_absolute_url_mobile(), '/pt-br' + item.get_absolute_url_mobile()):
+            with self.subTest(path=path):
+                response = self.client.get(path, follow=True)
+                self.assertEqual(response.status_code, 200)
+                if '/m/' in path:
+                    self.assertEqual(response.redirect_chain, [(path.replace('/m/', '/'), 301)])
+                content = response.content.decode()
+                self.assertRegex(content, r'<i>This shield seems to pulse with power\.</i>\s*</p>')
+                self.assertIn('The shield protects its bearer.', content)
+                self.assertNotIn('power. The shield protects', content)
+
+    def test_item_detail_translation_preserves_english_and_translates_derived_fields(self):
+        from dnd.editorial import source_digest
+
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Original Shield', slug='original-shield',
+                                   type=Item.ItemType.ENHANCEMENT,
+                                   visual_description='An old shield.', description='It grants protection.',
+                                   required_extra='An original requirement.', cost_to_create='2 days.')
+        reviewer = User.objects.create(username='translation_reviewer')
+        PublishedTranslation.objects.create(
+            resource='Item', target_pk=item.pk, locale='pt-br',
+            payload={'name': 'Escudo Original', 'visual_description': 'Um escudo antigo.',
+                     'description': 'Concede proteção.', 'required_extra': 'Um requisito traduzido.',
+                     'cost_to_create': '2 dias.'},
+            source_digest=source_digest(item, translation=True), author=reviewer, reviewer=reviewer)
+        original_path = item.get_absolute_url()
+        translated = self.client.get('/pt-br' + original_path).content.decode()
+        self.assertIn('<i>Um escudo antigo.</i>', translated)
+        self.assertIn('Um requisito traduzido.', translated)
+        self.assertIn('2 dias.', translated)
+        self.assertNotIn('2 dias..', translated)
+        english = self.client.get(original_path).content.decode()
+        self.assertIn('<i>An old shield.</i>', english)
+        self.assertIn('An original requirement.', english)
+        self.assertIn('2 days.', english)
+        item.refresh_from_db()
+        self.assertEqual(item.description, 'It grants protection.')
+
     def test_legacy_html_is_sanitized_at_render_time(self):
         fragment = ('<table><tr><td style="text-align:center; background-image:url(javascript:alert(5))"><strong>Arcane</strong> '
                     '<a href="/feats/test/">feat</a></td></tr></table>'
@@ -445,6 +512,9 @@ class CatalogSmokeTests(TestCase):
         response = self.client.get('/m' + self.spell.get_absolute_url(), {'page': '2'})
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response['Location'], self.spell.get_absolute_url() + '?page=2')
+        localized = self.client.get('/pt-br/m' + self.spell.get_absolute_url(), {'page': '2'})
+        self.assertEqual(localized.status_code, 301)
+        self.assertEqual(localized['Location'], '/pt-br' + self.spell.get_absolute_url() + '?page=2')
 
     def test_verification_requires_post_staff_and_csrf(self):
         url = reverse('spell_verify', kwargs={'spell_id': self.spell.id})

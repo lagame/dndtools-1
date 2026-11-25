@@ -63,16 +63,14 @@
     <p>
     <i>{% translate 'Prerequisites:' %}</i>
     {% for required_feat in required_feats %}
-
-        <a href="{{ required_feat.get_absolute_url }}">{{ required_feat }}</a>{% if not forloop.last %}, {% endif %}
+        <a href="{{ required_feat.get_absolute_url }}">{{ required_feat }}</a>{% if not forloop.last or required_spells or item.required_extra %}, {% endif %}
     {% endfor %}
-    {% if required_feats and required_spells %},{% endif %}
-    <i>
+    {% if required_spells %}<i>
     {% for required_spell in required_spells %}
-        <a href="{{ required_spell.get_absolute_url }}">{{ required_spell }}</a>{% if not forloop.last %}, {% endif %}
+        <a href="{{ required_spell.get_absolute_url }}">{{ required_spell }}</a>{% if not forloop.last or item.required_extra %}, {% endif %}
     {% endfor %}
-    </i>
-    {{ item.required_extra }}.
+    </i>{% endif %}
+    {% if item.required_extra %}{{ required_extra }}{% endif %}.
     </p>
     {% endif %}
 
