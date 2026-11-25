@@ -22,6 +22,7 @@ from django.db import connections, transaction
 from django.test import Client, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 
 from dnd.editorial import RESOURCES, RESOURCE_LABELS, FIELD_LABELS, editable_form, approve
 from dnd.access import verified_email
@@ -34,9 +35,9 @@ from dnd.models import (CatalogImportBatch, CharacterClass, CollaboratorInvite, 
 class EditorialFlowTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1], 'long-test-password-123')
+        cls.owner = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1], get_random_string(20))
         cls.editor = User.objects.create_user('geeksublime', 'geeksublime@example.test',
-                                              'long-test-password-123', is_staff=True)
+                                              get_random_string(20), is_staff=True)
         cls.edition = DndEdition.objects.create(name='Core 3.5', slug='core-35', system='DnD 3.5', core=True)
         cls.book = Rulebook.objects.create(name='Test Source', slug='test-source', abbr='TS',
                                             dnd_edition=cls.edition)

@@ -18,6 +18,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 
 from dnd.models import (
     CharacterClass, CharacterClassVariant, DndEdition, Domain, DomainVariant, Feat, FeatCategory,
@@ -357,7 +358,7 @@ class CatalogSmokeTests(TestCase):
         domain_variant = DomainVariant.objects.create(domain=domain, rulebook=self.spell.rulebook)
         self.assertEqual(str(variant), 'Wizard variant (Test Handbook)')
         self.assertEqual(str(domain_variant), 'Fire variant (Test Handbook)')
-        editor = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1], 'Long-test-password-123')
+        editor = User.objects.create_superuser(settings.ADMINS[0][0], settings.ADMINS[0][1], get_random_string(20))
         self.client.force_login(editor)
         choices = (
             ('admin:dnd_monster_add', (self.spell.rulebook, size, monster_type, subtype)),

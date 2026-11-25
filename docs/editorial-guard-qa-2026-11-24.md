@@ -4,6 +4,7 @@
 
 - Before editing, the working branch was `fix/admin-password-minimum` at `48bb6ca`; the only untracked path was `.vscode/`, which was preserved. Production was checked independently at `2758bc8e1ad5d57df5db54b7aeb53141cc06a01a`, with a clean tree and running app, MySQL, import worker, forum and tunnel proxy. This code change is not deployed.
 - Commit `48bb6ca` introduced two short, fictional password literals in a boundary test. The test now constructs the values at runtime and still checks rejection below eight characters and acceptance at eight. No real credential was found in that commit's changed files; GitHub secret scanning currently has zero open and zero resolved alerts. This does not establish the status of the separate GitGuardian alert or prove the whole history contains no secrets.
+- A later GitGuardian email also flagged commit `1605567`. Its relevant password values were fixtures in tests that use `force_login`, not production credentials. The owner and editor fixtures now generate their passwords at test runtime, without changing the authorization assertions. A fresh local build and all 110 Django tests passed. The historical commits remain in Git, and the GitGuardian portal incident status has not been verified; the email alone does not show whether the incidents were dismissed.
 - The deployed password minimum is eight characters. No password was changed and no password policy was modified in this patch.
 
 ## Production data correction
