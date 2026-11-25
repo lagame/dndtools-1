@@ -28,6 +28,29 @@ def admin_model_label(model):
     return RESOURCE_LABELS.get(name, OTHER_LABELS.get(name, fallback))
 
 
+@register.filter
+def editorial_preview_label(field, form):
+    if field == 'resource':
+        return _('Resource')
+    if field == 'source_reference':
+        return _('Source')
+    if field in FIELD_LABELS:
+        return FIELD_LABELS[field]
+    form_field = form.fields.get(field)
+    return form_field.label if form_field and form_field.label else field.replace('_', ' ').capitalize()
+
+
+@register.filter
+def editorial_preview_value(value, field):
+    if field == 'resource' and isinstance(value, str):
+        return RESOURCE_LABELS.get(value, value)
+    if isinstance(value, bool):
+        return _('Yes') if value else _('No')
+    if isinstance(value, (list, tuple)):
+        return ', '.join(str(part) for part in value)
+    return value
+
+
 @register.inclusion_tag('admin/change_list_results.html')
 def localized_result_list(changelist):
     context = result_list(changelist)

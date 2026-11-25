@@ -1054,6 +1054,29 @@ class EditorialFlowTests(TestCase):
         self.assertContains(self.client.post(url, {'file': upload}), 'deve declarar resource')
         self.assertFalse(Spell.objects.filter(name='Wrong importer').exists())
 
+    def test_import_preview_is_readable_in_both_languages_without_publishing(self):
+        self.client.force_login(self.owner)
+        url = reverse('editorial_import', args=('Feat',))
+        record = {'resource': 'Feat', 'source_reference': 'Test Source, p. 5',
+                  'name': 'Preview only', 'rulebook': self.book.name,
+                  'feat_categories': [self.category.name], 'description': 'Test rule.',
+                  'benefit': 'Test benefit.'}
+        for language, resource_label, category_label, note in (
+                ('pt-br', 'Recurso', 'Categorias de talentos', 'Nenhum registro foi publicado.'),
+                ('en-us', 'Resource', 'Feat categories', 'No record has been published yet.')):
+            with self.subTest(language=language):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
+                upload = SimpleUploadedFile('preview.json', json.dumps([record]).encode(),
+                                            content_type='application/json')
+                response = self.client.post(url, {'file': upload})
+                self.assertContains(response, '<ol class="editorial-import-preview">')
+                self.assertContains(response, '<dt>%s</dt>' % resource_label, html=True)
+                self.assertContains(response, '<dt>%s</dt>' % category_label, html=True)
+                self.assertContains(response, '<dd>Import category</dd>', html=True)
+                self.assertContains(response, note)
+                self.assertNotContains(response, '<dt>feat_categories</dt>')
+                self.assertFalse(Feat.objects.filter(name=record['name']).exists())
+
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
                        EDITORIAL_NOTIFY_EMAIL='owner@example.test')
     def test_owner_csv_import_previews_then_publishes_with_audit_and_alert(self):

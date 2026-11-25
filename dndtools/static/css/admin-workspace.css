@@ -254,6 +254,65 @@ body.dashboard #content-related h3, body.dashboard #content-related p, body.dash
   white-space: nowrap;
 }
 
+.editorial-import-preview {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editorial-import-record {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--hairline-color);
+  border-radius: 8px;
+  background: var(--darkened-bg);
+}
+
+.editorial-import-summary {
+  display: grid;
+  grid-template-columns: 4rem minmax(10rem, 1.25fr) repeat(2, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.editorial-import-summary h3,
+.editorial-import-summary p {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.editorial-import-summary h3 { color: var(--body-loud-color); }
+.editorial-import-row,
+.editorial-import-label {
+  display: block;
+  color: var(--body-quiet-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.editorial-import-record details {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--hairline-color);
+}
+
+.editorial-import-record summary { cursor: pointer; font-weight: 650; }
+.editorial-preview-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0.75rem 0 0;
+}
+
+.editorial-preview-fields > div { min-width: 0; }
+.editorial-preview-fields dt { color: var(--body-quiet-color); font-weight: 700; }
+.editorial-preview-fields dd { margin: 0.2rem 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.editorial-preview-field-wide { grid-column: 1 / -1; }
+
 .editorial-catalog-table {
   table-layout: fixed;
 }
@@ -318,6 +377,9 @@ body:not(.login) .editorial-upload input[type="file"] {
   body:not(.login) #header, body:not(.login) #content { padding: 22px; }
 }
 @media (max-width: 767px) {
+  .editorial-import-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .editorial-import-row,
+  .editorial-import-summary h3 { grid-column: 1 / -1; }
   body:not(.login) #header { padding: 18px 16px; flex-wrap: wrap; gap: 12px; }
   .editorial-nav-tools { justify-content: flex-start; width: 100%; }
   body:not(.login) #content { padding: 20px 16px; }

@@ -3827,6 +3827,9 @@ msgstr "Fonte"
 msgid "All submitted fields"
 msgstr "Ver campos enviados"
 
+msgid "This is a preview. No record has been published yet. Check the source, fields and publication rights before publishing."
+msgstr "Esta é apenas uma prévia. Nenhum registro foi publicado. Confira a fonte, os campos e os direitos de publicação antes de publicar."
+
 msgid "Publish %(count)s record now"
 msgid_plural "Publish %(count)s records now"
 msgstr[0] "Publicar %(count)s registro agora"
