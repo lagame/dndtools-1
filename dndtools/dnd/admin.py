@@ -49,6 +49,14 @@ class LocalizedCatalogFields:
 
 
 class CatalogModelAdmin(OwnerOnlyAdminMixin, LocalizedCatalogFields, admin.ModelAdmin):
+    def get_changelist_instance(self, request):
+        changelist = super().get_changelist_instance(request)
+        for filter_spec in changelist.filter_specs:
+            label = FIELD_LABELS.get(getattr(filter_spec, 'field_path', None))
+            if label:
+                filter_spec.title = label
+        return changelist
+
     def changelist_view(self, request, extra_context=None):
         label = RESOURCE_LABELS.get(self.model.__name__, self.model._meta.verbose_name_plural)
         context = {'title': _('Manage %(model)s') % {'model': label}, **(extra_context or {})}

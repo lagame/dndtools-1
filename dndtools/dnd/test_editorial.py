@@ -1010,6 +1010,20 @@ class EditorialFlowTests(TestCase):
                 self.assertContains(add_form, 'Este campo aceita formatação Textile.' if language == 'pt-br'
                                     else 'Textile formatting is supported.')
 
+    def test_admin_catalog_columns_and_filters_follow_language_switch(self):
+        Feat.objects.create(rulebook=self.book, name='Test Feat', slug='test-feat',
+                            description='Test rule', benefit='Test benefit')
+        self.client.force_login(self.owner)
+        for language, name, book, filter_label in (
+                ('pt-br', 'Nome', 'Livro', 'Por Livro'),
+                ('en-us', 'Name', 'Rulebook', 'By Rulebook')):
+            with self.subTest(language=language):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
+                listing = self.client.get(reverse('admin:dnd_feat_changelist'))
+                self.assertContains(listing, '>' + name + '</a>')
+                self.assertContains(listing, '>' + book + '</a>')
+                self.assertContains(listing, filter_label)
+
     @override_settings(ACCESS_REQUIRED=True)
     def test_switch_account_also_ends_cloudflare_access_session(self):
         self.client.force_login(self.owner)

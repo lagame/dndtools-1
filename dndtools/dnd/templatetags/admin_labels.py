@@ -1,7 +1,8 @@
 from django import template
+from django.contrib.admin.templatetags.admin_list import result_list
 from django.utils.translation import gettext_lazy as _
 
-from dnd.editorial import RESOURCE_LABELS
+from dnd.editorial import FIELD_LABELS, RESOURCE_LABELS
 
 
 register = template.Library()
@@ -25,3 +26,12 @@ def admin_model_label(model):
         name = model.object_name
         fallback = model.verbose_name_plural
     return RESOURCE_LABELS.get(name, OTHER_LABELS.get(name, fallback))
+
+
+@register.inclusion_tag('admin/change_list_results.html')
+def localized_result_list(changelist):
+    context = result_list(changelist)
+    for field, header in zip(changelist.list_display, context['result_headers']):
+        if isinstance(field, str) and field in FIELD_LABELS:
+            header['text'] = FIELD_LABELS[field]
+    return context
