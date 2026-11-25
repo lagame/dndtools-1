@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+from django.utils.translation import gettext_lazy as _
 
 from dnd.models import (FeatCategory, Skill, SpecialFeatPrerequisite, TextFeatPrerequisite,
                         FeatSpecialFeatPrerequisite, FeatRequiresFeat, Feat, FeatRequiresSkill,
@@ -16,7 +17,7 @@ from dnd.models import (FeatCategory, Skill, SpecialFeatPrerequisite, TextFeatPr
                         SpellSchool, SpellSubSchool, Spell, SpellClassLevel,
                         Domain, SpellDomainLevel, DomainVariant, RuleCondition,
                         EditorialGrant, CreatureTemplate, SupplementalEntry)
-from dnd.editorial import GRANT_CHOICES, owner
+from dnd.editorial import FIELD_LABELS, GRANT_CHOICES, RESOURCE_LABELS, owner
 
 
 class OwnerOnlyAdminMixin:
@@ -36,8 +37,44 @@ class OwnerOnlyAdminMixin:
         return owner(request.user)
 
 
-class CatalogModelAdmin(OwnerOnlyAdminMixin, admin.ModelAdmin):
-    pass
+class LocalizedCatalogFields:
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if field is not None:
+            if db_field.name in FIELD_LABELS:
+                field.label = FIELD_LABELS[db_field.name]
+            if field.help_text == 'Textile enabled!':
+                field.help_text = _('Textile formatting is supported.')
+        return field
+
+
+class CatalogModelAdmin(OwnerOnlyAdminMixin, LocalizedCatalogFields, admin.ModelAdmin):
+    def get_changelist_instance(self, request):
+        changelist = super().get_changelist_instance(request)
+        for filter_spec in changelist.filter_specs:
+            label = FIELD_LABELS.get(getattr(filter_spec, 'field_path', None))
+            if label:
+                filter_spec.title = label
+        return changelist
+
+    def changelist_view(self, request, extra_context=None):
+        label = RESOURCE_LABELS.get(self.model.__name__, self.model._meta.verbose_name_plural)
+        context = {'title': _('Manage %(model)s') % {'model': label}, **(extra_context or {})}
+        return super().changelist_view(request, extra_context=context)
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        label = RESOURCE_LABELS.get(self.model.__name__, self.model._meta.verbose_name_plural)
+        title = _('Edit record — %(model)s') if object_id else _('Add record — %(model)s')
+        context = {'title': title % {'model': label}, **(extra_context or {})}
+        return super().changeform_view(request, object_id, form_url, extra_context=context)
+
+
+class CatalogTabularInline(LocalizedCatalogFields, admin.TabularInline):
+    def __init__(self, parent_model, admin_site):
+        super().__init__(parent_model, admin_site)
+        if self.model.__name__ in RESOURCE_LABELS:
+            self.verbose_name = _('record')
+            self.verbose_name_plural = RESOURCE_LABELS[self.model.__name__]
 
 
 class ModifiedUserAdmin(OwnerOnlyAdminMixin, UserAdmin):
@@ -49,7 +86,8 @@ class OwnerOnlyGroupAdmin(OwnerOnlyAdminMixin, GroupAdmin):
 
 
 class EditorialGrantAdmin(admin.ModelAdmin):
-    list_display = ('user', 'resource', 'can_create', 'can_correct', 'can_translate', 'can_delete', 'can_import')
+    list_display = ('user', 'resource', 'can_create', 'can_correct', 'can_translate', 'can_delete')
+    exclude = ('can_import',)
     list_filter = ('resource',)
     search_fields = ('user__username', 'user__email')
 
@@ -99,17 +137,17 @@ class CharacterClassAdmin(CatalogModelAdmin):
     search_fields = ('name', )
 
 
-class CharacterClassVariantRequiresRaceInline(admin.TabularInline):
+class CharacterClassVariantRequiresRaceInline(CatalogTabularInline):
     model = CharacterClassVariantRequiresRace
     extra = 3
 
 
-class CharacterClassVariantRequiresFeatInline(admin.TabularInline):
+class CharacterClassVariantRequiresFeatInline(CatalogTabularInline):
     model = CharacterClassVariantRequiresFeat
     extra = 3
 
 
-class CharacterClassVariantRequiresSkillInline(admin.TabularInline):
+class CharacterClassVariantRequiresSkillInline(CatalogTabularInline):
     model = CharacterClassVariantRequiresSkill
     extra = 3
 
@@ -197,12 +235,12 @@ class SpellSubSchoolAdmin(CatalogModelAdmin):
     search_fields = ('name', )
 
 
-class SpellClassLevelInline(admin.TabularInline):
+class SpellClassLevelInline(CatalogTabularInline):
     model = SpellClassLevel
     extra = 3
 
 
-class SpellDomainLevelInline(admin.TabularInline):
+class SpellDomainLevelInline(CatalogTabularInline):
     model = SpellDomainLevel
     extra = 3
 
@@ -252,23 +290,23 @@ class SpecialFeatPrerequisiteAdmin(CatalogModelAdmin):
     search_fields = ('name', )
 
 
-class TextFeatPrerequisiteInline(admin.TabularInline):
+class TextFeatPrerequisiteInline(CatalogTabularInline):
     model = TextFeatPrerequisite
     extra = 3
 
 
-class FeatSpecialFeatPrerequisiteInline(admin.TabularInline):
+class FeatSpecialFeatPrerequisiteInline(CatalogTabularInline):
     model = FeatSpecialFeatPrerequisite
     extra = 3
 
 
-class FeatRequiresFeatInline(admin.TabularInline):
+class FeatRequiresFeatInline(CatalogTabularInline):
     model = FeatRequiresFeat
     extra = 3
     fk_name = 'source_feat'
 
 
-class FeatRequiresSkillInline(admin.TabularInline):
+class FeatRequiresSkillInline(CatalogTabularInline):
     model = FeatRequiresSkill
     extra = 3
 
@@ -304,22 +342,22 @@ class MonsterSubtypeAdmin(CatalogModelAdmin):
     search_fields = ('name', )
 
 
-class MonsterSpeedInline(admin.TabularInline):
+class MonsterSpeedInline(CatalogTabularInline):
     model = MonsterSpeed
     extra = 1
 
 
-class MonsterHasFeatInline(admin.TabularInline):
+class MonsterHasFeatInline(CatalogTabularInline):
     model = MonsterHasFeat
     extra = 3
 
 
-class MonsterHasSkillInline(admin.TabularInline):
+class MonsterHasSkillInline(CatalogTabularInline):
     model = MonsterHasSkill
     extra = 3
 
 
-class MonsterSubtypeInline(admin.TabularInline):
+class MonsterSubtypeInline(CatalogTabularInline):
     model = MonsterHasSkill
     extra = 3
 
@@ -344,12 +382,12 @@ class MonsterAdmin(CatalogModelAdmin):
     )
 
 
-class RaceFavoredCharacterClassInline(admin.TabularInline):
+class RaceFavoredCharacterClassInline(CatalogTabularInline):
     model = RaceFavoredCharacterClass
     extra = 1
 
 
-class RaceSpeedInline(admin.TabularInline):
+class RaceSpeedInline(CatalogTabularInline):
     model = RaceSpeed
     extra = 1
 

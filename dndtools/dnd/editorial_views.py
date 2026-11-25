@@ -9,7 +9,7 @@ from datetime import timedelta
 from django import forms
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -41,6 +41,13 @@ from dnd.supplemental.catalog import detail_for
 logger = logging.getLogger(__name__)
 
 
+@staff_member_required
+@require_POST
+def switch_account(request):
+    logout(request)
+    return redirect('/cdn-cgi/access/logout' if settings.ACCESS_REQUIRED else 'admin:login')
+
+
 class SourceForm(forms.Form):
     source_reference = forms.CharField(
         label=_('Official D&D 3.5 source, page and editorial notes'),
@@ -55,7 +62,7 @@ class InviteForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 12}))
     permissions = forms.MultipleChoiceField(
         label=_('Permissions'),
-        choices=(('create', _('Add records')), ('import', _('Publish validated imports directly')),
+        choices=(('create', _('Add records')),
                  ('correct', _('Correct records')),
                  ('translate', _('Translate records')), ('delete', _('Propose removals'))),
         widget=forms.CheckboxSelectMultiple)
@@ -70,17 +77,6 @@ class InviteForm(forms.Form):
                          existing.editorial_invite.access_state == 'active'):
             raise forms.ValidationError(_('This email already has an active or unrelated Django account.'))
         return email
-
-    def clean(self):
-        values = super().clean()
-        if 'import' in values.get('permissions', ()) and 'create' not in values.get('permissions', ()):
-            self.add_error('permissions', _('Direct import also requires permission to add records.'))
-        if 'import' in values.get('permissions', ()) and any(
-                resource.split(':', 1)[0] not in IMPORT_RESOURCES
-                for resource in values.get('resources', ())):
-            self.add_error('resources', _('Direct import is available for spells, feats, monsters, items, creature templates and supplemental rules only.'))
-        return values
-
 
 class ActivationForm(forms.Form):
     code = forms.CharField(max_length=100, widget=forms.PasswordInput, label=_('Invitation code'))
@@ -162,7 +158,6 @@ def invite(request):
                     EditorialGrant.objects.create(
                         user=user, resource=resource,
                         can_create='create' in form.cleaned_data['permissions'],
-                        can_import='import' in form.cleaned_data['permissions'],
                         can_correct='correct' in form.cleaned_data['permissions'],
                         can_translate='translate' in form.cleaned_data['permissions'],
                         can_delete='delete' in form.cleaned_data['permissions'])
@@ -174,10 +169,7 @@ def invite(request):
                     'O código do Cloudflare recebido por e-mail é diferente deste código do convite.\n'
                     'Após a ativação, não é preciso criar outra senha.\n'
                     'Suas propostas só serão publicadas após aprovação de Ronassic.\n'
-                    '%s'
-                    % (settings.PUBLIC_HOST, reverse('editorial_activate'), code,
-                       'A importação direta está autorizada para os recursos escolhidos.\n'
-                       if 'import' in form.cleaned_data['permissions'] else ''),
+                    % (settings.PUBLIC_HOST, reverse('editorial_activate'), code),
                     settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
                 if sent != 1:
                     raise smtplib.SMTPException('Invitation email was not accepted.')

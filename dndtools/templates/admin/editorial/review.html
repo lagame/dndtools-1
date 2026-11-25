@@ -2,7 +2,6 @@
 {% load i18n %}
 {% block content %}
 <p><a href="{% url 'editorial_dashboard' %}">← {% translate "Editorial workspace" %}</a></p>
-<h1>{% translate "Review" %} {{ proposal.action_label }}: {{ resource_label }}</h1>
 <p>{% translate "Author" %}: {{ proposal.author.username }} ({{ proposal.author.email }}) · {% translate "Submitted" %}: {{ proposal.created_at }} · {% translate "Status" %}: {{ proposal.status_label }}</p>
 {% if original %}<p>{% translate "Original" %}: {{ original }} (ID {{ original.pk }})</p>{% endif %}
 <h2>{% translate "Source and editorial notes" %}</h2><pre class="editorial-source">{{ proposal.source_reference }}</pre>

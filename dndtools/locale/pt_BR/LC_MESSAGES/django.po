@@ -1185,6 +1185,123 @@ msgstr "Código do convite"
 msgid "Editorial workspace"
 msgstr "Área editorial"
 
+#: templates/admin/base_site.html
+msgid "Account and language"
+msgstr "Conta e idioma"
+
+#: templates/admin/base_site.html
+msgid "Sign out / switch account"
+msgstr "Sair / trocar de conta"
+
+#: templates/admin/index.html
+msgid "Catalog workspace"
+msgstr "Painel do catálogo"
+
+#: templates/admin/index.html
+msgid "Keep the library accurate, review sourcebooks and manage the content your community explores."
+msgstr "Mantenha a biblioteca correta, revise os livros e organize o conteúdo da comunidade."
+
+#: templates/admin/index.html
+msgid "Edit the catalog"
+msgstr "Editar o catálogo"
+
+#: templates/admin/index.html
+msgid "Browse"
+msgstr "Consultar"
+
+#: templates/admin/index.html
+msgid "Manage"
+msgstr "Gerenciar"
+
+#: dnd/admin.py
+#, python-format
+msgid "Manage %(model)s"
+msgstr "Gerenciar %(model)s"
+
+#: dnd/admin.py
+#, python-format
+msgid "Add record — %(model)s"
+msgstr "Adicionar registro — %(model)s"
+
+#: dnd/admin.py
+#, python-format
+msgid "Edit record — %(model)s"
+msgstr "Editar registro — %(model)s"
+
+#: dnd/admin.py
+msgid "record"
+msgstr "registro"
+
+#: templates/admin/dnd/change_list.html templates/admin/dnd/change_form.html
+msgid "Catalog"
+msgstr "Catálogo"
+
+#: templates/admin/dnd/change_form.html
+msgid "New record"
+msgstr "Novo registro"
+
+#: templates/admin/pagination.html
+msgid "records"
+msgstr "registros"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Access attempts"
+msgstr "Tentativas de acesso"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Access failures"
+msgstr "Falhas de acesso"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Access logs"
+msgstr "Registros de acesso"
+
+#: dnd/admin.py
+msgid "Textile formatting is supported."
+msgstr "Este campo aceita formatação Textile."
+
+#: templates/admin/change_list_object_tools.html
+#, python-format
+msgid "Add record — %(name)s"
+msgstr "Adicionar registro — %(name)s"
+
+#: templates/admin/index.html
+msgid "All content and settings"
+msgstr "Todo o conteúdo e configurações"
+
+#: templates/admin/index.html
+msgid "Find supporting rules, publication tools, accounts and security records."
+msgstr "Encontre regras complementares, ferramentas de publicação, contas e registros de segurança."
+
+#: templates/admin/index.html templates/admin/app_list.html
+msgid "You don’t have permission to view or edit anything."
+msgstr "Você não tem permissão para consultar ou editar registros."
+
+#: dnd/templatetags/admin_labels.py
+msgid "News entries"
+msgstr "Notícias"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Static pages"
+msgstr "Páginas estáticas"
+
+#: dnd/templatetags/admin_labels.py
+msgid "Editorial grants"
+msgstr "Permissões editoriais"
+
+#: dnd/editorial_import.py
+msgid "JSON records must declare resource. Download the current example for this importer."
+msgstr "Cada registro JSON deve declarar resource. Baixe o exemplo atual deste importador."
+
+#: dnd/editorial_import.py
+#, python-format
+msgid "This file declares %(actual)s, but this form imports %(expected)s. Use the correct importer."
+msgstr "Este arquivo declara %(actual)s, mas este formulário importa %(expected)s. Use o importador correto."
+
+#: templates/admin/editorial/import.html
+msgid "Each JSON record must declare the resource shown in the downloaded example. Files for another catalog type are rejected."
+msgstr "Cada registro JSON deve declarar o recurso mostrado no exemplo para download. Arquivos de outro tipo de catálogo são recusados."
+
 #: dnd/editorial_views.py:149
 msgid ""
 "The invitation could not be sent. Please try again; no account was changed."
@@ -3659,8 +3776,8 @@ msgid "Import records directly"
 msgstr "Importar registros diretamente"
 
 #: templates/admin/editorial/invite.html
-msgid "Choose the resources and actions this collaborator may use. Direct import is a separate permission for trusted editors. Ronassic reviews ordinary proposals. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions."
-msgstr "Escolha os recursos e ações que o colaborador poderá usar. A importação direta tem uma permissão própria para editores de confiança. Ronassic revisa as propostas comuns. O colaborador receberá um código de ativação por e-mail. Reenviar o convite de uma conta pendente ou revogada substitui seu código e suas permissões."
+msgid "Choose the resources and actions this collaborator may use. Ronassic reviews proposals before publication. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions."
+msgstr "Escolha os recursos e ações que o colaborador poderá usar. Ronassic revisa as propostas antes da publicação. O colaborador receberá um código de ativação por e-mail. Reenviar o convite de uma conta pendente ou revogada substitui seu código e suas permissões."
 
 #: templates/admin/editorial/review.html
 msgid "Published by direct import:"
@@ -3709,6 +3826,9 @@ msgstr "Fonte"
 
 msgid "All submitted fields"
 msgstr "Ver campos enviados"
+
+msgid "This is a preview. No record has been published yet. Check the source, fields and publication rights before publishing."
+msgstr "Esta é apenas uma prévia. Nenhum registro foi publicado. Confira a fonte, os campos e os direitos de publicação antes de publicar."
 
 msgid "Publish %(count)s record now"
 msgid_plural "Publish %(count)s records now"

@@ -12,7 +12,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from dnd.editorial import (can_import, detect_duplicate, editable_form, lock_creation_books,
+from dnd.editorial import (RESOURCE_LABELS, can_import, detect_duplicate, duplicate_name_key, editable_form, lock_creation_books,
                            save_catalog_entry, serialize_form, validate_new_edition)
 from dnd.models import EditorialProposal
 from dnd.supplemental.forms import parse_class_levels
@@ -60,8 +60,8 @@ EXAMPLE_FIELDS = {
 
 
 def example_file(resource, kind, file_format):
-    fields = ['source_reference', *editable_form(resource, kind=kind or None).base_fields]
-    example = {'name': 'Example record', 'rulebook': 'Example D&D 3.5 rulebook',
+    fields = ['resource', 'source_reference', *editable_form(resource, kind=kind or None).base_fields]
+    example = {'resource': resource, 'name': 'Example record', 'rulebook': 'Example D&D 3.5 rulebook',
                'source_reference': 'Example D&D 3.5 rulebook, p. 12'}
     if 'page' in fields:
         example['page'] = 12
@@ -171,7 +171,7 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
     if len(content.encode('utf-8')) > MAX_BYTES:
         raise forms.ValidationError(_('The file exceeds the %(mib)s MiB limit.') % {'mib': MAX_MIB})
     Form = editable_form(resource, kind=kind or None)
-    allowed = {'source_reference', *Form.base_fields}
+    allowed = {'resource', 'source_reference', *Form.base_fields}
     rows = []
     seen = set()
     try:
@@ -179,6 +179,16 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
             if len(rows) >= max_rows:
                 raise _row_limit_error(max_rows)
             try:
+                declared = row.get('resource')
+                if json_file and not declared:
+                    raise forms.ValidationError(_(
+                        'JSON records must declare resource. Download the current example for this importer.'))
+                if declared and declared != resource:
+                    raise forms.ValidationError(_(
+                        'This file declares %(actual)s, but this form imports %(expected)s. Use the correct importer.') % {
+                            'actual': RESOURCE_LABELS.get(declared, declared) if isinstance(declared, str) else declared,
+                            'expected': RESOURCE_LABELS[resource],
+                        })
                 _check_columns(row, allowed)
                 source = row.get('source_reference')
                 if not isinstance(source, str) or not source.strip():
@@ -207,7 +217,7 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
                     raise forms.ValidationError(problems)
                 validate_new_edition(resource, form)
                 detect_duplicate(resource, form)
-                key = (form.cleaned_data['name'].casefold(), form.cleaned_data['rulebook'].pk)
+                key = (duplicate_name_key(resource, form.cleaned_data['name']), form.cleaned_data['rulebook'].pk)
                 if key in seen:
                     raise forms.ValidationError(_('This record duplicates another entry in the file.'))
                 seen.add(key)

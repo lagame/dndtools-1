@@ -1,5 +1,5 @@
 {% extends 'admin/base_site.html' %}
-{% load i18n %}
+{% load i18n admin_labels %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="{% url 'editorial_dashboard' %}">{% translate "Editorial workspace" %}</a> ›
@@ -27,6 +27,7 @@
         <section class="editorial-section" aria-labelledby="upload-file">
             <h2 id="upload-file">{% translate "Upload a file" %}</h2>
             <p>{% blocktranslate %}Upload up to {{ max_rows }} new D&D 3.5 records in one UTF-8 file of up to {{ max_mib }} MiB. Enter the official book and page in source_reference. Review the preview before publishing.{% endblocktranslate %}</p>
+            <p>{% translate "Each JSON record must declare the resource shown in the downloaded example. Files for another catalog type are rejected." %}</p>
             <p>{% translate "Large files run in the background. You can close the page and return to check their status." %}</p>
             <form class="editorial-upload" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -39,16 +40,32 @@
     {% if preview %}
         <section class="editorial-section" aria-labelledby="import-preview">
             <h2 id="import-preview">{% blocktranslate count count=preview|length %}Review {{ count }} record before publishing{% plural %}Review {{ count }} records before publishing{% endblocktranslate %}</h2>
-            <div class="editorial-table">
-                <table>
-                    <thead><tr><th scope="col">{% translate "Row" %}</th><th scope="col">{% translate "Name" %}</th><th scope="col">{% translate "Rulebook" %}</th><th scope="col">{% translate "Source" %}</th></tr></thead>
-                    <tbody>
-                        {% for number, row, form in preview %}
-                            <tr><td>{{ number }}</td><td><strong>{{ form.cleaned_data.name }}</strong><details><summary>{% translate "All submitted fields" %}</summary><dl>{% for field, value in row.items %}{% if value != '' and value is not None %}<dt>{{ field }}</dt><dd>{{ value }}</dd>{% endif %}{% endfor %}</dl></details></td><td>{{ form.cleaned_data.rulebook }}</td><td>{{ row.source_reference }}</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <p>{% translate "This is a preview. No record has been published yet. Check the source, fields and publication rights before publishing." %}</p>
+            <ol class="editorial-import-preview">
+                {% for number, row, form in preview %}
+                    <li class="editorial-import-record">
+                        <div class="editorial-import-summary">
+                            <span class="editorial-import-row">{% translate "Row" %} {{ number }}</span>
+                            <h3>{{ form.cleaned_data.name }}</h3>
+                            <p><span class="editorial-import-label">{% translate "Rulebook" %}</span>{{ form.cleaned_data.rulebook }}</p>
+                            <p><span class="editorial-import-label">{% translate "Source" %}</span>{{ row.source_reference }}</p>
+                        </div>
+                        <details>
+                            <summary>{% translate "All submitted fields" %}</summary>
+                            <dl class="editorial-preview-fields">
+                                {% for field, value in row.items %}
+                                    {% if value != '' and value is not None %}
+                                        <div class="editorial-preview-field{% if field == 'description' or field == 'body' or field == 'mechanics' %} editorial-preview-field-wide{% endif %}">
+                                            <dt>{{ field|editorial_preview_label:form }}</dt>
+                                            <dd>{{ value|editorial_preview_value:field }}</dd>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+                        </details>
+                    </li>
+                {% endfor %}
+            </ol>
             <form class="editorial-actions editorial-pagination" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="confirm" value="1">

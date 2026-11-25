@@ -2,7 +2,6 @@
 {% load i18n %}
 {% block content %}
 <p><a href="{% url 'editorial_dashboard' %}">← {% translate "Editorial workspace" %}</a></p>
-<h1>{% translate "Invite collaborator" %}</h1>
-<p>{% translate "Choose the resources and actions this collaborator may use. Direct import is a separate permission for trusted editors. Ronassic reviews ordinary proposals. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions." %}</p>
+<p>{% translate "Choose the resources and actions this collaborator may use. Ronassic reviews proposals before publication. An activation code will be emailed. Reinviting a pending or revoked account replaces its code and permissions." %}</p>
 <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button default">{% translate "Create invitation" %}</button></form>
 {% endblock %}

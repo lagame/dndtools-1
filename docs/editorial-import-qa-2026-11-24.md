@@ -1,5 +1,7 @@
 # Importação editorial • QA de 24/11/2026
 
+> Registro histórico da implementação inicial. A política posterior restringe a importação direta a Ronassic; veja [a validação atual](editorial-guard-qa-2026-11-24.md). Os resultados abaixo descrevem apenas aquela versão.
+
 ## Escopo
 
 - A permissão por recurso começa desativada para permissões existentes. Para importar, um colaborador precisa de convite ativo, permissão de inclusão e permissão de importação no mesmo recurso.
