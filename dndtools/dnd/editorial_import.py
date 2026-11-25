@@ -12,7 +12,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from dnd.editorial import (can_import, detect_duplicate, editable_form, lock_creation_books,
+from dnd.editorial import (RESOURCE_LABELS, can_import, detect_duplicate, editable_form, lock_creation_books,
                            save_catalog_entry, serialize_form, validate_new_edition)
 from dnd.models import EditorialProposal
 from dnd.supplemental.forms import parse_class_levels
@@ -186,7 +186,8 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
                 if declared and declared != resource:
                     raise forms.ValidationError(_(
                         'This file declares %(actual)s, but this form imports %(expected)s. Use the correct importer.') % {
-                            'actual': declared, 'expected': resource,
+                            'actual': RESOURCE_LABELS.get(declared, declared) if isinstance(declared, str) else declared,
+                            'expected': RESOURCE_LABELS[resource],
                         })
                 _check_columns(row, allowed)
                 source = row.get('source_reference')

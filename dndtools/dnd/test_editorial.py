@@ -1027,8 +1027,8 @@ class EditorialFlowTests(TestCase):
                   'feat_categories': self.category.name, 'description': 'Example.',
                   'benefit': 'Example.'}
         for language, message in (
-                ('en-us', 'This file declares Feat, but this form imports Spell.'),
-                ('pt-br', 'Este arquivo declara Feat, mas este formulário importa Spell.')):
+                ('en-us', 'This file declares Feats, but this form imports Spells.'),
+                ('pt-br', 'Este arquivo declara Talentos, mas este formulário importa Magias.')):
             with self.subTest(language=language):
                 self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
                 upload = SimpleUploadedFile('feats.json', json.dumps([record]).encode())
