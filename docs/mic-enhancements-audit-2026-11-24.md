@@ -12,7 +12,7 @@
 
 | Registro | Pág. impressa | Propriedade | Preço | CL / CD | Situação |
 |---|---:|---|---:|---:|---|
-| Gilled | 11 | Armor | +6,000 gp | 5 / 17 | Novo, campos validados |
+| Gilled | 11–12 | Armor | +6,000 gp | 5 / 17 | Novo; citação deve cobrir ambas as páginas |
 | Hammerblock | 12 | Armor or shield | +2 bônus | 7 / 18 | Novo, campos validados |
 | Healing, Greater [Synergy] | 12 | Armor | +24,000 gp | 15 / 22 | Depende do registro base |
 | Healing | 12 | Armor | +8,000 gp | 5 / 17 | Novo, campos validados |
@@ -59,3 +59,4 @@
 - O ZIP revisado foi relido sem extração: os 32 arquivos de registro conferem com os hashes do `manifest.json` (27 novos, quatro dependentes e Stamina separado como duplicata). O formulário aceita `.json` ou `.csv`, não o ZIP.
 - Em produção, o item 166 foi rechecado por consulta somente de leitura: Stamina está como `ENH`, página 15. A nota histórica do manifesto v1.2 que ainda diz `MAG` ficou desatualizada; este pacote não deve ser tratado como pronto para publicação.
 - A ativação *Free (mental)* de Manifester ainda não existe no catálogo de produção. O arquivo de Ranged não menciona a exclusão de escudos de torre, embora essa restrição conste da fonte. Esses campos e a revisão dos textos precisam ser concluídos antes de publicar o lote.
+- Rechecagem visual do PDF: Gilled começa na p. 11, mas pré-requisitos e custo de criação estão na p. 12. Masking também atravessa as pp. 12–13, e Ranged as pp. 13–14. O `page` de cada JSON indica corretamente a página inicial; seus `source_reference` ainda citam somente essa página e devem ser ampliados antes de publicar. Os dados numéricos e o texto de Gilled conferem com a fonte, mas a referência incompleta e a revisão de direitos continuam pendentes.
