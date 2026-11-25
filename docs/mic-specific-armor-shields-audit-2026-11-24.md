@@ -49,6 +49,14 @@ Os números abaixo foram conferidos com o PDF. `CL/CD` significa nível de conju
 - As citações `source_reference` dos quatro registros que atravessam páginas devem incluir ambas as páginas. `page` continua sendo a página inicial.
 - Os 12 registros sem `required_extra` são: Armor of the Fallen Leaves, Earthplate, Electric Eel Hide, Exoskeleton, Foxhide, Ghoul Shell, Shield of the Resolute, Shield of the Severed Hand, Vampire Hide, Wight Hide Shield, Wrapped Tower e Zombie Hide. Os textos de pré-requisito aparecem em `description`; devem ser revisados e separados conforme os campos do catálogo.
 
-## Próximo passo editorial
+## Condições antes de publicação
 
-Preparar uma nova versão rastreável com manifesto por arquivo, excluir a duplicata, corrigir tipo/recurso e completar os campos da fonte. Conferir manualmente descrições, requisitos e direitos de publicação. Revalidar cada JSON e a prévia antes de qualquer publicação. Este pacote não deve ser enviado ao formulário de importação.
+Conferir manualmente descrições, requisitos e direitos de publicação. Revalidar cada JSON e a prévia após as decisões editoriais. O pacote original não deve ser enviado ao formulário de importação; a versão corrigida continua apenas para revisão.
+
+## Correção privada para revisão
+
+- Criado na área de trabalho `SPECIFIC ARMOR AND SHIELDS - revisado 2026-11-24.zip`, SHA-256 `303bbc0d63d9d67e4f775017cb02cfe2e2482f63f851143191003766ed3f630e`. O ZIP original permaneceu intacto e **nenhum conteúdo do livro entrou no Git**.
+- `manifest.json` registra SHA-256 original e corrigido de cada um dos 25 arquivos e os campos alterados. O pacote separa 23 arquivos em `candidates-review-required/`, Earthplate em `manual-review/` e a duplicata em `existing-duplicate/`.
+- Os 25 JSONs agora declaram `resource: Item` e `type: MAG`, e incluem nível do item, espaço, aura, escolas, peso e a ativação quando há ação. Quatro referências foram ampliadas para duas páginas. Em 23 arquivos, o talento de criação foi relacionado pelo nome único do catálogo e os demais requisitos foram postos em `required_extra` sem exceder 64 caracteres. Os valores de `cost_to_create` perderam apenas o ponto final, que a página do item acrescenta ao renderizar. As descrições mecânicas não foram reescritas; em dez arquivos, somente a frase de pré-requisitos foi movida da descrição para os campos próprios.
+- Earthplate permanece separado porque a condição alternativa “Bind Elemental **ou** Craft Magic Arms and Armor” não cabe integralmente no campo atual e não pode ser convertida em vínculos simples sem alterar o sentido. O texto integral está preservado na descrição. A duplicata permanece separada para comparação e não deve ser importada.
+- O ZIP copiado foi reaberto: CRC íntegro, 25 hashes do manifesto iguais aos arquivos extraídos e SHA-256 igual ao da cópia de trabalho. Os 24 candidatos, inclusive Earthplate, passaram juntos pela validação **em memória** do importador local (`validated_rows`); nenhum registro foi salvo. Esta validação técnica não autoriza publicação. Ainda faltam revisão visual da separação entre descrição visual e regras, revisão dos textos e direitos de publicação.
