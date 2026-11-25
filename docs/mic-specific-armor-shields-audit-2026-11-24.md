@@ -6,7 +6,7 @@
 - Pacote recebido: `SPECIFIC ARMOR AND SHIELDS, MIC pág 16 a 24.zip`, SHA-256 `91e8b7c0bfbaad362e0b29e54a6da1afed7199d619b5ab4e82f5cbc2814a3c13`. O original foi preservado; não houve extração nem importação para o catálogo.
 - Os 25 JSONs são legíveis, têm CRC válido, caminhos seguros e nomes distintos dentro do ZIP. Não há manifesto de proveniência ou hashes por registro.
 - Os 25 títulos começam nas páginas declaradas. Preço, nível do item, nível de conjurador, CD da aura e componentes numéricos do custo de criação conferem com os blocos da fonte. O nível do item foi conferido, mas nenhum JSON o informa.
-- **Pacote não aprovado para importação.** Todos os registros declaram `type: ENH` embora sejam armaduras/escudos específicos completos (`MAG` no modelo atual), e nenhum declara `resource: Item`. Todos omitem `item_level`, `body_slot`, intensidade e escolas da aura, ativação e peso. Em 12 registros os pré-requisitos ficaram dentro de `description` em vez de `required_extra`.
+- **Pacote não aprovado para importação.** Todos os registros declaram `type: ENH` embora sejam armaduras/escudos específicos completos (`MAG` no modelo atual), e nenhum declara `resource: Item`. Todos omitem `item_level`, `body_slot`, intensidade e escolas da aura e peso. Os 17 registros com ativação indicada no livro também omitem esse campo; nos outros oito, a fonte traz um traço e o campo vazio é adequado. Em 12 registros os pré-requisitos ficaram dentro de `description` em vez de `required_extra`.
 - O texto das descrições tem alta sobreposição com a fonte (cobertura de sequências de quatro palavras entre 85,3% e 100%). Isso não comprova integralidade ou direitos de publicação; requer revisão editorial antes de divulgar qualquer texto.
 
 ## Conferência por registro
