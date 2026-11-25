@@ -12,7 +12,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from dnd.editorial import (RESOURCE_LABELS, can_import, detect_duplicate, editable_form, lock_creation_books,
+from dnd.editorial import (RESOURCE_LABELS, can_import, detect_duplicate, duplicate_name_key, editable_form, lock_creation_books,
                            save_catalog_entry, serialize_form, validate_new_edition)
 from dnd.models import EditorialProposal
 from dnd.supplemental.forms import parse_class_levels
@@ -217,7 +217,7 @@ def validated_rows(content, resource, kind, *, json_file=False, max_rows=None, p
                     raise forms.ValidationError(problems)
                 validate_new_edition(resource, form)
                 detect_duplicate(resource, form)
-                key = (form.cleaned_data['name'].casefold(), form.cleaned_data['rulebook'].pk)
+                key = (duplicate_name_key(resource, form.cleaned_data['name']), form.cleaned_data['rulebook'].pk)
                 if key in seen:
                     raise forms.ValidationError(_('This record duplicates another entry in the file.'))
                 seen.add(key)

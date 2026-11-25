@@ -29,7 +29,7 @@ from dnd.access import verified_email
 from dnd.supplemental.catalog import detail_for
 from dnd.models import (CatalogImportBatch, CharacterClass, CollaboratorInvite, CreatureTemplate, DndEdition, EditorialGrant,
                         EditorialProposal, Feat, FeatCategory, FeatRequiresFeat, Monster, MonsterType, MysteryDetail, PublishedTranslation,
-                        RaceSize, Rulebook, Spell, SpellSchool, SupplementalEntry)
+                        RaceSize, Rulebook, Spell, SpellSchool, SupplementalEntry, Item)
 
 
 class EditorialFlowTests(TestCase):
@@ -1077,6 +1077,31 @@ class EditorialFlowTests(TestCase):
                 self.assertContains(response, note)
                 self.assertNotContains(response, '<dt>feat_categories</dt>')
                 self.assertFalse(Feat.objects.filter(name=record['name']).exists())
+
+    def test_item_import_rejects_relic_name_alias_without_rejecting_other_suffixes(self):
+        from dnd.editorial_import import validated_rows
+
+        existing = Item.objects.create(name='Armor of the fallen leaves', slug='armor-of-the-fallen-leaves',
+                                       type='MAG', rulebook=self.book, description='Existing item.')
+        record = {'resource': 'Item', 'source_reference': 'Test Source, p. 16',
+                  'name': 'Armor of the Fallen Leaves [Relic]', 'rulebook': self.book.name,
+                  'type': 'MAG', 'description': 'Candidate item.'}
+        with self.assertRaisesMessage(forms.ValidationError, 'already exists'):
+            validated_rows(json.dumps([record]), 'Item', '', json_file=True)
+
+        existing.name = record['name']
+        existing.save(update_fields=['name'])
+        with self.assertRaisesMessage(forms.ValidationError, 'already exists'):
+            validated_rows(json.dumps([{**record, 'name': 'Armor of the Fallen Leaves'}]), 'Item', '', json_file=True)
+
+        existing.delete()
+        base = {**record, 'name': 'Armor of the Fallen Leaves'}
+        with self.assertRaisesMessage(forms.ValidationError, 'duplicates another entry in the file'):
+            validated_rows(json.dumps([base, record]), 'Item', '', json_file=True)
+
+        different = {**record, 'name': 'Armor of the Fallen Leaves [Synergy]'}
+        self.assertEqual(len(validated_rows(json.dumps([base, different]), 'Item', '', json_file=True)), 2)
+        self.assertFalse(Item.objects.exists())
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
                        EDITORIAL_NOTIFY_EMAIL='owner@example.test')

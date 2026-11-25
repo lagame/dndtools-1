@@ -335,12 +335,24 @@ def validate_new_edition(resource, form):
         raise forms.ValidationError('New catalog entries must use D&D 3.5.')
 
 
+def duplicate_name_key(resource, name):
+    name = name.strip().casefold()
+    if resource == 'Item' and name.endswith(' [relic]'):
+        name = name[:-len(' [relic]')]
+    return name
+
+
 def detect_duplicate(resource, form):
     model = model_for(resource)
     name = form.cleaned_data.get('name')
     if not name or not any(field.name == 'name' for field in model._meta.concrete_fields):
         return
-    matches = model.objects.alias(_name=Collate(F('name'), 'utf8mb4_0900_ai_ci')).filter(_name__exact=name)
+    matches = model.objects.alias(_name=Collate(F('name'), 'utf8mb4_0900_ai_ci'))
+    if resource == 'Item':
+        base = duplicate_name_key(resource, name)
+        matches = matches.filter(_name__in=(base, '%s [Relic]' % base))
+    else:
+        matches = matches.filter(_name__exact=name)
     book = form.cleaned_data.get('rulebook')
     if book and any(field.name == 'rulebook' for field in model._meta.concrete_fields):
         matches = matches.filter(rulebook=book)
