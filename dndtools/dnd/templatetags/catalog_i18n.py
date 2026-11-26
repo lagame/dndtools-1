@@ -42,6 +42,14 @@ def localized(context, obj, field):
 
 
 @register.simple_tag(takes_context=True)
+def localized_value(context, obj, field):
+    """Show a translated catalog value without repeating the English label."""
+    values = _translation(context, obj)
+    original = getattr(obj, field, '')
+    return values.get(field, original) if values else original
+
+
+@register.simple_tag(takes_context=True)
 def localized_html(context, obj, field):
     values = _translation(context, obj)
     if values and field in values:

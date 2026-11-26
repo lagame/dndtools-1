@@ -5,6 +5,7 @@ from django.template.context import RequestContext
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
 from dnd.filters import ItemFilter
+from dnd.localization import localize_record
 from dnd.models import Rulebook, Item
 from dnd.utilities import int_with_commas
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object
@@ -84,6 +85,7 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
                 item.rulebook.slug != rulebook_slug):
         return permanent_redirect_object(request, item)
 
+    localize_record(request, item)
     required_feats = item.required_feats.select_related('rulebook').all()
     required_spells = item.required_spells.select_related('rulebook').all()
 
@@ -96,6 +98,8 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
                 ceil(item.price_gp / 1000.0))
         elif not item.price_gp and item.price_bonus:
             cost_to_create = "Varies"
+    if cost_to_create:
+        cost_to_create = cost_to_create.removesuffix('.')
 
     return render_to_response('dnd/items/item_detail.html',
                               {
@@ -103,6 +107,7 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
                                   'aura_schools': item.aura_schools.all(),
                                   'required_feats': required_feats,
                                   'required_spells': required_spells,
+                                  'required_extra': item.required_extra.removesuffix('.'),
                                   'cost_to_create': cost_to_create,
                                   'rulebook': item.rulebook,
                                   'request': request,

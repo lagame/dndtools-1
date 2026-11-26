@@ -11,15 +11,16 @@ from dnd.models import NewsEntry
 
 
 def legacy_mobile_redirect(request, path=''):
-    candidate = '/' + path
+    language_prefix = request.path.partition('/m/')[0]
+    candidate = language_prefix + '/' + path
     try:
         resolve(candidate)
     except Resolver404:
         section = path.split('/', 1)[0]
-        candidate = '/' + section + '/' if section in {
+        candidate = language_prefix + '/' + section + '/' if section in {
             'rulebooks', 'classes', 'feats', 'spells', 'skills', 'races',
             'monsters', 'items', 'languages', 'deities', 'rules',
-        } else '/'
+        } else language_prefix + '/'
     if request.GET:
         candidate += '?' + request.GET.urlencode()
     return HttpResponsePermanentRedirect(candidate)
