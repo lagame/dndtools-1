@@ -3903,3 +3903,26 @@ msgstr "Confira os nomes, os livros e as fontes. A prévia fica disponível por 
 
 msgid "Another batch is publishing records in this rulebook. Try again when it finishes."
 msgstr "Outro lote está publicando registros neste livro. Tente novamente quando ele terminar."
+
+msgid "Mundane Item"
+msgstr "Item mundano"
+
+msgid "Magic Item"
+msgstr "Item mágico"
+
+msgid "Enhancement"
+msgstr "Aprimoramento"
+
+msgid "gp"
+msgstr "po"
+
+msgid "bonus"
+msgstr "bônus"
+
+msgid "DC"
+msgstr "CD"
+
+msgid "pound"
+msgid_plural "pounds"
+msgstr[0] "libra"
+msgstr[1] "libras"

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import django_filters2
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, F, OuterRef, Q
+from django.db.models.functions import Collate
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 from dnd.models import (
     Spell, DndEdition, SpellSchool, SpellSubSchool, SpellDescriptor, FeatCategory,
     CharacterClass, CharacterClassVariant, Rulebook, Domain, Feat, Skill, Item, Language, Race, Monster, RaceType, ItemSlot,
-    ItemProperty, Deity, Rule, CreatureTemplate)
+    ItemProperty, PublishedTranslation, Deity, Rule, CreatureTemplate)
 from dnd.filters_fields import CatalogCharFilter, FeatMultiPrerequisiteFieldFilter
 
 
@@ -98,12 +100,40 @@ def descriptor_choices():
     return [('', 'All')] + [(descriptor.slug, descriptor.name) for descriptor in SpellDescriptor.objects.all()]
 
 
+def _localized_item_choices(objects):
+    objects = list(objects)
+    if get_language() != 'pt-br':
+        return [(obj.slug, obj.name) for obj in objects]
+    from dnd.editorial import source_digest
+
+    translations = {row.target_pk: row for row in PublishedTranslation.objects.filter(
+        resource=objects[0]._meta.object_name, locale='pt-br',
+        target_pk__in=[obj.pk for obj in objects])} if objects else {}
+    return [(obj.slug, translations[obj.pk].payload['name']
+             if obj.pk in translations and
+             translations[obj.pk].source_digest == source_digest(obj, translation=True)
+             else obj.name) for obj in objects]
+
+
 def item_slot_choices():
-    return [('', 'All')] + [(slot.slug, slot.name) for slot in ItemSlot.objects.all()]
+    return [('', _('All'))] + _localized_item_choices(ItemSlot.objects.all())
 
 
 def property_choices():
-    return [(prop.slug, prop.name) for prop in ItemProperty.objects.all()]
+    return _localized_item_choices(ItemProperty.objects.all())
+
+
+class ItemNameFilter(CatalogCharFilter):
+    def filter(self, qs, value):
+        if not value or get_language() != 'pt-br':
+            return super().filter(qs, value)
+        from dnd.search import COLLATION, _translated_results
+
+        translated_ids = [pk for (resource, pk) in _translated_results(value, names_only=True)
+                          if resource == 'Item']
+        alias = f'_catalog_ci_{self.creation_counter}'
+        return qs.alias(**{alias: Collate(F(self.name), COLLATION)}).filter(
+            Q(**{f'{alias}__contains': value}) | Q(pk__in=translated_ids))
 
 
 def feat_category_choices():
@@ -206,10 +236,9 @@ class SpellFilterAdmin(SpellFilter):
 
 
 class ItemFilter(django_filters2.FilterSet):
-    type_choices = [itemType for itemType in Item.ITEM_TYPE]
-    type_choices.insert(0, ('', 'All'))
+    type_choices = [('', _('All'))] + [(code, _(label)) for code, label in Item.ITEM_TYPE]
 
-    name = CatalogCharFilter(
+    name = ItemNameFilter(
         lookup_type='icontains', label=_('Item name')
     )
     rulebook__dnd_edition__slug = django_filters2.MultipleChoiceFilter(

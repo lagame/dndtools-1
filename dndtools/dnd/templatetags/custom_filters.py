@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import template
 from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 import dndproject.settings
 from dnd.utilities import int_with_commas
 
@@ -65,8 +66,21 @@ def _thousands_separator(value):
     return int_with_commas(value)
 
 
+def _catalog_ordinal(value):
+    if get_language() == 'pt-br' and isinstance(value, int):
+        return '%dº' % value
+    return _ordinal_number(value)
+
+
+def _catalog_thousands_separator(value):
+    formatted = int_with_commas(value)
+    return formatted.replace(',', '.') if get_language() == 'pt-br' else formatted
+
+
 register.filter('boolean_as_img', _boolean_as_img)
 register.filter('plus_minus', _plus_minus)
 register.filter('empty_as_dash', _empty_as_dash)
 register.filter('ordinal_number', _ordinal_number)
 register.filter('thousands_separator', _thousands_separator)
+register.filter('catalog_ordinal', _catalog_ordinal)
+register.filter('catalog_thousands_separator', _catalog_thousands_separator)

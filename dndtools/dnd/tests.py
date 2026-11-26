@@ -22,7 +22,7 @@ from django.utils.crypto import get_random_string
 
 from dnd.models import (
     CharacterClass, CharacterClassVariant, DndEdition, Domain, DomainVariant, Feat, FeatCategory,
-    Item, ItemActivationType, ItemAuraType, ItemSlot, MonsterSubtype, MonsterType, PublishedTranslation, Race, RaceSize,
+    Item, ItemActivationType, ItemAuraType, ItemProperty, ItemSlot, MonsterSubtype, MonsterType, PublishedTranslation, Race, RaceSize,
     NewsEntry, RuleCondition, Rulebook, Spell, SpellClassLevel, SpellDescriptor, SpellDomainLevel, SpellSchool, StaticPage,
     TextFeatPrerequisite,
 )
@@ -461,6 +461,74 @@ class CatalogSmokeTests(TestCase):
         self.assertIn('2 days.', english)
         item.refresh_from_db()
         self.assertEqual(item.description, 'It grants protection.')
+
+    def test_item_language_switch_localizes_content_values_and_list(self):
+        from dnd.editorial import source_digest
+
+        reviewer = User.objects.create(username='item_translator')
+        prop = ItemProperty.objects.create(name='Armor', slug='armor')
+        aura = ItemAuraType.objects.create(name='Faint', slug='faint')
+        activation = ItemActivationType.objects.create(name='Standard (command)', slug='standard-command')
+        slot = ItemSlot.objects.create(name='held', slug='held')
+        item = Item.objects.create(
+            rulebook=self.spell.rulebook, name='Stamina', slug='stamina-test',
+            type=Item.ItemType.ENHANCEMENT, property=prop, aura=aura,
+            activation=activation, caster_level=5, aura_dc='17', price_gp=8000,
+            visual_description='This armor looks sturdy.',
+            description='It grants a +1 bonus.', required_extra='resistance.',
+            cost_to_create='4,000 gp, 320 XP, 8 days.')
+        item.aura_schools.add(self.spell.school)
+        translations = (
+            (prop, 'Armadura'), (aura, 'Fraca'),
+            (activation, 'Padrão (comando)'), (slot, 'Empunhado'),
+            (self.spell.school, 'Evocação'),
+        )
+        for obj, name in translations:
+            PublishedTranslation.objects.create(
+                resource=obj._meta.object_name, target_pk=obj.pk, locale='pt-br',
+                payload={'name': name}, source_digest=source_digest(obj, translation=True),
+                author=reviewer, reviewer=reviewer)
+        PublishedTranslation.objects.create(
+            resource='Item', target_pk=item.pk, locale='pt-br',
+            payload={'name': 'Vigor', 'visual_description': 'Esta armadura parece resistente.',
+                     'description': 'Ela concede um bônus de +1.',
+                     'required_extra': 'resistência.',
+                     'cost_to_create': '4.000 po, 320 XP, 8 dias.', 'aura_dc': '17'},
+            source_digest=source_digest(item, translation=True),
+            author=reviewer, reviewer=reviewer)
+
+        path = item.get_absolute_url()
+        english = self.client.get(path).content.decode()
+        for value in ('Stamina', 'Enhancement', 'Armor', 'Faint', 'Evocation',
+                      'Standard (command)', '+8,000 gp', '5th', 'DC 17',
+                      'This armor looks sturdy.', 'It grants a +1 bonus.',
+                      '4,000 gp, 320 XP, 8 days.'):
+            self.assertIn(value, english)
+        switch = self.client.get('/language/', {'language': 'pt-br', 'next': path})
+        self.assertEqual(switch['Location'], '/pt-br' + path)
+        portuguese = self.client.get(switch['Location']).content.decode()
+        for value in ('Vigor', 'Aprimoramento', 'Armadura', 'Fraca', 'Evocação',
+                      'Padrão (comando)', '+8.000 po', '5º', 'CD 17',
+                      '<i>Esta armadura parece resistente.</i>',
+                      'Ela concede um bônus de +1.', '4.000 po, 320 XP, 8 dias.'):
+            self.assertIn(value, portuguese)
+        self.assertNotIn('This armor looks sturdy.', portuguese)
+        self.assertNotIn('8 dias..', portuguese)
+        self.assertNotIn('versão original em inglês', portuguese)
+        listing = self.client.get('/pt-br/items/', {'name': 'Vigor', '_filter': '1'}).content.decode()
+        self.assertIn('Vigor', listing)
+        self.assertIn('8.000 po', listing)
+        self.assertIn('<option value="held">Empunhado</option>', listing)
+        self.assertIn('<option value="armor">Armadura</option>', listing)
+        english_listing = self.client.get('/items/', {'name': 'Vigor', '_filter': '1'}).content.decode()
+        self.assertNotIn('stamina-test--', english_listing)
+        switch_back = self.client.get('/language/', {
+            'language': 'en-us', 'next': '/pt-br' + path})
+        self.assertEqual(switch_back['Location'], path)
+        self.assertIn('This armor looks sturdy.', self.client.get(path).content.decode())
+        item.refresh_from_db()
+        self.assertEqual(item.name, 'Stamina')
+        self.assertEqual(item.description, 'It grants a +1 bonus.')
 
     def test_legacy_html_is_sanitized_at_render_time(self):
         fragment = ('<table><tr><td style="text-align:center; background-image:url(javascript:alert(5))"><strong>Arcane</strong> '
