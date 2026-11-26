@@ -530,6 +530,25 @@ class CatalogSmokeTests(TestCase):
         self.assertEqual(item.name, 'Stamina')
         self.assertEqual(item.description, 'It grants a +1 bonus.')
 
+    def test_item_calculated_cost_respects_language(self):
+        from dnd.editorial import source_digest
+
+        reviewer = User.objects.create(username='cost_translator')
+        item = Item.objects.create(
+            rulebook=self.spell.rulebook, name='Soulbound, Greater [Synergy]',
+            slug='soulbound-greater-test', type=Item.ItemType.ENHANCEMENT,
+            price_bonus=2, description='It grants a bonus.')
+        PublishedTranslation.objects.create(
+            resource='Item', target_pk=item.pk, locale='pt-br',
+            payload={'name': 'Vinculado Maior [Sinergia]', 'description': 'Concede um bônus.'},
+            source_digest=source_digest(item, translation=True),
+            author=reviewer, reviewer=reviewer)
+        english = self.client.get(item.get_absolute_url()).content.decode()
+        portuguese = self.client.get('/pt-br' + item.get_absolute_url()).content.decode()
+        self.assertIn('Cost to Create:</i> Varies.', english)
+        self.assertIn('Custo de criação:</i> Varia.', portuguese)
+        self.assertNotIn('Varies.', portuguese)
+
     def test_legacy_html_is_sanitized_at_render_time(self):
         fragment = ('<table><tr><td style="text-align:center; background-image:url(javascript:alert(5))"><strong>Arcane</strong> '
                     '<a href="/feats/test/">feat</a></td></tr></table>'
