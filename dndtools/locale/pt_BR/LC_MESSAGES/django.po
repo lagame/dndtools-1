@@ -3922,6 +3922,9 @@ msgstr "bônus"
 msgid "DC"
 msgstr "CD"
 
+msgid "Varies"
+msgstr "Varia"
+
 msgid "pound"
 msgid_plural "pounds"
 msgstr[0] "libra"

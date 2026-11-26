@@ -76,7 +76,7 @@
 
     {% if cost_to_create and cost_to_create != '-' %}
         <p>
-            <i>{% translate 'Cost to Create:' %}</i> {{ cost_to_create }}.
+            <i>{% translate 'Cost to Create:' %}</i> {% if cost_to_create == 'Varies' %}{% translate 'Varies' %}{% else %}{{ cost_to_create }}{% endif %}.
         </p>
     {% endif %}
 
