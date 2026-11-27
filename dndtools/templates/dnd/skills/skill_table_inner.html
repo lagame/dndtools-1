@@ -1,14 +1,15 @@
 {% load catalog_i18n %}
+{% load catalog_sort %}
 {% load i18n %}
 {# inner table is used if no pagination is required #}
 {% load custom_filters %}
 
-<table {% if nostyle %}{% else %}class="common"{% endif %}>
+<table tabindex="0" {% if nostyle %}{% else %}class="common catalog-sortable"{% endif %}>
 <tr>
-  <th>{% translate 'Skill name' %}</th>
-  <th>{% translate 'Key ability' %}</th>
-  <th>{% translate 'Trained only' %}</th>
-  <th>{% translate 'Armor check penalty' %}</th>
+  {% sortable_header paginator 'name' 'Skill name' %}
+  {% sortable_header paginator 'ability' 'Key ability' %}
+  {% sortable_header paginator 'trained' 'Trained only' %}
+  {% sortable_header paginator 'armor' 'Armor check penalty' %}
 </tr>
     {% for skill in skill_list %}
         <tr>

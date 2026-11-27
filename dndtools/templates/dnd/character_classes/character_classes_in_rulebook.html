@@ -1,6 +1,7 @@
 {% extends "dnd/character_classes/character_class_layout.html" %}
 {% load i18n %}
 {% load catalog_i18n %}
+{% load catalog_sort %}
 
 {% load custom_filters %}
 
@@ -14,11 +15,14 @@
 {% block content %}
 
 <h2>{% translate 'Classes in' %} {% localized rulebook 'name' %}</h2>
+{% include 'dnd/catalog_book_search.html' %}
 
-<table class="common">
+{{ paginator.print_navigation }}
+
+<table class="common catalog-sortable" tabindex="0">
 <tr>
-  <th>{% translate 'Class name' %}</th>
-  <th>{% translate 'Prestige' %}</th>
+  {% sortable_header paginator 'name' 'Class name' %}
+  {% sortable_header paginator 'prestige' 'Prestige' %}
 </tr>
 
 {% for character_class in class_list %}
@@ -29,5 +33,6 @@
 {% endfor %}
 
 </table>
+{{ paginator.print_navigation }}
 
 {% endblock %}

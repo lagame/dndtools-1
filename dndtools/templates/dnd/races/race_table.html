@@ -1,12 +1,13 @@
 {% load catalog_i18n %}
 {% load i18n %}
+{% load catalog_sort %}
 {{ paginator.print_navigation }}
 
-<table class="common">
+<table class="common catalog-sortable" tabindex="0">
     <tr>
-        <th>{% translate 'Race name' %}</th>
-        <th>{% translate 'Rulebook name' %}</th>
-        <th>{% translate 'Edition' %}</th>
+        {% sortable_header paginator 'name' 'Race name' %}
+        {% sortable_header paginator 'book' 'Rulebook name' %}
+        {% sortable_header paginator 'edition' 'Edition' %}
     </tr>
     {% for race in race_list %}
         <tr>

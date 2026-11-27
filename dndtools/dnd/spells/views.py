@@ -7,6 +7,7 @@ from django.template.context import RequestContext
 from dnd.menu import MenuItem
 from dnd.menu import menu_item, submenu_item
 from dnd.dnd_paginator import DndPaginator
+from dnd.catalog_ordering import search_book_names
 from dnd.filters import SpellDomainFilter, SpellDescriptorFilter
 from dnd.spells.filtering import SpellCatalogForm, filter_spells
 from dnd.models import (Rulebook, SpellSchool, SpellDescriptor,
@@ -87,8 +88,8 @@ def spells_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_slug': rulebook.slug,
                                            'rulebook_id': rulebook_id, })
 
-    spell_list = rulebook.spell_set.select_related(
-        'rulebook', 'rulebook__dnd_edition', 'school').all()
+    spell_list = search_book_names(rulebook.spell_set.select_related(
+        'rulebook', 'rulebook__dnd_edition', 'school').all(), request)
 
     paginator = DndPaginator(spell_list, request)
 

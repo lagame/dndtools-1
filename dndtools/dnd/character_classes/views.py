@@ -5,6 +5,7 @@ from django.template.context import RequestContext
 from dnd.menu import MenuItem
 from dnd.menu import menu_item, submenu_item
 from dnd.dnd_paginator import DndPaginator
+from dnd.catalog_ordering import search_book_names
 from dnd.filters import CharacterClassFilter
 from dnd.models import Rulebook, Spell, CharacterClass, CharacterClassVariant
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object
@@ -149,16 +150,15 @@ def character_classes_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_slug': rulebook.slug,
                                            'rulebook_id': rulebook_id, })
 
-    class_list = [
-        character_class_variant.character_class
-        for character_class_variant
-        in rulebook.characterclassvariant_set.select_related('character_class').all()
-    ]
+    class_ids = rulebook.characterclassvariant_set.values_list('character_class_id', flat=True)
+    class_list = search_book_names(CharacterClass.objects.filter(pk__in=class_ids), request)
+    paginator = DndPaginator(class_list, request)
 
     return render_to_response('dnd/character_classes/character_classes_in_rulebook.html',
                               {
                                   'rulebook': rulebook,
-                                  'class_list': class_list,
+                                  'class_list': paginator.items(),
+                                  'paginator': paginator,
                                   'request': request,
                                   'display_3e_warning': is_3e_edition(rulebook.dnd_edition),
                               }, context_instance=RequestContext(request), )

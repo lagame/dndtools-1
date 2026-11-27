@@ -1,12 +1,13 @@
 {% load catalog_i18n %}
 {% load i18n %}
+{% load catalog_sort %}
 {{ paginator.print_navigation }}
 
-<table class="common">
+<table class="common catalog-sortable" tabindex="0">
     <tr>
-        <th>{% translate 'Monster name' %}</th>
-        <th>{% translate 'Rulebook name' %}</th>
-        <th>{% translate 'Edition' %}</th>
+        {% sortable_header paginator 'name' 'Monster name' %}
+        {% sortable_header paginator 'book' 'Rulebook name' %}
+        {% sortable_header paginator 'edition' 'Edition' %}
     </tr>
     {% for monster in monster_list %}
         <tr>

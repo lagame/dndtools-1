@@ -4,6 +4,7 @@ from django.db.models.functions import Collate
 from django.shortcuts import get_object_or_404, redirect, render
 
 from dnd.models import CreatureTemplate
+from dnd.catalog_ordering import order_catalog
 
 
 def index(request):
@@ -12,9 +13,11 @@ def index(request):
     if query:
         entries = entries.alias(search_name=Collate(F('name'), 'utf8mb4_0900_ai_ci')).filter(
             search_name__contains=query)
+    entries, order = order_catalog(entries, request)
     return render(request, 'dnd/creature_templates/index.html', {
         'entries': Paginator(entries, 30).get_page(request.GET.get('page')),
         'query': query,
+        'order': order,
     })
 
 

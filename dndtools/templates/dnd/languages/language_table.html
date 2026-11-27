@@ -1,10 +1,11 @@
 {% load catalog_i18n %}
+{% load catalog_sort %}
 {% load i18n %}
 {{ paginator.print_navigation }}
 
-<table class="common">
+<table class="common catalog-sortable" tabindex="0">
     <tr>
-        <th>{% translate 'Language name' %}</th>
+        {% sortable_header paginator 'name' 'Language name' %}
     </tr>
     {% for language in language_list %}
         <tr>

@@ -2,13 +2,14 @@
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.context import Context
 from django.template.loader import get_template
+from dnd.catalog_ordering import order_catalog
 
 
 class DndPaginator():
     available_page_sizes = (20, 50, 100, 1000, 5000)
 
     def __init__(self, qs, request):
-        self.qs = qs
+        self.qs, self.sort_key = order_catalog(qs, request)
         self.request = request
 
         self.page_size = request.session.get('page_size',

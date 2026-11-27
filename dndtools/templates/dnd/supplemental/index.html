@@ -1,5 +1,6 @@
 {% extends 'dnd/layout.html' %}
 {% load catalog_i18n %}
+{% load catalog_sort %}
 {% load i18n %}
 {% block title %}{{ label }}{% endblock %}
 {% block breadcrumbs %} » {{ label }}{% endblock %}
@@ -30,7 +31,7 @@
   <a href="{% url 'supplemental_index' kind %}">{% translate 'Clear all' %}</a>
 </form></details>
 <p>{{ entries.paginator.count }} {% translate 'results found.' %}</p>
-<div class="typed-results"><table><thead><tr><th>{% translate 'Name' %}</th><th>{% translate 'Details' %}</th><th>{% translate 'Rulebook' %}</th></tr></thead><tbody>
+<div class="typed-results"><table tabindex="0"><thead><tr>{% editorial_sort_header 'name' 'Name' order %}{% editorial_sort_header 'details' 'Details' order %}{% editorial_sort_header 'book' 'Rulebook' order %}</tr></thead><tbody>
 {% for entry in entries %}<tr><td><a href="{{ entry.get_absolute_url }}">{% localized entry 'name' %}</a></td>
 <td>{% for label, value in entry.summary %}<span><strong>{{ label }}:</strong> {{ value }}{% if not forloop.last %} · {% endif %}</span>{% empty %}{{ entry.category }}{% endfor %}</td>
 <td>{% localized entry.rulebook 'name' %}</td></tr>

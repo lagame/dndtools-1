@@ -1,6 +1,7 @@
 {% extends "dnd/spells/spell_layout.html" %}
 {% load i18n %}
 {% load catalog_i18n %}
+{% load catalog_sort %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
@@ -21,9 +22,9 @@
 
 {{ paginator.print_navigation }}
 
-<table class="common">
+<table class="common catalog-sortable" tabindex="0">
 <tr>
-  <th>{% translate 'Name' %}</th>
+  {% sortable_header paginator 'name' 'Name' %}
 </tr>
 {% for spell_domain in spell_domain_list %}
     <tr>

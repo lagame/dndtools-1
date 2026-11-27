@@ -4,6 +4,7 @@ from django.template.context import RequestContext
 from django.utils.translation import gettext_lazy as _
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
+from dnd.catalog_ordering import search_book_names
 from dnd.filters import MonsterFilter
 from dnd.models import Rulebook, Monster, MonsterType, MonsterSubtype
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object
@@ -90,8 +91,8 @@ def monsters_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_slug': rulebook.slug,
                                            'rulebook_id': rulebook_id, })
 
-    monster_list = rulebook.monster_set.select_related(
-        'rulebook', 'rulebook__dnd_edition').all()
+    monster_list = search_book_names(rulebook.monster_set.select_related(
+        'rulebook', 'rulebook__dnd_edition').all(), request)
 
     paginator = DndPaginator(monster_list, request)
 

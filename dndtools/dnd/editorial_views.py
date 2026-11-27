@@ -278,10 +278,22 @@ def catalog(request, resource):
                 aliases[alias] = Collate(F(field + '__name'), 'utf8mb4_0900_ai_ci')
                 lookups |= Q(**{alias + '__contains': query})
             entries = entries.alias(**aliases).filter(lookups) if lookups else entries.none()
+    order = request.GET.get('order', '')
+    if order in ('id', '-id'):
+        entries = entries.order_by('-pk' if order.startswith('-') else 'pk')
+    elif order in ('name', '-name'):
+        name_field = 'name' if any(field.name == 'name' for field in model._meta.concrete_fields) else None
+        if name_field:
+            entries = entries.order_by('-name' if order.startswith('-') else 'name', 'pk')
+        else:
+            order = ''
+    else:
+        order = ''
     return render(request, 'admin/editorial/catalog.html', {
         'title': KIND_LABELS.get(kind, RESOURCE_LABELS[resource]),
         'resource': resource,
         'query': query,
+        'order': order,
         'kind': kind,
         'entries': Paginator(entries, 50).get_page(request.GET.get('page')),
         'can_create': can_propose(request.user, resource, 'create', kind=kind or None),
