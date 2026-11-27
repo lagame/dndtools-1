@@ -50,7 +50,7 @@ def _ordinal_number(value):
     if not isinstance(value, int):
         return value
 
-    if value == 11:
+    if 11 <= value % 100 <= 13:
         return '%d%s' % (value, 'th')
     if value % 10 == 1:
         return '%d%s' % (value, 'st')

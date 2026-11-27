@@ -2,10 +2,11 @@
 {% load i18n %}
 {% load catalog_i18n %}
 {% load catalog_html %}
-{% load custom_filters %}
+{% load versioned_static %}
 
 {% block title %}{% localized_value item 'name' %} &ndash; {% translate 'Item' %}{% endblock %}
 {% block meta_description %}{% localized_value item 'name' %} · {% translate 'Item' %} · {% localized rulebook 'name' %} · D&amp;D Tools{% endblock %}
+{% block extra_link %}<link rel="stylesheet" href="{% versioned_static 'css/item-detail.css' %}">{% endblock %}
 
 {% block breadcrumbs %}
     &raquo; <a href="{% url 'item_index'  %}">{% translate 'Items' %}</a>
@@ -13,71 +14,53 @@
     &raquo; <a href="{{ item.get_absolute_url }}">{% localized_value item 'name' %}</a>
 {% endblock %}
 
-{% block admin_edit %}<a href="{% url 'admin:dnd_item_change' item.id %}">{% translate 'EDIT' %}</a>{% endblock %}
+{% block record_actions %}{% endblock %}
 
 {% block content %}
 
-    <h2>{% localized_value item 'name' %}</h2>
-    <div class="item_{{ item.type }}">{% translate item.get_type_display %}</div>
-    (<a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a>{% if item.page %},  p. {{ item.page }}{% endif %})
-    <br/>
-    <br/>
+<article class="item-detail" aria-labelledby="item-name">
+    <header class="item-detail-header">
+        <div>
+            <h1 id="item-name"{% if translation_fallback %} lang="en"{% endif %}>{% localized_value item 'name' %}</h1>
+            {% if item.original_english_name %}
+                <p class="item-original-name">{% translate 'Original EN' %} · <span lang="en">{{ item.original_english_name }}</span></p>
+            {% endif %}
+            <p class="item-source">{% translate item.get_type_display %} ·
+                <a href="{{ rulebook.dnd_edition.get_absolute_url }}">{{ rulebook.dnd_edition.system }}</a> ·
+                <a href="{{ rulebook.get_absolute_url }}">{% localized rulebook 'name' %}</a>{% if item.page %}, p. {{ item.page }}{% endif %}</p>
+        </div>
+        {% if inaccurate_url or can_edit_item and is_admin %}
+            <div class="item-detail-actions">
+                {% if can_edit_item and is_admin %}<a href="{% url 'admin:dnd_item_change' item.id %}">{% translate 'Edit item' %}</a>{% endif %}
+                {% if inaccurate_url %}<a href="{% url 'inaccurate_content' %}?url={{ inaccurate_url|urlencode }}">{% translate 'Report an issue with this page' %}</a>{% endif %}
+            </div>
+        {% endif %}
+    </header>
 
-    {% if item.price_gp %}
-            <strong>{% translate 'Price:' %}</strong> {% if item.type == ItemType.ENHANCEMENT %}+{% endif %}{{ item.price_gp|catalog_thousands_separator }} {% translate 'gp' %}<br/>
-    {% endif %}
-    {% if item.price_bonus %}
-            <strong>{% translate 'Price:' %}</strong> +{{ item.price_bonus }} {% translate 'bonus' %}<br/>
-    {% endif %}
-    {% if item.item_level %}
-        <strong>{% translate 'Item Level:' %}</strong> {{ item.item_level|catalog_ordinal }}<br/>
-    {% endif %}
+    {% include 'dnd/items/item_statistics.html' %}
 
-    {% if item.type == ItemType.MUNDANE %}
-        {% include "dnd/items/item_detail_mundane.html" %}
-    {% endif %}
-    {% if item.type == ItemType.MAGIC %}
-        {% include "dnd/items/item_detail_magic.html" %}
-    {% endif %}
-    {% if item.type == ItemType.ENHANCEMENT %}
-        {% include "dnd/items/item_detail_enhancement.html" %}
-    {% endif %}
+    <div class="item-detail-copy">
+        {% if item.visual_description %}
+            <p class="item-appearance"{% if translation_fallback %} lang="en"{% endif %}><i>{{ item.visual_description }}</i></p>
+        {% endif %}
 
-    <br/>
+        <section aria-labelledby="item-rules-heading">
+            <h2 id="item-rules-heading">{% if item.type == ItemType.MUNDANE %}{% translate 'Description' %}{% else %}{% translate 'Rules' %}{% endif %}</h2>
+            <div class="nice-textile item-rules"{% if translation_fallback %} lang="en"{% endif %}>
+                {% if item.description_html %}
+                    {{ item.description_html|safe_catalog_html }}
+                {% else %}
+                    <p>{{ item.description|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+        </section>
 
-    {% if item.visual_description %}
-        <p>
-            <i>{{ item.visual_description }}</i>
-        </p>
-    {% endif %}
+        {% include 'dnd/items/item_prerequisites.html' %}
 
-    <div class="nice-textile">
-        {% if item.description_html %}
-            {{ item.description_html|safe_catalog_html }}
-        {% else %}
-            <p>{{ item.description|linebreaksbr }}</p>
+        {% if cost_to_create and cost_to_create != '-' %}
+            <p><i>{% translate 'Cost to Create:' %}</i> {% if cost_to_create == 'Varies' %}{% translate 'Varies' %}{% else %}{{ cost_to_create }}{% endif %}.</p>
         {% endif %}
     </div>
-
-    {% if required_spells or required_feats or item.required_extra %}
-    <p>
-    <i>{% translate 'Prerequisites:' %}</i>
-    {% for required_feat in required_feats %}
-        <a href="{{ required_feat.get_absolute_url }}">{% localized_value required_feat 'name' %}</a>{% if not forloop.last or required_spells or item.required_extra %}, {% endif %}
-    {% endfor %}
-    {% if required_spells %}<i>
-    {% for required_spell in required_spells %}
-        <a href="{{ required_spell.get_absolute_url }}">{% localized_value required_spell 'name' %}</a>{% if not forloop.last or item.required_extra %}, {% endif %}
-    {% endfor %}
-    </i>{% endif %}
-    {% if item.required_extra %}{{ required_extra }}{% endif %}.
-    </p>
-    {% endif %}
-
-    {% if cost_to_create and cost_to_create != '-' %}
-        <p>
-            <i>{% translate 'Cost to Create:' %}</i> {% if cost_to_create == 'Varies' %}{% translate 'Varies' %}{% else %}{{ cost_to_create }}{% endif %}.
-        </p>
-    {% endif %}
+</article>
 
 {% endblock %}

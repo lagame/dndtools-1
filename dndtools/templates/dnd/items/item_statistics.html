@@ -1,0 +1,77 @@
+{% load i18n catalog_i18n custom_filters %}
+
+<dl class="item-statistics">
+    {% if item.price_gp is not None %}
+        <div>
+            {% if item.type == ItemType.ENHANCEMENT %}
+                <dt>{% translate 'Price increase:' %}</dt>
+                <dd>+{{ item.price_gp|catalog_thousands_separator }} {% translate 'gp' %}</dd>
+            {% else %}
+                <dt>{% translate 'Price:' %}</dt>
+                <dd>{{ item.price_gp|catalog_thousands_separator }} {% translate 'gp' %}</dd>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if item.price_bonus is not None %}
+        <div>
+            <dt>{% translate 'Equivalent price bonus:' %}</dt>
+            <dd>+{{ item.price_bonus }}</dd>
+        </div>
+    {% endif %}
+    {% if item.item_level %}
+        <div>
+            <dt>{% translate 'Item Level:' %}</dt>
+            <dd>{{ item.item_level|catalog_ordinal }}</dd>
+        </div>
+    {% endif %}
+
+    {% if item.type == ItemType.ENHANCEMENT %}
+        <div>
+            <dt>{% translate 'Property:' %}</dt>
+            <dd>{% if item.property %}{% localized_value item.property 'name' %}{% else %}&mdash;{% endif %}</dd>
+        </div>
+    {% else %}
+        <div>
+            <dt>{% translate 'Body Slot:' %}</dt>
+            <dd>{% if item.body_slot %}{% localized_value item.body_slot 'name' %}{% else %}&mdash;{% endif %}</dd>
+        </div>
+    {% endif %}
+
+    {% if item.type != ItemType.MUNDANE %}
+        <div>
+            <dt>{% translate 'Caster Level:' %}</dt>
+            <dd>{{ item.caster_level|catalog_ordinal|empty_as_dash }}</dd>
+        </div>
+        <div>
+            <dt>{% translate 'Aura:' %}</dt>
+            <dd>
+                {% if item.aura or aura_schools or item.aura_dc %}
+                    {% if item.aura %}{% localized_value item.aura 'name' %}{% endif %}{% if item.aura and aura_schools %} ·{% endif %}
+                    {% for school in aura_schools %}<a href="{{ school.get_absolute_url }}">{% localized_value school 'name' %}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                    {% if item.aura_dc %}{% if item.aura or aura_schools %}({% endif %}{% translate 'DC' %} {{ item.aura_dc }}{% if item.aura or aura_schools %}){% endif %}{% endif %}
+                {% else %}
+                    {% translate 'Not provided' %}
+                {% endif %}
+            </dd>
+        </div>
+    {% endif %}
+
+    <div>
+        <dt>{% translate 'Activation:' %}</dt>
+        <dd>{% if item.activation %}{% localized_value item.activation 'name' %}{% else %}&mdash;{% endif %}</dd>
+    </div>
+
+    {% if item.type == ItemType.ENHANCEMENT %}
+        {% if item.synergy_prerequisite %}
+            <div>
+                <dt>{% translate 'Synergy Prerequisite:' %}</dt>
+                <dd><a href="{{ item.synergy_prerequisite.get_absolute_url }}">{% localized_value item.synergy_prerequisite 'name' %}</a></dd>
+            </div>
+        {% endif %}
+    {% else %}
+        <div>
+            <dt>{% translate 'Weight:' %}</dt>
+            <dd>{% if item.weight %}{{ item.weight }} {% if request.LANGUAGE_CODE == 'pt-br' %}{% blocktranslate count weight=item.weight %}pound{% plural %}pounds{% endblocktranslate %}{% else %}lb.{% endif %}{% else %}&mdash;{% endif %}</dd>
+        </div>
+    {% endif %}
+</dl>

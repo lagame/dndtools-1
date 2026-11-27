@@ -54,8 +54,10 @@
     <div id="site_content" class="content-grid">
       <main id="content" class="main-content">
         {% if translation_fallback %}<p class="translation-fallback" role="note">{% translate 'This record is still available only in its original English version.' %}</p>{% endif %}
-        {% if inaccurate_url %}<a class="report-link" href="{% url 'inaccurate_content' %}?url={{ inaccurate_url|urlencode }}">{% translate 'Report an issue with this page' %}</a>{% endif %}
-        {% if is_admin %}<div class="edit">{% block admin_edit %}{% endblock %}</div>{% endif %}
+        {% block record_actions %}
+          {% if inaccurate_url %}<a class="report-link" href="{% url 'inaccurate_content' %}?url={{ inaccurate_url|urlencode }}">{% translate 'Report an issue with this page' %}</a>{% endif %}
+          {% if is_admin %}<div class="edit">{% block admin_edit %}{% endblock %}</div>{% endif %}
+        {% endblock %}
         {% block content %}{% endblock %}
         {% record_discussions %}
       </main>
