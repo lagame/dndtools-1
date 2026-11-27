@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
+from dnd.catalog_ordering import search_book_names
 from dnd.filters import FeatFilter
 from dnd.models import Rulebook, FeatCategory, Feat
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object
@@ -81,8 +82,8 @@ def feats_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_slug': rulebook.slug,
                                            'rulebook_id': rulebook_id, })
 
-    feat_list = rulebook.feat_set.select_related('rulebook',
-                                                 'rulebook__dnd_edition').all()
+    feat_list = search_book_names(rulebook.feat_set.select_related('rulebook',
+                                                 'rulebook__dnd_edition').all(), request)
 
     paginator = DndPaginator(feat_list, request)
 

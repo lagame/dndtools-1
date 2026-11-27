@@ -1,6 +1,7 @@
 {% extends "dnd/races/race_layout.html" %}
 {% load i18n %}
 {% load catalog_i18n %}
+{% load catalog_sort %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
@@ -18,10 +19,10 @@
 
     {{ paginator.print_navigation }}
 
-    <table class="common">
+    <table class="common catalog-sortable" tabindex="0">
         <tr>
-            <th>{% translate 'Rulebook name' %}</th>
-            <th>{% translate 'Edition' %}</th>
+            {% sortable_header paginator 'name' 'Rulebook name' %}
+            {% sortable_header paginator 'edition' 'Edition' %}
         </tr>
         {% for rulebook in rulebook_list %}
             <tr>

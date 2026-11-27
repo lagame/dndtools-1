@@ -1,5 +1,6 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n %}
+{% load catalog_sort %}
 {% block breadcrumbs %}
     <div class="breadcrumbs"><a href="{% url 'editorial_dashboard' %}">{% translate "Editorial workspace" %}</a> › {{ title }}</div>
 {% endblock %}
@@ -21,13 +22,14 @@
             <div class="editorial-actions">
                 <input id="catalog-query" type="search" name="q" value="{{ query }}">
                 {% if kind %}<input type="hidden" name="kind" value="{{ kind }}">{% endif %}
+                {% if order %}<input type="hidden" name="order" value="{{ order }}">{% endif %}
                 <button class="button" type="submit">{% translate "Find" %}</button>
             </div>
         </form>
         {% if entries %}
-            <div class="editorial-table">
+            <div class="editorial-table" tabindex="0">
                 <table class="editorial-catalog-table">
-                    <thead><tr><th scope="col">ID</th><th scope="col">{% translate "Current record" %}</th><th scope="col">{% translate "Actions" %}</th></tr></thead>
+                    <thead><tr>{% editorial_sort_header 'id' 'ID' order %}{% editorial_sort_header 'name' 'Current record' order %}<th scope="col">{% translate "Actions" %}</th></tr></thead>
                     <tbody>
                         {% for entry in entries %}
                             <tr>
@@ -47,9 +49,9 @@
             </div>
             {% if entries.has_other_pages %}
                 <nav class="editorial-actions editorial-pagination" aria-label="{% translate 'Pagination' %}">
-                    {% if entries.has_previous %}<a href="?q={{ query|urlencode }}&amp;kind={{ kind|urlencode }}&amp;page={{ entries.previous_page_number }}">{% translate "Previous" %}</a>{% endif %}
+                    {% if entries.has_previous %}<a href="?q={{ query|urlencode }}&amp;kind={{ kind|urlencode }}&amp;order={{ order|urlencode }}&amp;page={{ entries.previous_page_number }}">{% translate "Previous" %}</a>{% endif %}
                     <span>{% blocktranslate with number=entries.number total=entries.paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktranslate %}</span>
-                    {% if entries.has_next %}<a href="?q={{ query|urlencode }}&amp;kind={{ kind|urlencode }}&amp;page={{ entries.next_page_number }}">{% translate "Next" %}</a>{% endif %}
+                    {% if entries.has_next %}<a href="?q={{ query|urlencode }}&amp;kind={{ kind|urlencode }}&amp;order={{ order|urlencode }}&amp;page={{ entries.next_page_number }}">{% translate "Next" %}</a>{% endif %}
                 </nav>
             {% endif %}
         {% else %}

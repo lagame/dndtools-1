@@ -1,14 +1,15 @@
 {% extends 'dnd/layout.html' %}
 {% load catalog_i18n %}
 {% load i18n %}
+{% load catalog_sort %}
 {% block title %}{% translate 'Creature templates' %}{% endblock %}
 {% block breadcrumbs %} » {% translate 'Creature templates' %}{% endblock %}
 {% block content %}
 <h1>{% translate 'Creature templates' %}</h1>
-<form action="" method="get" role="search"><label for="template-query">{% translate 'Search templates' %}</label> <input id="template-query" type="search" name="q" value="{{ query }}" maxlength="100"> <button type="submit">{% translate 'Search' %}</button></form>
-{% if entries %}<table><thead><tr><th>{% translate 'Name' %}</th><th>{% translate 'Rulebook' %}</th><th>{% translate 'Type' %}</th></tr></thead><tbody>
+<form action="" method="get" role="search"><label for="template-query">{% translate 'Search templates' %}</label> <input id="template-query" type="search" name="q" value="{{ query }}" maxlength="100">{% if order %}<input type="hidden" name="order" value="{{ order }}">{% endif %} <button type="submit">{% translate 'Search' %}</button></form>
+{% if entries %}<table class="common catalog-sortable" tabindex="0"><thead><tr>{% editorial_sort_header 'name' 'Name' order %}{% editorial_sort_header 'book' 'Rulebook' order %}{% editorial_sort_header 'type' 'Type' order %}</tr></thead><tbody>
 {% for entry in entries %}<tr><td><a href="{{ entry.get_absolute_url }}">{% localized entry 'name' %}</a></td><td>{% localized entry.rulebook 'name' %}</td><td>{{ entry.get_kind_display }}</td></tr>{% endfor %}
 </tbody></table>{% else %}<p>{% translate 'No creature templates found.' %}</p>{% endif %}
-{% if entries.has_previous %}<a href="?q={{ query|urlencode }}&amp;page={{ entries.previous_page_number }}">{% translate 'Previous' %}</a>{% endif %}
-{% if entries.has_next %}<a href="?q={{ query|urlencode }}&amp;page={{ entries.next_page_number }}">{% translate 'Next' %}</a>{% endif %}
+{% if entries.has_previous %}<a href="?q={{ query|urlencode }}&amp;order={{ order|urlencode }}&amp;page={{ entries.previous_page_number }}">{% translate 'Previous' %}</a>{% endif %}
+{% if entries.has_next %}<a href="?q={{ query|urlencode }}&amp;order={{ order|urlencode }}&amp;page={{ entries.next_page_number }}">{% translate 'Next' %}</a>{% endif %}
 {% endblock %}

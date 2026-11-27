@@ -1,20 +1,21 @@
 {% load catalog_i18n %}
 {% load i18n %}
 {% load custom_filters %}
+{% load catalog_sort %}
 
 {{ paginator.print_navigation }}
 
 <p class="table-scroll-hint" id="spell-table-hint">{% translate 'Scroll the table sideways to see all spell details.' %}</p>
-<table class="common spell-catalog-table" aria-label="{% translate 'Spells' %}" aria-describedby="spell-table-hint" tabindex="0">
+<table class="common catalog-sortable spell-catalog-table" aria-label="{% translate 'Spells' %}" aria-describedby="spell-table-hint" tabindex="0">
 <tr>
-  <th>{% translate 'Spell name' %}</th>
-  <th>{% translate 'Spell School' %}</th>
-  <th>{% translate 'Rulebook' %}</th>
-  <th>{% translate 'Effect' %}</th>
-  <th>{% translate 'Duration' %}</th>
-  <th>{% translate 'Range' %}</th>
-  <th>{% translate 'Components' %}</th>
-  <th>{% translate 'Casting Time' %}</th>
+  {% sortable_header paginator 'name' 'Spell name' %}
+  {% sortable_header paginator 'school' 'Spell School' %}
+  {% sortable_header paginator 'book' 'Rulebook' %}
+  {% sortable_header paginator 'effect' 'Effect' %}
+  {% sortable_header paginator 'duration' 'Duration' %}
+  {% sortable_header paginator 'range' 'Range' %}
+  {% sortable_header paginator 'components' 'Components' %}
+  {% sortable_header paginator 'casting' 'Casting Time' %}
 </tr>
 {% for spell in spell_list %}
 <tr>

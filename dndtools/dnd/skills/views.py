@@ -4,6 +4,7 @@ from django.template.context import RequestContext
 from dnd.menu import MenuItem, menu_item, submenu_item
 from dnd.views import permanent_redirect_object, permanent_redirect_view, is_3e_edition
 from dnd.dnd_paginator import DndPaginator
+from dnd.catalog_ordering import search_book_names
 from dnd.filters import SkillFilter
 
 from dnd.models import Rulebook, Skill, SkillVariant
@@ -119,16 +120,15 @@ def skills_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_slug': rulebook.slug,
                                            'rulebook_id': rulebook_id, })
 
-    skill_list = [
-        skill_variant.skill
-        for skill_variant
-        in rulebook.skillvariant_set.all()
-    ]
+    skill_ids = rulebook.skillvariant_set.values_list('skill_id', flat=True)
+    skill_list = search_book_names(Skill.objects.filter(pk__in=skill_ids), request)
+    paginator = DndPaginator(skill_list, request)
 
     return render_to_response('dnd/skills/skill_in_rulebook.html',
                               {
                                   'rulebook': rulebook,
-                                  'skill_list': skill_list,
+                                  'skill_list': paginator.items(),
+                                  'paginator': paginator,
                                   'request': request,
                                   'display_3e_warning': is_3e_edition(rulebook.dnd_edition),
                               }, context_instance=RequestContext(request), )

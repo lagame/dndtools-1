@@ -129,8 +129,8 @@ body:not(.login) .object-tools a:hover { background-color: var(--secondary); }
 body:not(.login) input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]), body:not(.login) select, body:not(.login) textarea { box-sizing: border-box; max-width: 100%; padding: 9px 11px; border-radius: 8px; font: inherit; }
 body:not(.login) a:focus-visible, body:not(.login) button:focus-visible, body:not(.login) input:focus-visible, body:not(.login) select:focus-visible, body:not(.login) textarea:focus-visible, body:not(.login) summary:focus-visible { outline: 3px solid #9a82db; outline-offset: 3px; }
 body:not(.login) #changelist { border: 1px solid var(--hairline-color); border-radius: 12px; background: var(--workspace-surface); }
-body:not(.login) #changelist .results { overflow-x: auto; }
-body:not(.login) #changelist table thead th { padding: 14px 10px; background: var(--darkened-bg); }
+body:not(.login) #changelist .results { max-height: 70vh; overflow: auto; }
+body:not(.login) #changelist table thead th { position: sticky; top: 0; z-index: 2; padding: 14px 10px; background: var(--darkened-bg); }
 body:not(.login) #changelist table tbody td, body:not(.login) #changelist table tbody th { padding: 13px 10px; }
 body:not(.login) #changelist #toolbar { padding: 16px; background: var(--workspace-surface); }
 body:not(.login) #changelist #toolbar form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -232,7 +232,8 @@ body.dashboard #content-related h3, body.dashboard #content-related p, body.dash
 
 .editorial-table {
   margin-top: 1rem;
-  overflow-x: auto;
+  max-height: 70vh;
+  overflow: auto;
 }
 
 .editorial-table table {
@@ -246,6 +247,9 @@ body.dashboard #content-related h3, body.dashboard #content-related p, body.dash
 }
 
 .editorial-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: var(--darkened-bg);
 }
 

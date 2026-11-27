@@ -14,6 +14,7 @@
 {% block content %}
 
     <h2>{% translate 'Races in' %} {% localized rulebook 'name' %}</h2>
+    {% include 'dnd/catalog_book_search.html' %}
 
     {% include "dnd/races/race_table.html" %}
 

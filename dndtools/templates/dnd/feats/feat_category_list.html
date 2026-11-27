@@ -1,6 +1,7 @@
 {% extends "dnd/feats/feat_layout.html" %}
 {% load i18n %}
 {% load catalog_i18n %}
+{% load catalog_sort %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
@@ -19,8 +20,8 @@
 
 {{ paginator.print_navigation }}
 
-<table class="common">
-  <tr><th>{% translate 'Category name' %}</th></tr>
+<table class="common catalog-sortable" tabindex="0">
+  <tr>{% sortable_header paginator 'name' 'Category name' %}</tr>
     {% for feat_category in feat_category_list %}
         <tr><td><a href="{{ feat_category.get_absolute_url }}">{% localized feat_category 'name' %}</a></td></tr>
     {% endfor %}

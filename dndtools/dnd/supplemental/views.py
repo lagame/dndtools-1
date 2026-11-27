@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from dnd.models import SupplementalEntry
+from dnd.catalog_ordering import order_catalog
 from dnd.supplemental.catalog import DETAILS, DISPLAY, FACETS, displayed_details, detail_for
 
 
@@ -70,6 +71,18 @@ def index(request, kind):
             entries = entries.filter(**{lookup: selected}).distinct()
         facets.append({'name': name, 'label': labels.get(name, _('Class')),
                        'options': options, 'selected': selected})
+    order = request.GET.get('order', '')
+    if order in ('details', '-details'):
+        detail_field = {
+            'mysteries': 'path', 'invocations': 'grade', 'psionics': 'discipline',
+            'auras': 'character_class__name', 'maneuvers': 'discipline',
+            'monstrous-traits': 'ability_type',
+        }[kind]
+        entries = entries.order_by(F(relation + '__' + detail_field).desc(nulls_last=True)
+                                   if order.startswith('-') else
+                                   F(relation + '__' + detail_field).asc(nulls_last=True), 'pk')
+    else:
+        entries, order = order_catalog(entries, request)
     requested_size = request.GET.get('page_size', '50')
     page_size = int(requested_size) if requested_size in ('20', '50', '100', '1000', '5000') else 50
     params = request.GET.copy()
@@ -80,6 +93,7 @@ def index(request, kind):
         entry.summary = displayed_details(entry)[:2] if detail_for(entry) else []
     return render(request, 'dnd/supplemental/index.html', {
         'kind': kind, 'label': label, 'query': query,
+        'order': order,
         'entries': page, 'books': books, 'selected_book': book,
         'facets': facets, 'page_size': page_size, 'querystring': querystring,
     })

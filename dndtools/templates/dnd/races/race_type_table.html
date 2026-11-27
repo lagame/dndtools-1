@@ -1,17 +1,18 @@
 {% load catalog_i18n %}
+{% load catalog_sort %}
 {% load i18n %}
 {% load custom_filters %}
 
 {{ paginator.print_navigation }}
 
-<table class="common">
+<table class="common catalog-sortable" tabindex="0">
     <tr>
-        <th>{% translate 'Race type name' %}</th>
-        <th>{% translate 'Hit Die' %}</th>
-        <th>{% translate 'Attack Bonus' %}</th>
-        <th>{% translate 'Good Fort Save' %}</th>
-        <th>{% translate 'Good Reflex Save' %}</th>
-        <th>{% translate 'Good Will Save' %}</th>
+        {% sortable_header paginator 'name' 'Race type name' %}
+        {% sortable_header paginator 'hit_die' 'Hit Die' %}
+        {% sortable_header paginator 'attack' 'Attack Bonus' %}
+        {% sortable_header paginator 'fort' 'Good Fort Save' %}
+        {% sortable_header paginator 'reflex' 'Good Reflex Save' %}
+        {% sortable_header paginator 'will' 'Good Will Save' %}
     </tr>
     {% for race_type in race_type_list %}
         <tr>

@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
+from dnd.catalog_ordering import search_book_names
 from dnd.filters import ItemFilter
 from dnd.localization import localize_record
 from dnd.models import Rulebook, Item
@@ -56,8 +57,8 @@ def items_in_rulebook(request, rulebook_slug, rulebook_id):
                                            'rulebook_slug': rulebook.slug,
                                            'rulebook_id': rulebook_id, })
 
-    item_list = rulebook.item_set.select_related(
-        'rulebook', 'rulebook__dnd_edition').all()
+    item_list = search_book_names(rulebook.item_set.select_related(
+        'rulebook', 'rulebook__dnd_edition', 'body_slot', 'property').all(), request)
 
     paginator = DndPaginator(item_list, request)
 

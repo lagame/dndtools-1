@@ -82,7 +82,12 @@ class ModifiedUserAdmin(OwnerOnlyAdminMixin, UserAdmin):
 
 
 class OwnerOnlyGroupAdmin(OwnerOnlyAdminMixin, GroupAdmin):
-    pass
+    list_display = ('name',)
+
+
+class NamedCatalogAdmin(CatalogModelAdmin):
+    list_display = ('id', 'name')
+    list_display_links = ('name',)
 
 
 class EditorialGrantAdmin(admin.ModelAdmin):
@@ -495,7 +500,7 @@ admin.site.register(RaceType, RaceTypeAdmin)
 admin.site.register(NewsEntry, NewsEntryAdmin)
 admin.site.register(StaticPage, StaticPageAdmin)
 admin.site.register(Rule, RuleAdmin)
-admin.site.register(RuleCondition, CatalogModelAdmin)
+admin.site.register(RuleCondition, NamedCatalogAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(ItemSlot, ItemSlotAdmin)
 admin.site.register(ItemProperty, ItemPropertyAdmin)
@@ -504,8 +509,8 @@ admin.site.register(ItemActivationType, ItemActivationTypeAdmin)
 admin.site.register(Deity, DeityAdmin)
 admin.site.register(DomainVariant, DomainVariantAdmin)
 admin.site.register(EditorialGrant, EditorialGrantAdmin)
-admin.site.register(CreatureTemplate, CatalogModelAdmin)
-admin.site.register(SupplementalEntry, CatalogModelAdmin)
+admin.site.register(CreatureTemplate, NamedCatalogAdmin)
+admin.site.register(SupplementalEntry, NamedCatalogAdmin)
 admin.site.unregister(User)
 admin.site.register(User, ModifiedUserAdmin)
 admin.site.unregister(Group)

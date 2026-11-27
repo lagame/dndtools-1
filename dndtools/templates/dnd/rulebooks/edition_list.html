@@ -1,6 +1,7 @@
 {% extends "dnd/rulebooks/rulebooks_layout.html" %}
 {% load i18n %}
 {% load catalog_i18n %}
+{% load catalog_sort %}
 
 {% block extra_link %}{{ paginator.print_rel_prev_next }}{{ block.super }}{% endblock %}
 {% block extra_meta %}{% include "dnd/meta_noindex.html" %}{% endblock %}
@@ -18,9 +19,9 @@
 
 {{ paginator.print_navigation }}
 
-<table class="common">
+<table class="common catalog-sortable" tabindex="0">
 <tr>
-  <th>{% translate 'Edition name' %}</th>
+  {% sortable_header paginator 'name' 'Edition name' %}
 </tr>
     {% for edition in edition_list %}
         <tr>

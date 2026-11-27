@@ -1,0 +1,8 @@
+{% load i18n %}
+<form class="catalog-book-search" method="get" role="search">
+  <label for="catalog-book-query">{% translate 'Name' %}</label>
+  <input id="catalog-book-query" type="search" name="q" value="{{ request.GET.q|default:'' }}">
+  {% if request.GET.order %}<input type="hidden" name="order" value="{{ request.GET.order }}">{% endif %}
+  {% if request.GET.page_size %}<input type="hidden" name="page_size" value="{{ request.GET.page_size }}">{% endif %}
+  <button type="submit">{% translate 'Search' %}</button>
+</form>
