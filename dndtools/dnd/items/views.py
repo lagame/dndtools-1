@@ -5,6 +5,7 @@ from django.template.context import RequestContext
 from dnd.menu import menu_item, submenu_item, MenuItem
 from dnd.dnd_paginator import DndPaginator
 from dnd.catalog_ordering import search_book_names
+from dnd.editorial import owner
 from dnd.filters import ItemFilter
 from dnd.localization import localize_record
 from dnd.models import Rulebook, Item
@@ -89,6 +90,11 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
     localize_record(request, item)
     required_feats = item.required_feats.select_related('rulebook').all()
     required_spells = item.required_spells.select_related('rulebook').all()
+    prerequisites = [(feat, False) for feat in required_feats]
+    prerequisites.extend((spell, True) for spell in required_spells)
+    # Free text can encode alternatives and citations. Only explicit relations become links.
+    required_extra = item.required_extra.strip()
+    prerequisites_end = '' if required_extra.endswith(('.', '!', '?', '…')) else '.'
 
     cost_to_create = item.cost_to_create
     # calculate CTC
@@ -106,9 +112,10 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
                               {
                                   'item': item,
                                   'aura_schools': item.aura_schools.all(),
-                                  'required_feats': required_feats,
-                                  'required_spells': required_spells,
-                                  'required_extra': item.required_extra.removesuffix('.'),
+                                  'prerequisites': prerequisites,
+                                  'required_extra': required_extra,
+                                  'prerequisites_end': prerequisites_end,
+                                  'can_edit_item': owner(request.user),
                                   'cost_to_create': cost_to_create,
                                   'rulebook': item.rulebook,
                                   'request': request,

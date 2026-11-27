@@ -2643,6 +2643,26 @@ msgstr "Item"
 msgid "Price:"
 msgstr "Preço:"
 
+#: templates/dnd/items/item_statistics.html
+msgid "Price increase:"
+msgstr "Acréscimo ao preço:"
+
+#: templates/dnd/items/item_statistics.html
+msgid "Equivalent price bonus:"
+msgstr "Bônus equivalente de preço:"
+
+#: templates/dnd/items/item_statistics.html
+msgid "Not provided"
+msgstr "Não informada"
+
+#: templates/dnd/items/item_detail.html
+msgid "Edit item"
+msgstr "Editar item"
+
+#: templates/dnd/items/item_prerequisites.html
+msgid "Creation prerequisites"
+msgstr "Pré-requisitos de criação"
+
 #: templates/dnd/items/item_detail.html:32
 #: templates/dnd/mobile/items/item_detail.html:23
 msgid "Item Level:"

@@ -3,6 +3,7 @@ import json
 import re
 from datetime import date
 from hashlib import sha256
+from html import unescape
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -19,6 +20,7 @@ from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+from django.utils.html import strip_tags
 
 from dnd.models import (
     CharacterClass, CharacterClassVariant, DndEdition, Domain, DomainVariant, Feat, FeatCategory,
@@ -251,6 +253,16 @@ class AdminSecurityTests(TestCase):
 
 
 class CatalogSmokeTests(TestCase):
+    def _item_statistics(self, response):
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode()
+        summary = re.search(r'<dl\b[^>]*\bclass="item-statistics"[^>]*>(.*?)</dl>', html, re.S)
+        self.assertIsNotNone(summary, 'Item detail should contain a statistics definition list.')
+        return {
+            label.strip(): ' '.join(unescape(strip_tags(value)).split())
+            for label, value in re.findall(r'<dt>(.*?)</dt>\s*<dd>(.*?)</dd>', summary[1], re.S)
+        }
+
     @override_settings(PUBLIC_HOST='dndtools.quest')
     def test_sitemap_uses_public_domain_and_contains_catalog_entries(self):
         character_class = CharacterClass.objects.create(name='Test Wizard', slug='test-wizard', prestige=False)
@@ -418,6 +430,49 @@ class CatalogSmokeTests(TestCase):
                     self.assertNotIn('EPH 99)..', content)
                     self.assertNotIn('3 days..', content)
 
+    def test_item_detail_preserves_requirement_logic_and_links_by_record(self):
+        from dnd.editorial import source_digest
+
+        feat = Feat.objects.create(rulebook=self.spell.rulebook, name='Test Craft', slug='test-craft',
+                                   description='Craft items.', benefit='Create equipment.')
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Test Armor', slug='test-armor',
+                                   type=Item.ItemType.ENHANCEMENT, description='Protective armor.')
+        item.required_feats.add(feat)
+        item.required_spells.add(self.spell)
+        reviewer = User.objects.create(username='prerequisite_reviewer')
+        for related, name, digest in (
+            (feat, 'Criar Equipamento', source_digest(feat, translation=True)),
+            (self.spell, 'Tradução desatualizada', '0' * 64),
+        ):
+            PublishedTranslation.objects.create(resource=related._meta.object_name, target_pk=related.pk,
+                                                locale='pt-br', payload={'name': name}, source_digest=digest,
+                                                author=reviewer, reviewer=reviewer)
+
+        path, feat_path, spell_path = (obj.get_absolute_url() for obj in (item, feat, self.spell))
+        for original, translated in (
+            ('Cloud form and still mind (TH 16).', 'Cloud form e still mind (TH 16).'),
+            ('Cloud form or still mind (TH 16).', 'Cloud form ou still mind (TH 16).'),
+            ('Still mind and (cloud form or spark) (TH 16).', 'Still mind e (cloud form ou spark) (TH 16).'),
+        ):
+            with self.subTest(original=original):
+                item.required_extra = original
+                item.save(update_fields=['required_extra'])
+                PublishedTranslation.objects.update_or_create(
+                    resource='Item', target_pk=item.pk, locale='pt-br',
+                    defaults={'payload': {'required_extra': translated}, 'author': reviewer, 'reviewer': reviewer,
+                              'source_digest': source_digest(item, translation=True)})
+                english = self.client.get(path)
+                self.assertContains(english, original)
+                self.assertContains(english, f'href="{feat_path}"')
+                self.assertContains(english, f'href="{spell_path}"')
+                portuguese = self.client.get('/pt-br' + path)
+                self.assertContains(portuguese, translated)
+                self.assertContains(portuguese, f'<a href="/pt-br{feat_path}">Criar Equipamento</a>', html=True)
+                self.assertContains(portuguese, '(Test Craft)')
+                self.assertContains(portuguese, f'<a href="/pt-br{spell_path}" lang="en"><i>Arcane Ember</i></a>',
+                                    html=True)
+                self.assertNotContains(portuguese, 'Tradução desatualizada')
+
     def test_item_detail_separates_visual_intro_from_rules(self):
         item = Item.objects.create(rulebook=self.spell.rulebook, name='Time Buttress', slug='time-buttress',
                                    type=Item.ItemType.ENHANCEMENT,
@@ -472,7 +527,7 @@ class CatalogSmokeTests(TestCase):
         slot = ItemSlot.objects.create(name='held', slug='held')
         item = Item.objects.create(
             rulebook=self.spell.rulebook, name='Stamina', slug='stamina-test',
-            type=Item.ItemType.ENHANCEMENT, property=prop, aura=aura,
+            page=15, type=Item.ItemType.ENHANCEMENT, property=prop, aura=aura,
             activation=activation, caster_level=5, aura_dc='17', price_gp=8000,
             visual_description='This armor looks sturdy.',
             description='It grants a +1 bonus.', required_extra='resistance.',
@@ -506,7 +561,15 @@ class CatalogSmokeTests(TestCase):
             self.assertIn(value, english)
         switch = self.client.get('/language/', {'language': 'pt-br', 'next': path})
         self.assertEqual(switch['Location'], '/pt-br' + path)
-        portuguese = self.client.get(switch['Location']).content.decode()
+        response_pt = self.client.get(switch['Location'])
+        portuguese = response_pt.content.decode()
+        self.assertEqual(self._item_statistics(response_pt)['Aura:'], 'Fraca · Evocação (CD 17)')
+        self.assertRegex(portuguese, r'<h1\b[^>]*>\s*Vigor\s*</h1>')
+        self.assertContains(response_pt, '<span lang="en">Stamina</span>', html=True)
+        book = self.spell.rulebook
+        self.assertContains(response_pt, f'href="/pt-br{book.get_absolute_url()}"')
+        self.assertContains(response_pt, f'href="/pt-br{book.dnd_edition.get_absolute_url()}"')
+        self.assertRegex(portuguese, r'Test Handbook</a>,\s*p\. 15')
         for value in ('Vigor', 'Aprimoramento', 'Armadura', 'Fraca', 'Evocação',
                       'Padrão (comando)', '+8.000 po', '5º', 'CD 17',
                       '<i>Esta armadura parece resistente.</i>',
@@ -548,6 +611,71 @@ class CatalogSmokeTests(TestCase):
         self.assertIn('Cost to Create:</i> Varies.', english)
         self.assertIn('Custo de criação:</i> Varia.', portuguese)
         self.assertNotIn('Varies.', portuguese)
+
+    def test_item_detail_keeps_price_types_and_levels_separate(self):
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Test Armor', slug='test-armor',
+                                   type=Item.ItemType.ENHANCEMENT, price_gp=1200, price_bonus=2,
+                                   caster_level=12, item_level=13, description='Protective armor.')
+        path = item.get_absolute_url()
+        english = self._item_statistics(self.client.get(path))
+        self.assertEqual(english['Price increase:'], '+1,200 gp')
+        self.assertEqual(english['Equivalent price bonus:'], '+2')
+        self.assertEqual(english['Caster Level:'], '12th')
+        self.assertEqual(english['Item Level:'], '13th')
+        portuguese = self._item_statistics(self.client.get('/pt-br' + path))
+        self.assertEqual(portuguese['Acréscimo ao preço:'], '+1.200 po')
+        self.assertEqual(portuguese['Bônus equivalente de preço:'], '+2')
+        self.assertEqual(portuguese['Nível de conjurador:'], '12º')
+        self.assertEqual(portuguese['Nível do item:'], '13º')
+
+        for item_type, price, expected in ((Item.ItemType.MAGIC, 2500, '2,500 gp'),
+                                           (Item.ItemType.MUNDANE, 0, '0 gp'),
+                                           (Item.ItemType.MUNDANE, None, None)):
+            with self.subTest(item_type=item_type, price=price):
+                Item.objects.filter(pk=item.pk).update(type=item_type, price_gp=price, price_bonus=None)
+                stats = self._item_statistics(self.client.get(path))
+                self.assertEqual(stats.get('Price:'), expected)
+                self.assertNotIn('Price increase:', stats)
+                self.assertNotIn('Equivalent price bonus:', stats)
+
+    def test_item_detail_formats_aura_with_missing_values(self):
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Test Armor', slug='test-armor',
+                                   type=Item.ItemType.MAGIC, description='Protective armor.')
+        faint = ItemAuraType.objects.create(name='Faint', slug='faint')
+        path = item.get_absolute_url()
+        for aura, dc, schools, expected in (
+            (faint, '17', [self.spell.school], 'Faint · Evocation (DC 17)'),
+            (faint, '17', [], 'Faint (DC 17)'),
+            (None, '', [self.spell.school], 'Evocation'),
+            (None, '17', [], 'DC 17'),
+            (None, '', [], 'Not provided'),
+        ):
+            with self.subTest(aura=aura, dc=dc, schools=schools):
+                Item.objects.filter(pk=item.pk).update(aura=aura, aura_dc=dc)
+                item.aura_schools.set(schools)
+                self.assertEqual(self._item_statistics(self.client.get(path))['Aura:'], expected)
+        self.assertEqual(self._item_statistics(self.client.get('/pt-br' + path))['Aura:'], 'Não informada')
+
+    def test_item_detail_uses_admin_edit_permission_and_keeps_public_report(self):
+        item = Item.objects.create(rulebook=self.spell.rulebook, name='Test Armor', slug='test-armor', page=13,
+                                   type=Item.ItemType.MUNDANE, description='Protective armor.')
+        path = '/pt-br' + item.get_absolute_url()
+        edit_url = reverse('admin:dnd_item_change', args=[item.pk])
+        visitor = self.client.get(path)
+        self.assertRegex(visitor.content.decode(), r'<h1\b[^>]*>\s*Test Armor\s*</h1>')
+        self.assertContains(visitor, '/pt-br' + reverse('inaccurate_content') + '?url=')
+        self.assertContains(visitor, 'Informar um problema nesta página', count=1)
+        self.assertNotContains(visitor, edit_url)
+
+        other_staff = User.objects.create(username='other_superuser', is_staff=True, is_superuser=True)
+        self.client.force_login(other_staff)
+        self.assertNotContains(self.client.get(path), edit_url)
+        username, email = settings.ADMINS[0]
+        owner = User.objects.create(username=username, email=email, is_staff=True, is_superuser=True)
+        self.client.force_login(owner)
+        response = self.client.get(path)
+        self.assertContains(response, f'<a href="{edit_url}">Editar item</a>', html=True, count=1)
+        self.assertContains(response, 'Informar um problema nesta página', count=1)
 
     def test_legacy_html_is_sanitized_at_render_time(self):
         fragment = ('<table><tr><td style="text-align:center; background-image:url(javascript:alert(5))"><strong>Arcane</strong> '

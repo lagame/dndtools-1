@@ -1,0 +1,13 @@
+{% load i18n catalog_i18n %}
+{% if prerequisites or required_extra %}
+    <section class="item-prerequisites" aria-labelledby="item-prerequisites-heading">
+        <h2 id="item-prerequisites-heading">{% translate 'Creation prerequisites' %}</h2>
+        <p>
+            {% for record, is_spell in prerequisites %}
+                {% localized_value record 'name' as prerequisite_name %}
+                <a href="{{ record.get_absolute_url }}"{% if request.LANGUAGE_CODE == 'pt-br' and record.name == prerequisite_name %} lang="en"{% endif %}
+                    >{% if is_spell %}<i>{{ prerequisite_name }}</i>{% else %}{{ prerequisite_name }}{% endif %}</a>{% if record.name != prerequisite_name %}
+                    <span class="item-prerequisite-original" lang="en">({{ record.name }})</span>{% endif %}{% if not forloop.last or required_extra %}, {% endif %}{% endfor %}{{ required_extra }}{{ prerequisites_end }}
+        </p>
+    </section>
+{% endif %}
