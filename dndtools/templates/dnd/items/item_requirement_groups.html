@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="item-requirement-groups">
+    {% if structured_requirements.tree.op == 'none' %}
+        <p>{% translate 'The reviewed source specifies no creation prerequisites.' %}</p>
+    {% else %}
+        {% include 'dnd/items/item_requirement_node.html' with node=structured_requirements.tree only %}
+    {% endif %}
+    {% with source=structured_requirements.source %}
+        {% if source.book %}<p class="item-requirement-source">
+            {% translate 'Reviewed source:' %} <a href="{{ source.book.get_absolute_url }}">{{ source.book.name }}</a>,
+            p. {% for page in source.pages %}{{ page }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </p>{% endif %}
+    {% endwith %}
+</div>

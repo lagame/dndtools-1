@@ -7,13 +7,16 @@
 {% block content %}
 <div class="editorial-workspace">
     <section class="editorial-section" aria-label="{% translate 'Catalog resources' %}">
-        {% if can_import or can_create %}
+        {% if can_import or can_create or resource == 'Item' and can_correct %}
             <div class="editorial-actions">
                 {% if can_import %}
                     <a class="button" href="{% url 'editorial_import' resource %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Import records directly" %}</a>
                 {% endif %}
                 {% if can_create %}
                     <a {% if not can_import %}class="button" {% endif %}href="{% url 'editorial_create' resource %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Propose an addition" %}</a>
+                {% endif %}
+                {% if resource == 'Item' and can_correct %}
+                    <a href="{% url 'editorial_item_requirements_import' %}">{% translate "Upload prerequisite groups" %}</a>
                 {% endif %}
             </div>
         {% endif %}
@@ -38,6 +41,7 @@
                                 <td>
                                     <div class="editorial-row-actions">
                                         {% if can_correct %}<a href="{% url 'editorial_correct' resource entry.pk %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Propose correction" %}</a>{% endif %}
+                                        {% if resource == 'Item' and can_correct %}<a href="{% url 'editorial_item_requirements' entry.pk %}">{% translate "Structure creation prerequisites" %}</a>{% endif %}
                                         {% if can_translate %}<a href="{% url 'editorial_translate' resource entry.pk %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Propose PT-BR translation" %}</a>{% endif %}
                                         {% if can_delete %}<a href="{% url 'editorial_delete' resource entry.pk %}{% if kind %}?kind={{ kind|urlencode }}{% endif %}">{% translate "Propose removal" %}</a>{% endif %}
                                     </div>

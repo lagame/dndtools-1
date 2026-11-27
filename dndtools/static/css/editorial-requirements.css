@@ -1,0 +1,19 @@
+.requirement-builder [hidden] { display: none !important; }
+.requirement-builder > p { margin: 1rem 0; }
+.requirement-builder > #requirement-root { margin-bottom: 1rem; }
+.requirement-node { min-inline-size: 0; border: 1px solid var(--border-color); border-radius: .5rem; padding: .75rem; }
+.requirement-node legend { padding: 0 .35rem; font-weight: 650; }
+.requirement-fields { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
+.requirement-fields label { display: grid; gap: .3rem; flex: 1 1 13rem; min-inline-size: 0; }
+.requirement-fields input, .requirement-fields select, .requirement-fields textarea { box-sizing: border-box; width: 100%; min-inline-size: 0; }
+.requirement-node [data-role="named"], .requirement-node [data-role="condition"] { margin-top: .75rem; }
+.requirement-node-actions button, .requirement-node button[data-role="add"] { min-height: 2.5rem; }
+.requirement-node button:disabled { opacity: .55; cursor: not-allowed; }
+.requirement-children { display: grid; gap: .65rem; margin: .75rem 0; }
+.requirement-builder button:focus-visible, .requirement-builder input:focus-visible,
+.requirement-builder select:focus-visible, .requirement-builder textarea:focus-visible { outline: 2px solid var(--link-fg); outline-offset: 2px; }
+
+@media (max-width: 600px) {
+  .requirement-node { padding: .45rem; }
+  .requirement-fields { align-items: stretch; }
+}

@@ -47,6 +47,8 @@ Only Ronassic, as the owner, can publish a validated file directly. Collaborator
 4. Choose **Preview import**, check the records and confirm publication. Files above 250 records or 1 MiB run in the `editorial_import_worker` Docker service. You can close the page and return through **View your latest queued batch**. Queued previews expire after 24 hours. Smaller previews expire after 20 minutes.
 5. For multiple files, finish each batch before uploading the next one. The importer adds new records and rejects duplicates and invalid batches. Each batch commits in a single transaction. The editorial history records the author and source of each entry, and Ronassic receives one email per published batch when SMTP is configured. Ronassic is responsible for checking the cited source and publication rights.
 
+For **creation prerequisites of existing items**, use **Structure creation prerequisites** on an editorial item or **Upload prerequisite groups** in the Items list. The separate JSON example supports cumulative groups, alternatives, bilingual conditions, and book and page references. For links, provide the confirmed catalog ID, original name, book, and printed page. Put alternatives in their own group and compare both language previews with the source. Submit the preview as a proposal. Ronassic approves the whole batch. The original text and translations are retained.
+
 ## Local setup (Windows PowerShell)
 
 Install Git, Python 3 and Docker Desktop. From PowerShell:
@@ -187,6 +189,8 @@ Somente Ronassic, como proprietário, pode publicar diretamente um arquivo valid
 3. Use o nome exato ou o ID numérico para registros relacionados. Separe valores múltiplos com `|` no CSV ou use uma lista no JSON, como `["General", "Fighter Bonus"]`. No JSON, a raiz é uma lista com um objeto por registro. Use `true` ou `false` nos campos booleanos e ponto decimal nos campos numéricos. Vínculos com cadastro próprio, como níveis de magia por classe e pré-requisitos de talentos, podem ser propostos pelos formulários correspondentes.
 4. Clique em **Ver prévia da importação**, confira os dados e confirme a publicação. Arquivos com mais de 250 registros ou 1 MiB rodam no serviço Docker `editorial_import_worker`. Você pode fechar a página e voltar pelo link **Ver seu lote mais recente na fila**. A prévia dos lotes em fila vale por 24 horas. Para os arquivos menores, vale por 20 minutos.
 5. Se tiver vários arquivos, conclua cada lote antes de enviar o próximo. A ferramenta cria registros novos e rejeita lotes inválidos ou duplicados. A publicação grava cada lote em uma única transação. O histórico editorial guarda autor e fonte de cada registro, e Ronassic recebe um e-mail por lote publicado quando o SMTP está configurado. Cabe a Ronassic conferir a informação na fonte e os direitos de publicação.
+
+Para **pré-requisitos de criação de itens existentes**, use **Estruturar pré-requisitos de criação** na ficha editorial ou **Enviar grupos de pré-requisitos** na lista de Itens. O exemplo JSON separado aceita grupos cumulativos, alternativas, condições nos dois idiomas e referências de livro e página. Para vincular um registro, use o ID confirmado, nome original, livro e página impressa. Coloque alternativas no grupo de opções e compare a prévia nos dois idiomas com a fonte. Envie a prévia como proposta. Ronassic aprova o lote inteiro. O texto original e as traduções são preservados.
 
 ### Administração em produção
 

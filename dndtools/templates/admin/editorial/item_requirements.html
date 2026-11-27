@@ -1,0 +1,117 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n l10n versioned_static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% versioned_static 'css/editorial-requirements.css' %}">
+    {% if item %}<script defer src="{% versioned_static 'js/editorial-requirements.js' %}"></script>{% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'editorial_dashboard' %}">{% translate "Editorial workspace" %}</a> ›
+        <a href="{% url 'editorial_catalog' 'Item' %}">{% translate "Items" %}</a> › {{ title }}
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="editorial-workspace">
+    {% if item %}<p>{{ item.name }} · {{ item.rulebook }}{% if item.page %}, {% translate "Page" %} {{ item.page }}{% endif %}</p>{% endif %}
+    {% if stale %}<p class="warning">{% translate "The published groups need a new source check. The public page shows the original prerequisites in the meantime." %}</p>{% endif %}
+    {% if errors %}<ul class="errorlist" role="alert">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+
+    {% if preview %}
+        <section class="editorial-section" aria-labelledby="requirements-preview-title">
+            <h2 id="requirements-preview-title">{% translate "Preview creation prerequisites" %}</h2>
+            <p>{% translate "Changes will appear in the public catalog only after Ronassic approves them." %}</p>
+            {% include 'admin/editorial/item_requirements_preview.html' with entries=preview %}
+            <form class="editorial-actions" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="token" value="{{ token }}">
+                <button class="button default" type="submit" name="action" value="submit">{% translate "Submit for review" %}</button>
+            </form>
+        </section>
+    {% endif %}
+
+    {% if item %}
+        <noscript><p>{% translate "The group editor needs JavaScript. You can still propose a JSON file." %} <a href="{% url 'editorial_item_requirements_import' %}">{% translate "Upload prerequisite groups" %}</a></p></noscript>
+        <form method="post" id="requirement-builder" class="editorial-section requirement-builder" hidden>
+            {% csrf_token %}
+            <div class="requirement-fields">
+                <label>{% translate "Source rulebook" %}
+                    <select name="source_book_id" required>
+                        <option value="">{% translate "Choose a rulebook" %}</option>
+                        {% for book in rulebooks %}<option value="{{ book.pk|unlocalize }}"{% if book.pk == source_book_id %} selected{% endif %}>{{ book.name }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label>{% translate "Printed pages, separated by commas" %}
+                    <input type="text" name="source_pages" value="{{ source_pages }}" placeholder="13, 14" required>
+                </label>
+            </div>
+            <p>{% translate "Use groups to show which conditions are required together and which may be alternatives. Check the printed source before submitting." %}</p>
+            <div id="requirement-root"></div>
+            <input type="hidden" name="requirements">
+            <p class="visually-hidden" id="requirement-status" role="status"
+               data-added="{% translate 'Requirement added.' %}"
+               data-removed="{% translate 'Requirement removed.' %}"
+               data-reordered="{% translate 'Requirement moved.' %}"></p>
+            <button class="button" type="submit" name="action" value="preview">{% translate "Preview creation prerequisites" %}</button>
+        </form>
+        {{ initial|json_script:'requirement-initial' }}
+        <template id="requirement-node">
+            <fieldset class="requirement-node">
+                <legend>{% translate "Requirement" %}</legend>
+                <div class="requirement-fields">
+                    <label>{% translate "Requirement type" %}
+                        <select data-role="type">
+                            <option value="all">{% translate "All of these requirements" %}</option>
+                            <option value="any">{% translate "At least one of these options" %}</option>
+                            <option value="feat">{% translate "Feat" %}</option>
+                            <option value="spell">{% translate "Spell" %}</option>
+                            <option value="psionic_power">{% translate "Psionic power" %}</option>
+                            <option value="condition">{% translate "Other condition" %}</option>
+                            <option value="none" data-root-only>{% translate "No creation prerequisites (checked in source)" %}</option>
+                        </select>
+                    </label>
+                    <div class="editorial-actions requirement-node-actions">
+                        <button class="button" type="button" data-role="up">{% translate "Move up" %}</button>
+                        <button class="button" type="button" data-role="down">{% translate "Move down" %}</button>
+                        <button class="button" type="button" data-role="remove">{% translate "Remove" %}</button>
+                    </div>
+                </div>
+                <div data-role="group" hidden>
+                    <div class="requirement-children" data-role="children"></div>
+                    <button class="button" type="button" data-role="add">{% translate "Add requirement" %}</button>
+                </div>
+                <div class="requirement-fields" data-role="named" hidden>
+                    <label>{% translate "Original name" %}<input type="text" maxlength="128" data-role="original_name"></label>
+                    <label>{% translate "Reference book (optional)" %}
+                        <select data-role="reference_book">
+                            <option value="">{% translate "Choose a rulebook" %}</option>
+                            {% for book in rulebooks %}<option value="{{ book.pk|unlocalize }}">{{ book.name }}</option>{% endfor %}
+                        </select>
+                    </label>
+                    <label>{% translate "Printed page (optional)" %}<input type="number" min="1" step="1" data-role="reference_page"></label>
+                    <label>{% translate "Confirmed catalog ID (optional)" %}<input type="number" min="1" step="1" data-role="target_id"></label>
+                </div>
+                <div class="requirement-fields" data-role="condition" hidden>
+                    <label>{% translate "Condition in English" %}<textarea rows="2" maxlength="2000" data-role="en"></textarea></label>
+                    <label>{% translate "Condition in Brazilian Portuguese" %}<textarea rows="2" maxlength="2000" data-role="pt_br"></textarea></label>
+                </div>
+            </fieldset>
+        </template>
+    {% else %}
+        <section class="editorial-section" aria-labelledby="requirements-upload-title">
+            <h2 id="requirements-upload-title">{% translate "Upload prerequisite groups" %}</h2>
+            <p>{% translate "Use the example to prepare a UTF-8 JSON file for up to 250 existing items, with a maximum size of 1 MiB." %}</p>
+            <p><a href="?template=json">{% translate "Download JSON example" %}</a></p>
+            <form class="editorial-upload" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="requirements-file">{% translate "JSON file" %}</label>
+                <input id="requirements-file" type="file" name="file" accept=".json,application/json" required>
+                <button class="button" type="submit" name="action" value="preview">{% translate "Preview creation prerequisites" %}</button>
+            </form>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

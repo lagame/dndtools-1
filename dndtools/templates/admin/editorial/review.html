@@ -4,14 +4,18 @@
 <p><a href="{% url 'editorial_dashboard' %}">← {% translate "Editorial workspace" %}</a></p>
 <p>{% translate "Author" %}: {{ proposal.author.username }} ({{ proposal.author.email }}) · {% translate "Submitted" %}: {{ proposal.created_at }} · {% translate "Status" %}: {{ proposal.status_label }}</p>
 {% if original %}<p>{% translate "Original" %}: {{ original }} (ID {{ original.pk }})</p>{% endif %}
-<h2>{% translate "Source and editorial notes" %}</h2><pre class="editorial-source">{{ proposal.source_reference }}</pre>
-{% if proposal.action == 'delete' %}<p>{% translate "This approval removes the record from the public catalog. Dependent catalog links will block removal." %}</p>{% else %}<h2>{% translate "Proposed values" %}</h2><table><thead><tr><th>{% translate "Field" %}</th>{% if review_rows and original %}<th>{% translate "Current value" %}</th>{% endif %}<th>{% translate "Proposed value" %}</th></tr></thead><tbody>
+{% if not requirements_review %}<h2>{% translate "Source and editorial notes" %}</h2><pre class="editorial-source">{{ proposal.source_reference }}</pre>{% endif %}
+{% if requirements_review %}
+<h2>{% translate "Proposed values" %}</h2>
+{% if requirements_error %}<p class="errornote" role="alert">{{ requirements_error }}</p>{% endif %}
+{% if requirements_preview %}{% include 'admin/editorial/item_requirements_preview.html' with entries=requirements_preview %}{% endif %}
+{% elif proposal.action == 'delete' %}<p>{% translate "This approval removes the record from the public catalog. Dependent catalog links will block removal." %}</p>{% else %}<h2>{% translate "Proposed values" %}</h2><table><thead><tr><th>{% translate "Field" %}</th>{% if review_rows and original %}<th>{% translate "Current value" %}</th>{% endif %}<th>{% translate "Proposed value" %}</th></tr></thead><tbody>
 {% if review_rows %}{% for field, before, value in review_rows %}<tr><th>{{ field }}</th>{% if original %}<td>{{ before|linebreaksbr }}</td>{% endif %}<td>{{ value|linebreaksbr }}</td></tr>{% endfor %}
 {% else %}{% for field, value in proposal.payload.items %}<tr><th>{{ field }}</th><td>{{ value|linebreaksbr }}</td></tr>{% endfor %}{% endif %}
 </tbody></table>{% endif %}
 {% if proposal.status == 'pending' %}<form method="post" action="{% url 'editorial_decide' proposal.pk %}">{% csrf_token %}
 <p><label for="review-note">{% translate "Review note" %}</label><br><textarea id="review-note" name="review_note" rows="3" cols="70"></textarea></p>
-<button type="submit" name="decision" value="approve" class="button default">{% if proposal.action == 'delete' %}{% translate "Approve and remove" %}{% else %}{% translate "Approve and publish" %}{% endif %}</button>
+<button type="submit" name="decision" value="approve" class="button default"{% if requirements_error %} disabled{% endif %}>{% if proposal.action == 'delete' %}{% translate "Approve and remove" %}{% else %}{% translate "Approve and publish" %}{% endif %}</button>
 <button type="submit" name="decision" value="reject" class="button">{% translate "Reject" %}</button></form>
 {% elif proposal.status == 'approved' and proposal.review_note == 'Direct file import' %}
 <p>{% translate "Published by direct import:" %} {{ proposal.author.username }}</p>

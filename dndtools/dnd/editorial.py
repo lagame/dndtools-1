@@ -373,6 +373,9 @@ def delete_without_cascading_catalog(target):
     except (ProtectedError, RestrictedError) as error:
         raise forms.ValidationError('Remove dependent records or links before approving removal.') from error
     allowed = {type(target)}
+    from dnd.models import Item, ItemCreationRequirements
+    if isinstance(target, Item):
+        allowed.add(ItemCreationRequirements)
     if isinstance(target, SupplementalEntry):
         from dnd.supplemental.catalog import DETAILS
         from dnd.models import PsionicClassLevel
@@ -440,11 +443,14 @@ def approve(proposal, reviewer):
         raise forms.ValidationError('This proposal has already been reviewed.')
     model = model_for(proposal.resource)
     target = None
-    if proposal.action != 'create':
+    if proposal.action not in ('create', 'item_reqs'):
         target = model.objects.select_for_update().get(pk=proposal.target_pk)
         if source_digest(target, translation=proposal.action == 'translate') != proposal.source_digest:
             raise forms.ValidationError('The original changed after submission. Request a new proposal.')
-    if proposal.action == 'delete':
+    if proposal.action == 'item_reqs':
+        from dnd.item_requirement_editorial import approve_item_requirements
+        approve_item_requirements(proposal)
+    elif proposal.action == 'delete':
         target_pk = target.pk
         delete_without_cascading_catalog(target)
         PublishedTranslation.objects.filter(resource=proposal.resource, target_pk=target_pk).delete()

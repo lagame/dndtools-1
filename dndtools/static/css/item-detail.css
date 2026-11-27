@@ -36,6 +36,10 @@
 .item-appearance { color: var(--muted); }
 .item-rules { display: flow-root; }
 .item-prerequisite-original { color: var(--muted); font-size: .875em; }
+.item-requirement-group-label { margin: 0 0 .3rem; }
+.item-requirement-list { margin: .3rem 0 1rem; padding-inline-start: 1.35rem; }
+.item-requirement-list .item-requirement-list { margin-bottom: .35rem; }
+.item-requirement-source { color: var(--muted); font-size: .875em; }
 .item-detail-copy > :last-child { margin-bottom: 0; }
 
 @media (max-width: 600px) {
