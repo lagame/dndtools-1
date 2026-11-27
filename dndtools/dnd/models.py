@@ -2576,7 +2576,7 @@ class EditorialGrant(models.Model):
 
 class EditorialProposal(models.Model):
     ACTIONS = (('create', 'Create'), ('correct', 'Correct'), ('translate', 'Translate'),
-               ('delete', 'Remove'))
+               ('delete', 'Remove'), ('item_reqs', 'Structure prerequisites'))
     STATES = (('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'))
 
     resource = models.CharField(max_length=64)
@@ -2602,6 +2602,7 @@ class EditorialProposal(models.Model):
         return {
             'create': _('Create'), 'correct': _('Correct'),
             'translate': _('Translate'), 'delete': _('Remove'),
+            'item_reqs': _('Structure prerequisites'),
         }.get(self.action, self.action)
 
     @property
@@ -2613,6 +2614,16 @@ class EditorialProposal(models.Model):
 
     def __str__(self):
         return '%s %s #%s' % (self.get_action_display(), self.resource, self.pk)
+
+
+class ItemCreationRequirements(models.Model):
+    """The reviewed presentation, tied to the original item data it describes."""
+
+    item = models.OneToOneField(Item, on_delete=models.CASCADE, related_name='creation_requirements')
+    requirements = models.JSONField()
+    source = models.JSONField()
+    source_digest = models.CharField(max_length=64)
+    proposal = models.ForeignKey(EditorialProposal, on_delete=models.PROTECT)
 
 
 class PublishedTranslation(models.Model):

@@ -3949,3 +3949,189 @@ msgid "pound"
 msgid_plural "pounds"
 msgstr[0] "libra"
 msgstr[1] "libras"
+
+msgid "All of these are required"
+msgstr "Cumpra todos os requisitos abaixo"
+
+msgid "At least one of these options is enough"
+msgstr "Uma destas opções já basta"
+
+msgid "The reviewed source specifies no creation prerequisites."
+msgstr "A fonte conferida indica que não há pré-requisitos de criação."
+
+msgid "Reviewed source:"
+msgstr "Fonte conferida:"
+
+msgid "Structure prerequisites"
+msgstr "Estruturar pré-requisitos"
+
+msgid "Import creation prerequisites"
+msgstr "Importar pré-requisitos de criação"
+
+msgid "Psionic power"
+msgstr "Poder psiônico"
+
+msgid "JSON objects must not contain duplicate keys."
+msgstr "O JSON não pode conter chaves duplicadas."
+
+msgid "Use a JSON file of at most 1 MiB."
+msgstr "Use um arquivo JSON de até 1 MiB."
+
+msgid "Use a valid UTF-8 JSON file."
+msgstr "Use um arquivo JSON válido em UTF-8."
+
+msgid "Invalid fields in the prerequisite data."
+msgstr "Há campos inválidos nos pré-requisitos."
+
+msgid "IDs and printed pages must be positive integers."
+msgstr "IDs e páginas impressas devem ser números inteiros positivos."
+
+msgid "A required text field is empty or invalid."
+msgstr "Um campo de texto obrigatório está vazio ou inválido."
+
+msgid "Invalid or excessively nested prerequisite expression."
+msgstr "A estrutura de pré-requisitos é inválida ou tem níveis demais."
+
+msgid "Each group must contain at least two requirements."
+msgstr "Cada grupo deve conter pelo menos dois requisitos."
+
+msgid "Unknown prerequisite type or group."
+msgstr "Tipo de pré-requisito ou grupo desconhecido."
+
+msgid "A catalog link requires a confirmed book and page."
+msgstr "Um vínculo com o catálogo exige livro e página conferidos."
+
+msgid "List the printed pages that were reviewed."
+msgstr "Informe as páginas impressas que foram conferidas."
+
+msgid "This file is not a supported item creation prerequisites file."
+msgstr "Este arquivo não está no formato aceito para pré-requisitos de criação de itens."
+
+msgid "Include between 1 and 250 items in the file."
+msgstr "Inclua de 1 a 250 itens no arquivo."
+
+msgid "Each item may only appear once in the file."
+msgstr "Cada item só pode aparecer uma vez no arquivo."
+
+msgid "Row %(row)s · %(error)s"
+msgstr "Linha %(row)s · %(error)s"
+
+msgid "Row %(row)s · Item name, book or page does not match item #%(item)s."
+msgstr "Linha %(row)s · Nome, livro ou página não corresponde ao item #%(item)s."
+
+msgid "Row %(row)s · The reviewed source book does not exist."
+msgstr "Linha %(row)s · O livro conferido não existe no catálogo."
+
+msgid "Row %(row)s · Check the confirmed reference for %(name)s."
+msgstr "Linha %(row)s · Confira a referência de %(name)s."
+
+msgid "Choose a UTF-8 .json file up to 1 MiB."
+msgstr "Escolha um arquivo .json em UTF-8 de até 1 MiB."
+
+msgid "Choose a source rulebook and enter the printed pages separated by commas."
+msgstr "Escolha o livro usado como fonte e informe as páginas impressas separadas por vírgulas."
+
+msgid "This proposal must target an item."
+msgstr "Esta proposta deve se referir a um item."
+
+msgid "The preview expired. Preview the prerequisites again."
+msgstr "A prévia expirou. Gere uma nova prévia dos pré-requisitos."
+
+msgid "The original changed after preview. Preview the prerequisites again."
+msgstr "O registro mudou depois da prévia. Gere uma nova prévia dos pré-requisitos."
+
+msgid "Add requirement"
+msgstr "Adicionar requisito"
+
+msgid "All of these requirements"
+msgstr "Todos estes requisitos"
+
+msgid "At least one of these options"
+msgstr "Pelo menos uma destas opções"
+
+msgid "Choose a rulebook"
+msgstr "Escolha um livro"
+
+msgid "Condition in Brazilian Portuguese"
+msgstr "Condição em português do Brasil"
+
+msgid "Condition in English"
+msgstr "Condição em inglês"
+
+msgid "Confirmed catalog ID (optional)"
+msgstr "ID confirmado no catálogo (opcional)"
+
+msgid "Current creation prerequisites"
+msgstr "Pré-requisitos de criação atuais"
+
+msgid "JSON file"
+msgstr "Arquivo JSON"
+
+msgid "Move down"
+msgstr "Mover para baixo"
+
+msgid "Move up"
+msgstr "Mover para cima"
+
+msgid "No creation prerequisites (checked in source)"
+msgstr "Sem pré-requisitos de criação (confirmado na fonte)"
+
+msgid "Original name"
+msgstr "Nome original"
+
+msgid "Other condition"
+msgstr "Outra condição"
+
+msgid "Preview creation prerequisites"
+msgstr "Prévia dos pré-requisitos de criação"
+
+msgid "Printed page (optional)"
+msgstr "Página impressa (opcional)"
+
+msgid "Printed pages, separated by commas"
+msgstr "Páginas impressas, separadas por vírgulas"
+
+msgid "Reference book (optional)"
+msgstr "Livro de referência (opcional)"
+
+msgid "Requirement added."
+msgstr "Requisito adicionado."
+
+msgid "Requirement moved."
+msgstr "Requisito movido."
+
+msgid "Requirement removed."
+msgstr "Requisito removido."
+
+msgid "Requirement type"
+msgstr "Tipo de requisito"
+
+msgid "Source rulebook"
+msgstr "Livro usado como fonte"
+
+msgid "Structure creation prerequisites"
+msgstr "Estruturar pré-requisitos de criação"
+
+msgid "The group editor needs JavaScript. You can still propose a JSON file."
+msgstr "O editor de grupos requer JavaScript. Você também pode enviar uma proposta por arquivo JSON."
+
+msgid "The published groups need a new source check. The public page shows the original prerequisites in the meantime."
+msgstr "Os grupos publicados precisam de nova conferência na fonte. Enquanto isso, a ficha pública mostra os pré-requisitos originais."
+
+msgid "Upload prerequisite groups"
+msgstr "Enviar grupos de pré-requisitos"
+
+msgid "Use groups to show which conditions are required together and which may be alternatives. Check the printed source before submitting."
+msgstr "Use grupos para indicar quais condições precisam ser cumpridas juntas e quais são alternativas. Confira a fonte impressa antes de enviar."
+
+msgid "Use the example to prepare a UTF-8 JSON file for up to 250 existing items, with a maximum size of 1 MiB."
+msgstr "Use o exemplo para preparar um arquivo JSON em UTF-8 com até 250 itens já cadastrados e no máximo 1 MiB."
+
+msgid "Row %(row)s · The reviewed source is from a different rules edition."
+msgstr "Linha %(row)s · A fonte conferida é de outra edição das regras."
+
+msgid "Row %(row)s · Include the item’s printed page in the reviewed source."
+msgstr "Linha %(row)s · Inclua a página impressa do item na fonte conferida."
+
+msgid "These requirements apply to creation. See the rules for using the item."
+msgstr "Estes requisitos são para criar. Para saber como usar o item, consulte as regras."

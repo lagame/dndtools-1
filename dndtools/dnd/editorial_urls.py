@@ -1,5 +1,6 @@
 from django.urls import path
 from dnd import editorial_views as views
+from dnd.item_requirement_editorial import item_requirements_editor
 
 urlpatterns = [
     path('', views.dashboard, name='editorial_dashboard'),
@@ -9,6 +10,10 @@ urlpatterns = [
     path('invite/<int:invite_id>/revoke/', views.revoke, name='editorial_revoke'),
     path('catalog/<str:resource>/', views.catalog, name='editorial_catalog'),
     path('catalog/<str:resource>/import/', views.import_catalog, name='editorial_import'),
+    path('catalog/Item/creation-requirements/import/', item_requirements_editor,
+         name='editorial_item_requirements_import'),
+    path('catalog/Item/<int:target_pk>/creation-requirements/', item_requirements_editor,
+         name='editorial_item_requirements'),
     path('imports/<int:batch_id>/', views.import_batch, name='editorial_import_batch'),
     path('catalog/<str:resource>/create/', views.propose, {'action': 'create'}, name='editorial_create'),
     path('catalog/<str:resource>/<int:target_pk>/correct/', views.propose,

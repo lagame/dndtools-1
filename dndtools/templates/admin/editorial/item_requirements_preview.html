@@ -1,0 +1,31 @@
+{% load i18n %}
+<ol class="editorial-import-preview">
+    {% for entry in entries %}
+        <li class="editorial-import-record">
+            <details{% if forloop.first %} open{% endif %}>
+                <summary>{{ entry.row.original_name }}</summary>
+                {% if entry.current_links or entry.current_text or entry.current_structure %}
+                    <details>
+                        <summary>{% translate "Current creation prerequisites" %}</summary>
+                        {% if entry.current_structure %}
+                            {% include 'dnd/items/item_requirement_groups.html' with structured_requirements=entry.current_structure %}
+                        {% else %}
+                            {% if entry.current_links %}<ul>{% for related in entry.current_links %}<li>{{ related.name }}</li>{% endfor %}</ul>{% endif %}
+                            {% if entry.current_text %}<p lang="en">{{ entry.current_text }}</p>{% endif %}
+                        {% endif %}
+                    </details>
+                {% endif %}
+                <div class="editorial-groups">
+                    <section lang="en" aria-label="English">
+                        <h4>EN</h4>
+                        {% language 'en-us' %}{% include 'dnd/items/item_requirement_groups.html' with structured_requirements=entry.structured_requirements %}{% endlanguage %}
+                    </section>
+                    <section lang="pt-BR" aria-label="Português do Brasil">
+                        <h4>PT-BR</h4>
+                        {% language 'pt-br' %}{% include 'dnd/items/item_requirement_groups.html' with structured_requirements=entry.structured_requirements %}{% endlanguage %}
+                    </section>
+                </div>
+            </details>
+        </li>
+    {% endfor %}
+</ol>

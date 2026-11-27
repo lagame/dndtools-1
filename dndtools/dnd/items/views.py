@@ -1,5 +1,6 @@
 # Create your views here.
 from math import ceil
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from dnd.menu import menu_item, submenu_item, MenuItem
@@ -7,8 +8,9 @@ from dnd.dnd_paginator import DndPaginator
 from dnd.catalog_ordering import search_book_names
 from dnd.editorial import owner
 from dnd.filters import ItemFilter
+from dnd.item_requirements import active_row, presentation
 from dnd.localization import localize_record
-from dnd.models import Rulebook, Item
+from dnd.models import Feat, Rulebook, Item, Spell
 from dnd.utilities import int_with_commas
 from dnd.views import is_3e_edition, permanent_redirect_view, permanent_redirect_object
 
@@ -78,7 +80,10 @@ def items_in_rulebook(request, rulebook_slug, rulebook_id):
 def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
     item = get_object_or_404(Item.objects.select_related(
         'rulebook', 'rulebook__dnd_edition', 'body_slot', 'aura',
-        'activation', 'property', 'synergy_prerequisite',
+        'activation', 'property', 'synergy_prerequisite', 'creation_requirements',
+    ).prefetch_related(
+        Prefetch('required_feats', queryset=Feat.objects.select_related('rulebook')),
+        Prefetch('required_spells', queryset=Spell.objects.select_related('rulebook')),
     ), pk=item_id)
     assert isinstance(item, Item)
 
@@ -87,9 +92,10 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
                 item.rulebook.slug != rulebook_slug):
         return permanent_redirect_object(request, item)
 
+    structured = active_row(item)
     localize_record(request, item)
-    required_feats = item.required_feats.select_related('rulebook').all()
-    required_spells = item.required_spells.select_related('rulebook').all()
+    required_feats = item.required_feats.all()
+    required_spells = item.required_spells.all()
     prerequisites = [(feat, False) for feat in required_feats]
     prerequisites.extend((spell, True) for spell in required_spells)
     # Free text can encode alternatives and citations. Only explicit relations become links.
@@ -112,6 +118,9 @@ def item_detail(request, rulebook_slug, rulebook_id, item_slug, item_id):
                               {
                                   'item': item,
                                   'aura_schools': item.aura_schools.all(),
+                                  'structured_requirements': presentation(
+                                      structured, include_portuguese=request.LANGUAGE_CODE == 'pt-br',
+                                  ) if structured else None,
                                   'prerequisites': prerequisites,
                                   'required_extra': required_extra,
                                   'prerequisites_end': prerequisites_end,

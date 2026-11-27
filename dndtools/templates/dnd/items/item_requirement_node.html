@@ -1,0 +1,21 @@
+{% load i18n %}
+{% get_current_language as language %}
+{% if node.children %}
+    <p class="item-requirement-group-label"><strong>{% if node.op == 'all' %}{% translate 'All of these are required' %}{% else %}{% translate 'At least one of these options is enough' %}{% endif %}</strong></p>
+    <ul class="item-requirement-list">
+        {% for child in node.children %}
+            <li>{% include 'dnd/items/item_requirement_node.html' with node=child only %}</li>
+        {% endfor %}
+    </ul>
+{% elif node.kind == 'condition' %}
+    <span>{% if language == 'pt-br' %}{{ node.pt_br }}{% else %}{{ node.en }}{% endif %}</span>
+{% else %}
+    <strong>{% if node.kind == 'feat' %}{% translate 'Feat' %}{% elif node.kind == 'spell' %}{% translate 'Spell' %}{% else %}{% translate 'Psionic power' %}{% endif %}</strong> ·
+    {% if node.target %}<a href="{{ node.target.get_absolute_url }}">{% endif %}
+    {% if language == 'pt-br' and node.pt_br_name %}{{ node.pt_br_name }}{% else %}<span lang="en">{{ node.original_name }}</span>{% endif %}
+    {% if node.target %}</a>{% endif %}
+    {% if language == 'pt-br' and node.pt_br_name and node.pt_br_name != node.original_name %}
+        <span class="item-prerequisite-original" lang="en">({{ node.original_name }})</span>
+    {% endif %}
+    {% if node.book %} · <a href="{{ node.book.get_absolute_url }}">{{ node.book.name }}</a>, p. {{ node.reference.page }}{% endif %}
+{% endif %}

@@ -429,6 +429,22 @@ def import_batch(request, batch_id):
     })
 
 
+def notify_proposal(request, proposal):
+    if settings.EDITORIAL_NOTIFY_EMAIL:
+        try:
+            send_mail(
+                'D&D Tools: new collaboration #%s' % proposal.pk,
+                'A %s proposal for %s is pending review. Open the private editorial queue.'
+                % (proposal.action, proposal.resource),
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EDITORIAL_NOTIFY_EMAIL], fail_silently=False,
+            )
+        except (OSError, smtplib.SMTPException):
+            logger.exception('Editorial email notification failed for proposal %s', proposal.pk)
+            messages.warning(request, _('Proposal saved, but the email alert could not be sent. '
+                                          'The pending queue still shows it.'))
+
+
 @staff_member_required
 def propose(request, resource, action, target_pk=None):
     if action not in ('create', 'correct', 'translate', 'delete'):
@@ -482,19 +498,7 @@ def propose(request, resource, action, target_pk=None):
                 source_digest=original_digest,
                 author=request.user,
             )
-            if settings.EDITORIAL_NOTIFY_EMAIL:
-                try:
-                    send_mail(
-                        'D&D Tools: new collaboration #%s' % proposal.pk,
-                        'A %s proposal for %s is pending review. Open the private editorial queue.'
-                        % (action, resource),
-                        settings.DEFAULT_FROM_EMAIL,
-                        [settings.EDITORIAL_NOTIFY_EMAIL], fail_silently=False,
-                    )
-                except (OSError, smtplib.SMTPException):
-                    logger.exception('Editorial email notification failed for proposal %s', proposal.pk)
-                    messages.warning(request, _('Proposal saved, but the email alert could not be sent. '
-                                                  'The pending queue still shows it.'))
+            notify_proposal(request, proposal)
             messages.success(request, _('Proposal submitted for Ronassic’s review.'))
             return redirect('editorial_dashboard')
     return render(request, 'admin/editorial/propose.html', {
@@ -541,11 +545,15 @@ def review(request, proposal_id):
             elif isinstance(field, forms.ModelChoiceField):
                 value = (field.queryset.filter(pk=value).first() or value) if value else ''
             review_rows.append((field.label if field else name, before, value))
-    return render(request, 'admin/editorial/review.html', {
+    context = {
         'title': _('Review proposal'), 'proposal': proposal,
         'resource_label': RESOURCE_LABELS[proposal.resource],
         'original': original, 'review_rows': review_rows,
-    })
+    }
+    if proposal.action == 'item_reqs':
+        from dnd.item_requirement_editorial import requirements_review_context
+        context.update(requirements_review_context(proposal))
+    return render(request, 'admin/editorial/review.html', context)
 
 
 @staff_member_required
